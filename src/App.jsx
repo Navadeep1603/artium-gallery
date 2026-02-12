@@ -1,0 +1,65 @@
+import { Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
+
+// Layout
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+
+// Pages
+import Home from './pages/Home';
+import Gallery from './pages/Gallery';
+import ArtworkDetail from './pages/ArtworkDetail';
+import VirtualTour from './pages/VirtualTour';
+import ExhibitionsDashboard from './pages/ExhibitionsDashboard';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+
+// Dashboards
+import AdminDashboard from './pages/dashboards/AdminDashboard';
+import ArtistDashboard from './pages/dashboards/ArtistDashboard';
+import VisitorDashboard from './pages/dashboards/VisitorDashboard';
+import CuratorDashboard from './pages/dashboards/CuratorDashboard';
+import ShopDashboard from './pages/dashboards/ShopDashboard';
+
+// Styles
+import './index.css';
+import './styles/animations.css';
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <div className="app">
+            <Header />
+            <main className="main-content">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/artwork/:id" element={<ArtworkDetail />} />
+                <Route path="/virtual-tour" element={<VirtualTour />} />
+                <Route path="/exhibitions" element={<ExhibitionsDashboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+
+                {/* Dashboard Routes */}
+                <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard/artist" element={<ArtistDashboard />} />
+                <Route path="/dashboard/visitor" element={<VisitorDashboard />} />
+                <Route path="/dashboard/curator" element={<CuratorDashboard />} />
+                <Route path="/dashboard/shop" element={<ShopDashboard />} />
+                <Route path="/shop" element={<ShopDashboard />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;

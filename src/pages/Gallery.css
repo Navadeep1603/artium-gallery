@@ -1,0 +1,275 @@
+/* ============================================
+   GALLERY PAGE STYLES
+   ============================================ */
+
+.gallery-page {
+    padding-top: 80px;
+}
+
+/* Hero */
+.gallery-hero {
+    position: relative;
+    padding: var(--space-20) 0;
+    overflow: hidden;
+}
+
+.gallery-hero__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--deep-blue) 0%, var(--deep-blue-dark) 100%);
+    z-index: -1;
+}
+
+.gallery-hero__bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1594741158704-5a784b8e59fb?w=1920');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+}
+
+.gallery-hero__content {
+    text-align: center;
+}
+
+.gallery-hero__title {
+    font-size: var(--text-5xl);
+    color: white;
+    margin-bottom: var(--space-4);
+}
+
+.gallery-hero__subtitle {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Controls */
+.gallery-controls {
+    position: sticky;
+    top: 70px;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--glass-border);
+    padding: var(--space-4) 0;
+    z-index: var(--z-sticky);
+}
+
+.gallery-controls__wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+/* Categories */
+.gallery-categories {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+}
+
+.gallery-category {
+    padding: var(--space-2) var(--space-4);
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--transition-fast);
+}
+
+.gallery-category:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.gallery-category.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--bg-primary);
+}
+
+/* Actions */
+.gallery-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.gallery-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.gallery-filter-btn:hover {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+}
+
+.gallery-sort {
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.gallery-view-toggle {
+    display: flex;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.gallery-view-toggle button {
+    padding: var(--space-2) var(--space-3);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.gallery-view-toggle button:hover {
+    color: var(--text-primary);
+}
+
+.gallery-view-toggle button.active {
+    background: var(--gold);
+    color: var(--bg-primary);
+}
+
+/* Filter Panel */
+.filter-panel {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--glass-border);
+    overflow: hidden;
+}
+
+.filter-panel__content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    gap: var(--space-8);
+    padding: var(--space-6) 0;
+}
+
+.filter-group h4 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-3);
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.filter-options label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.filter-options input[type="checkbox"] {
+    accent-color: var(--gold);
+}
+
+.filter-close {
+    align-self: start;
+    padding: var(--space-2);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+/* Grid Section */
+.gallery-grid-section {
+    padding: var(--space-8) 0 var(--space-20);
+}
+
+.gallery-results {
+    margin-bottom: var(--space-6);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
+}
+
+.gallery-grid--list {
+    grid-template-columns: 1fr;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-hero {
+        padding: var(--space-12) 0;
+    }
+
+    .gallery-hero__title {
+        font-size: var(--text-3xl);
+    }
+
+    .gallery-controls__wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gallery-categories {
+        justify-content: flex-start;
+    }
+
+    .gallery-actions {
+        justify-content: space-between;
+    }
+
+    .filter-panel__content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+}

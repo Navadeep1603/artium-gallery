@@ -1,0 +1,186 @@
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Grid, List, Filter, X } from 'lucide-react';
+import { artworks, categories } from '../data/mockData';
+import ArtworkCard from '../components/gallery/ArtworkCard';
+import './Gallery.css';
+
+export default function Gallery() {
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [viewMode, setViewMode] = useState('grid');
+    const [sortBy, setSortBy] = useState('featured');
+    const [showFilters, setShowFilters] = useState(false);
+
+    const filteredArtworks = artworks.filter(artwork => {
+        if (selectedCategory === 'all') return true;
+        return artwork.category === selectedCategory;
+    });
+
+    const sortedArtworks = [...filteredArtworks].sort((a, b) => {
+        switch (sortBy) {
+            case 'price-low': return a.price - b.price;
+            case 'price-high': return b.price - a.price;
+            case 'newest': return b.year - a.year;
+            case 'popular': return b.views - a.views;
+            default: return b.featured - a.featured;
+        }
+    });
+
+    return (
+        <div className="gallery-page">
+            {/* Hero */}
+            <section className="gallery-hero">
+                <div className="gallery-hero__bg" />
+                <div className="container">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="gallery-hero__content"
+                    >
+                        <h1 className="gallery-hero__title">Explore Our Collection</h1>
+                        <p className="gallery-hero__subtitle">
+                            Discover extraordinary artworks from talented artists around the world
+                        </p>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* Controls */}
+            <section className="gallery-controls">
+                <div className="container">
+                    <div className="gallery-controls__wrapper">
+                        {/* Categories */}
+                        <div className="gallery-categories">
+                            {categories.map(category => (
+                                <button
+                                    key={category.id}
+                                    className={`gallery-category ${selectedCategory === category.id ? 'active' : ''}`}
+                                    onClick={() => setSelectedCategory(category.id)}
+                                >
+                                    {category.name}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="gallery-actions">
+                            <button
+                                className="gallery-filter-btn"
+                                onClick={() => setShowFilters(!showFilters)}
+                            >
+                                <Filter size={18} />
+                                Filters
+                            </button>
+
+                            <select
+                                className="gallery-sort"
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                            >
+                                <option value="featured">Featured</option>
+                                <option value="newest">Newest</option>
+                                <option value="popular">Most Popular</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                            </select>
+
+                            <div className="gallery-view-toggle">
+                                <button
+                                    className={viewMode === 'grid' ? 'active' : ''}
+                                    onClick={() => setViewMode('grid')}
+                                >
+                                    <Grid size={18} />
+                                </button>
+                                <button
+                                    className={viewMode === 'list' ? 'active' : ''}
+                                    onClick={() => setViewMode('list')}
+                                >
+                                    <List size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Filter Panel */}
+            <AnimatePresence>
+                {showFilters && (
+                    <motion.div
+                        className="filter-panel"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                    >
+                        <div className="container">
+                            <div className="filter-panel__content">
+                                <div className="filter-group">
+                                    <h4>Price Range</h4>
+                                    <div className="filter-options">
+                                        <label><input type="checkbox" /> Under $1,000</label>
+                                        <label><input type="checkbox" /> $1,000 - $5,000</label>
+                                        <label><input type="checkbox" /> $5,000 - $10,000</label>
+                                        <label><input type="checkbox" /> Over $10,000</label>
+                                    </div>
+                                </div>
+                                <div className="filter-group">
+                                    <h4>Medium</h4>
+                                    <div className="filter-options">
+                                        <label><input type="checkbox" /> Oil on Canvas</label>
+                                        <label><input type="checkbox" /> Digital Art</label>
+                                        <label><input type="checkbox" /> Photography</label>
+                                        <label><input type="checkbox" /> Sculpture</label>
+                                    </div>
+                                </div>
+                                <div className="filter-group">
+                                    <h4>Style</h4>
+                                    <div className="filter-options">
+                                        <label><input type="checkbox" /> Contemporary</label>
+                                        <label><input type="checkbox" /> Abstract</label>
+                                        <label><input type="checkbox" /> Impressionism</label>
+                                        <label><input type="checkbox" /> Minimalism</label>
+                                    </div>
+                                </div>
+                                <button
+                                    className="filter-close"
+                                    onClick={() => setShowFilters(false)}
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Artworks Grid */}
+            <section className="gallery-grid-section">
+                <div className="container">
+                    <div className="gallery-results">
+                        <span>{sortedArtworks.length} artworks found</span>
+                    </div>
+
+                    <motion.div
+                        className={`gallery-grid ${viewMode === 'list' ? 'gallery-grid--list' : ''}`}
+                        layout
+                    >
+                        <AnimatePresence mode="popLayout">
+                            {sortedArtworks.map((artwork, index) => (
+                                <motion.div
+                                    key={artwork.id}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    transition={{ delay: index * 0.05 }}
+                                >
+                                    <ArtworkCard artwork={artwork} viewMode={viewMode} />
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </motion.div>
+                </div>
+            </section>
+        </div>
+    );
+}

@@ -22,6 +22,8 @@ import ArtistDashboard from './pages/dashboards/ArtistDashboard';
 import VisitorDashboard from './pages/dashboards/VisitorDashboard';
 import CuratorDashboard from './pages/dashboards/CuratorDashboard';
 import ShopDashboard from './pages/dashboards/ShopDashboard';
+import CartDashboard from './pages/dashboards/CartDashboard';
+import PaymentDashboard from './pages/dashboards/PaymentDashboard';
 
 // Styles
 import './index.css';
@@ -52,6 +54,8 @@ function App() {
                 <Route path="/dashboard/curator" element={<CuratorDashboard />} />
                 <Route path="/dashboard/shop" element={<ShopDashboard />} />
                 <Route path="/shop" element={<ShopDashboard />} />
+                <Route path="/cart" element={<CartDashboard />} />
+                <Route path="/checkout" element={<PaymentDashboard />} />
               </Routes>
             </main>
             <Footer />

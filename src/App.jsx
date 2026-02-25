@@ -50,6 +50,7 @@ function App() {
                 {/* Dashboard Routes */}
                 <Route path="/dashboard/admin" element={<AdminDashboard />} />
                 <Route path="/dashboard/artist" element={<ArtistDashboard />} />
+                <Route path="/artists" element={<ArtistDashboard />} />
                 <Route path="/dashboard/visitor" element={<VisitorDashboard />} />
                 <Route path="/dashboard/curator" element={<CuratorDashboard />} />
                 <Route path="/dashboard/shop" element={<ShopDashboard />} />

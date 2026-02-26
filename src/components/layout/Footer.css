@@ -306,3 +306,18 @@
         gap: var(--space-4);
     }
 }
+
+/* Dark Mode Footer Icon Fixes */
+[data-theme="dark"] .footer__social-link {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .footer__social-link:hover {
+    background: var(--gold);
+    color: #0D0D0D;
+}
+
+[data-theme="dark"] .footer__contact-item svg {
+    color: var(--gold-light);
+}

@@ -20,21 +20,196 @@ function matchesAny(input, keywords) {
 function generateResponse(input, { user, cartItems, navigate, addToCart }) {
     const q = normalize(input);
 
+    // ── Role-specific greeting helpers ──
+    const getRoleGreeting = (role, name) => {
+        switch (role) {
+            case 'artist':
+                return {
+                    text: `Hello **${name}**! 🎨 Welcome back, talented artist! I'm here to help you manage your artworks, track sales, and grow your gallery presence. What would you like to do?`,
+                    suggestions: ['Upload new artwork', 'My dashboard', 'View my artworks', 'Track my sales']
+                };
+            case 'visitor':
+                return {
+                    text: `Hello **${name}**! 👋 Welcome back to Artium! Ready to explore amazing art? I can help you browse artworks, manage your cart, or discover new exhibitions.`,
+                    suggestions: ['Browse artworks', 'My cart', 'Show featured art', 'Start virtual tour']
+                };
+            case 'curator':
+                return {
+                    text: `Hello **${name}**! 🏛️ Welcome back, Curator! I can help you manage exhibitions, review artworks, and curate collections.`,
+                    suggestions: ['My dashboard', 'View exhibitions', 'Browse artworks', 'Review submissions']
+                };
+            case 'admin':
+                return {
+                    text: `Hello **${name}**! ⚙️ Welcome back, Admin! I can help you manage the gallery, users, and platform settings.`,
+                    suggestions: ['Admin dashboard', 'View all artworks', 'Manage users', 'View exhibitions']
+                };
+            default:
+                return {
+                    text: `Hello ${name}! 👋 Welcome to Artium Virtual Gallery. I'm your art assistant. How can I help you today?`,
+                    suggestions: ['Browse artworks', 'Show featured art', 'Help me navigate', 'What can you do?']
+                };
+        }
+    };
+
     // ── Greetings ──
     if (matchesAny(q, ['hello', 'hi ', 'hey', 'hii', 'hiii', 'good morning', 'good evening', 'good afternoon', 'namaste'])) {
-        const name = user ? user.name || user.email.split('@')[0] : 'art lover';
+        if (user) {
+            const name = user.name || user.email.split('@')[0];
+            return getRoleGreeting(user.role, name);
+        }
         return {
-            text: `Hello ${name}! 👋 Welcome to Artium Virtual Gallery. I'm your art assistant. How can I help you today?`,
-            suggestions: ['Browse artworks', 'Show featured art', 'Help me navigate', 'What can you do?']
+            text: `Hello! 👋 Welcome to Artium Virtual Gallery. I'm your art assistant. Please **log in** to get personalized help, or feel free to explore!`,
+            suggestions: ['Browse artworks', 'Go to login', 'Show featured art', 'What can you do?']
         };
     }
 
-    // ── What can you do ──
+    // ── What can you do — role-specific ──
     if (matchesAny(q, ['what can you do', 'help', 'features', 'capabilities', 'what do you do'])) {
+        if (user?.role === 'artist') {
+            return {
+                text: `As your **Artist Assistant**, I can help you with:\n\n🎨 **Upload Artwork** — Add new paintings, digital art, sculptures\n📊 **Dashboard** — View your sales, stats, and earnings\n🖼️ **My Artworks** — Manage your uploaded pieces\n💰 **Track Sales** — Check revenue and buyer insights\n📈 **Analytics** — View performance of your artworks\n🏛️ **Exhibitions** — See current exhibitions\n🗺️ **Navigation** — Go to any page`,
+                suggestions: ['Upload new artwork', 'My dashboard', 'View my artworks', 'Track my sales']
+            };
+        }
+        if (user?.role === 'visitor') {
+            return {
+                text: `As your **Personal Art Guide**, I can help you with:\n\n🎨 **Browse & Search** — Find artworks by name, artist, style, or price\n🛒 **Cart & Shopping** — Add items, view cart, checkout\n❤️ **Wishlist** — Save your favorite artworks\n👤 **My Profile** — View and update your account\n🏛️ **Exhibitions** — Discover curated shows\n🗺️ **Virtual Tour** — Walk through immersive galleries\n💰 **Pricing** — Compare prices, find deals`,
+                suggestions: ['Browse artworks', 'My cart', 'My profile', 'Start virtual tour']
+            };
+        }
+        if (user?.role === 'curator') {
+            return {
+                text: `As your **Curator Assistant**, I can help you with:\n\n🏛️ **Manage Exhibitions** — Create and curate shows\n🎨 **Review Art** — Browse and evaluate submissions\n📊 **Dashboard** — View curation stats\n🗺️ **Virtual Tour** — Explore gallery tours\n👩‍🎨 **Artists** — Connect with artists`,
+                suggestions: ['My dashboard', 'View exhibitions', 'Browse artworks', 'Show artists']
+            };
+        }
+        if (user?.role === 'admin') {
+            return {
+                text: `As your **Admin Assistant**, I can help you with:\n\n⚙️ **Admin Panel** — Full platform management\n👥 **Users** — Manage artist, visitor, curator accounts\n🎨 **Artworks** — Review and manage all artworks\n🏛️ **Exhibitions** — Create and manage exhibitions\n📊 **Analytics** — Platform insights and metrics`,
+                suggestions: ['Admin dashboard', 'View all artworks', 'View exhibitions', 'Browse artworks']
+            };
+        }
         return {
             text: `I can help you with:\n\n🎨 **Browse & Search** — Find artworks by name, artist, style, or price\n🛒 **Shopping** — Add items to cart, check your cart\n🗺️ **Navigation** — Guide you to any page\n👩‍🎨 **Artist Info** — Learn about our talented artists\n🏛️ **Exhibitions** — Find current exhibitions\n💰 **Pricing** — Get artwork prices and deals\n🖼️ **Virtual Tour** — Start an immersive gallery tour`,
             suggestions: ['Search artworks', 'Show artists', 'View exhibitions', 'Start virtual tour']
         };
+    }
+
+    // ── Artist-specific intents ──
+    if (user?.role === 'artist') {
+        if (matchesAny(q, ['upload', 'add art', 'new artwork', 'submit', 'post art', 'create art'])) {
+            return {
+                text: `🎨 Let's upload your new artwork! I'll take you to the upload page where you can:\n\n• Add title, description, and pricing\n• Choose category and medium\n• Upload high-quality images\n• Set availability and pricing in ₹`,
+                suggestions: ['Go to upload page', 'My dashboard', 'View my artworks'],
+                action: { type: 'navigate', path: '/dashboard/artist/upload' }
+            };
+        }
+        if (matchesAny(q, ['my artwork', 'my art', 'my work', 'my piece', 'my upload', 'my collection'])) {
+            return {
+                text: `🖼️ You can view and manage all your uploaded artworks from your **Artist Dashboard**. There you can edit details, update pricing, and track views.`,
+                suggestions: ['My dashboard', 'Upload new artwork', 'Track my sales'],
+                action: { type: 'navigate', path: '/dashboard/artist' }
+            };
+        }
+        if (matchesAny(q, ['sales', 'revenue', 'earning', 'income', 'sold', 'how much i made', 'track'])) {
+            return {
+                text: `📊 Check your **Artist Dashboard** for detailed sales analytics:\n\n• 💰 Total revenue\n• 📈 Sales trends\n• 🛒 Recent orders\n• 👁️ Artwork views and engagement\n\nAll earnings are displayed in **₹ (INR)**.`,
+                suggestions: ['My dashboard', 'Upload new artwork', 'View my artworks'],
+                action: { type: 'navigate', path: '/dashboard/artist' }
+            };
+        }
+        if (matchesAny(q, ['pricing tip', 'how to price', 'set price', 'pricing advice'])) {
+            return {
+                text: `💡 **Pricing Tips for Artists:**\n\n• Research similar artworks on the platform\n• Consider your medium, size, and time invested\n• Digital art typically ranges ₹1,000 — ₹25,000\n• Physical paintings: ₹3,000 — ₹50,000+\n• Sculptures: ₹10,000 — ₹1,00,000+\n• Start competitive and adjust based on demand`,
+                suggestions: ['Upload new artwork', 'View gallery', 'My dashboard']
+            };
+        }
+    }
+
+    // ── Visitor-specific intents ──
+    if (user?.role === 'visitor') {
+        if (matchesAny(q, ['my profile', 'edit profile', 'update profile', 'my account setting'])) {
+            return {
+                text: `👤 Let me take you to your **profile page** where you can:\n\n• Update your name and avatar\n• View your order history\n• Manage your preferences\n• Update email and settings`,
+                suggestions: ['My cart', 'Browse artworks', 'My dashboard'],
+                action: { type: 'navigate', path: '/dashboard/visitor/profile' }
+            };
+        }
+        if (matchesAny(q, ['my order', 'order history', 'past purchase', 'what i bought', 'previous order'])) {
+            return {
+                text: `📦 You can view your complete **order history** from your dashboard, including:\n\n• Past purchases\n• Order status and tracking\n• Payment receipts\n• Download invoices`,
+                suggestions: ['My dashboard', 'My cart', 'Browse artworks'],
+                action: { type: 'navigate', path: '/dashboard/visitor' }
+            };
+        }
+        if (matchesAny(q, ['wishlist', 'saved', 'favorite', 'liked', 'save for later'])) {
+            return {
+                text: `❤️ Your saved/liked artworks can be found in your **Visitor Dashboard**! Keep discovering and saving artworks you love.`,
+                suggestions: ['My dashboard', 'Browse artworks', 'Show featured art'],
+                action: { type: 'navigate', path: '/dashboard/visitor' }
+            };
+        }
+        if (matchesAny(q, ['recommend', 'suggest me', 'what should i buy', 'pick for me'])) {
+            const recommended = artworks.filter(a => a.featured && a.available).slice(0, 4);
+            const list = recommended.map(a => `• **${a.title}** by ${a.artist} — ₹${a.price.toLocaleString('en-IN')}`).join('\n');
+            return {
+                text: `✨ Based on popular choices, I recommend:\n\n${list}\n\nWant me to show more options by category or budget?`,
+                suggestions: ['Show paintings', 'Cheapest artworks', 'Show digital art', 'View gallery']
+            };
+        }
+    }
+
+    // ── Curator-specific intents ──
+    if (user?.role === 'curator') {
+        if (matchesAny(q, ['curate', 'create exhibition', 'manage exhibition', 'new exhibition'])) {
+            return {
+                text: `🏛️ You can manage exhibitions from your **Curator Dashboard**! Create new shows, select artworks, and organize gallery themes.`,
+                suggestions: ['My dashboard', 'View exhibitions', 'Browse artworks'],
+                action: { type: 'navigate', path: '/dashboard/curator' }
+            };
+        }
+    }
+
+    // ── Admin-specific intents ──
+    if (user?.role === 'admin') {
+        if (matchesAny(q, ['admin dashboard', 'manage', 'admin panel', 'manage user', 'platform'])) {
+            return {
+                text: `⚙️ Taking you to the **Admin Dashboard** where you can manage users, artworks, exhibitions, and platform settings.`,
+                suggestions: ['View all artworks', 'View exhibitions', 'Browse artworks'],
+                action: { type: 'navigate', path: '/dashboard/admin' }
+            };
+        }
+    }
+
+    // ── Dashboard navigation (role-aware) ──
+    if (matchesAny(q, ['my dashboard', 'go to dashboard', 'dashboard', 'open dashboard'])) {
+        if (!user) {
+            return {
+                text: `Please **log in** first to access your dashboard!`,
+                suggestions: ['Go to login', 'Sign up', 'Browse artworks'],
+                action: { type: 'navigate', path: '/login' }
+            };
+        }
+        const dashPaths = {
+            artist: '/dashboard/artist',
+            visitor: '/dashboard/visitor',
+            curator: '/dashboard/curator',
+            admin: '/dashboard/admin'
+        };
+        const roleName = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+        return {
+            text: `📊 Opening your **${roleName} Dashboard**, ${user.name}!`,
+            suggestions: ['Browse artworks', 'View exhibitions'],
+            action: { type: 'navigate', path: dashPaths[user.role] || '/dashboard/visitor' }
+        };
+    }
+
+    // ── Upload page shortcut ──
+    if (matchesAny(q, ['go to upload', 'upload page', 'go to upload page'])) {
+        if (user?.role === 'artist') {
+            return { text: `Opening the upload page! 🎨`, suggestions: [], action: { type: 'navigate', path: '/dashboard/artist/upload' } };
+        }
+        return { text: `Only artists can upload artworks. Please switch to an artist account.`, suggestions: ['Go to login', 'Browse artworks'] };
     }
 
     // ── Search / browse artworks ──
@@ -392,22 +567,56 @@ function ChatMessage({ message }) {
 }
 
 // ─── Main Chatbot Component ───────────────────────────────
+// ─── Generate role-aware welcome message ──────────────────
+function getWelcomeMessage(user) {
+    if (!user) {
+        return "Welcome to **Artium Gallery**! 🎨 I'm your art assistant. Ask me about artworks, artists, exhibitions, or let me help you navigate!";
+    }
+    const name = user.name || user.email.split('@')[0];
+    switch (user.role) {
+        case 'artist':
+            return `Welcome back, **${name}**! 🎨 I'm your artist assistant. I can help you upload artworks, track sales, manage your portfolio, or answer any questions!`;
+        case 'visitor':
+            return `Welcome back, **${name}**! 👋 I'm your personal art guide. I can help you browse artworks, manage your cart, find deals, or explore exhibitions!`;
+        case 'curator':
+            return `Welcome back, **${name}**! 🏛️ I'm your curator assistant. I can help you manage exhibitions, review artworks, and explore the gallery!`;
+        case 'admin':
+            return `Welcome back, **${name}**! ⚙️ I'm your admin assistant. I can help you manage the platform, users, and operations.`;
+        default:
+            return `Welcome back, **${name}**! 🎨 I'm your art assistant. How can I help you today?`;
+    }
+}
+
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
+    const { user } = useAuth();
     const [messages, setMessages] = useState([
         {
             id: 1,
             sender: 'bot',
-            text: "Welcome to **Artium Gallery**! 🎨 I'm your art assistant. Ask me about artworks, artists, exhibitions, or let me help you navigate!",
+            text: getWelcomeMessage(user),
             timestamp: Date.now()
         }
     ]);
+
+    // Update welcome message when user logs in/out
+    const prevUserRef = useRef(user);
+    useEffect(() => {
+        if (prevUserRef.current !== user) {
+            prevUserRef.current = user;
+            setMessages([{
+                id: Date.now(),
+                sender: 'bot',
+                text: getWelcomeMessage(user),
+                timestamp: Date.now()
+            }]);
+        }
+    }, [user]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
     const navigate = useNavigate();
-    const { user } = useAuth();
     const { cartItems, addToCart } = useCart();
 
     const scrollToBottom = useCallback(() => {
@@ -468,12 +677,48 @@ export default function Chatbot() {
         handleSend(suggestion);
     };
 
-    const quickActions = [
-        { icon: Palette, label: 'Artworks', query: 'Browse artworks' },
-        { icon: Image, label: 'Featured', query: 'Show featured art' },
-        { icon: Map, label: 'Tour', query: 'Start virtual tour' },
-        { icon: ShoppingCart, label: 'Cart', query: 'My cart' },
-    ];
+    const getQuickActions = () => {
+        if (user?.role === 'artist') {
+            return [
+                { icon: Palette, label: 'Upload Art', query: 'Upload new artwork' },
+                { icon: Image, label: 'My Artworks', query: 'View my artworks' },
+                { icon: Map, label: 'Dashboard', query: 'My dashboard' },
+                { icon: ShoppingCart, label: 'Sales', query: 'Track my sales' },
+            ];
+        }
+        if (user?.role === 'visitor') {
+            return [
+                { icon: Palette, label: 'Artworks', query: 'Browse artworks' },
+                { icon: ShoppingCart, label: 'My Cart', query: 'My cart' },
+                { icon: Image, label: 'Featured', query: 'Show featured art' },
+                { icon: Map, label: 'Tour', query: 'Start virtual tour' },
+            ];
+        }
+        if (user?.role === 'curator') {
+            return [
+                { icon: Map, label: 'Dashboard', query: 'My dashboard' },
+                { icon: Image, label: 'Exhibitions', query: 'View exhibitions' },
+                { icon: Palette, label: 'Artworks', query: 'Browse artworks' },
+                { icon: ShoppingCart, label: 'Artists', query: 'Show artists' },
+            ];
+        }
+        if (user?.role === 'admin') {
+            return [
+                { icon: Map, label: 'Admin Panel', query: 'Admin dashboard' },
+                { icon: Palette, label: 'Artworks', query: 'Browse artworks' },
+                { icon: Image, label: 'Exhibitions', query: 'View exhibitions' },
+                { icon: ShoppingCart, label: 'Artists', query: 'Show artists' },
+            ];
+        }
+        return [
+            { icon: Palette, label: 'Artworks', query: 'Browse artworks' },
+            { icon: Image, label: 'Featured', query: 'Show featured art' },
+            { icon: Map, label: 'Tour', query: 'Start virtual tour' },
+            { icon: ShoppingCart, label: 'Cart', query: 'My cart' },
+        ];
+    };
+
+    const quickActions = getQuickActions();
 
     return (
         <>

@@ -32,6 +32,16 @@ export function ArtworkProvider({ children }) {
         ));
     };
 
+    const updateArtwork = (id, updatedFields) => {
+        setArtworks(prev => prev.map(a =>
+            a.id === id ? { ...a, ...updatedFields } : a
+        ));
+    };
+
+    const deleteArtwork = (id) => {
+        setArtworks(prev => prev.filter(a => a.id !== id));
+    };
+
     const getArtworksByArtist = (artistName) => {
         return artworks.filter(a => a.artist === artistName);
     };
@@ -40,6 +50,8 @@ export function ArtworkProvider({ children }) {
         <ArtworkContext.Provider value={{
             artworks,
             addArtwork,
+            updateArtwork,
+            deleteArtwork,
             toggleAvailability,
             getArtworksByArtist
         }}>

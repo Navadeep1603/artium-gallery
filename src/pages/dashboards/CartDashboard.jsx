@@ -36,10 +36,7 @@ export default function CartDashboard() {
     };
 
     const formatPrice = (item) => {
-        if (item.currency === 'ETH') {
-            return `${item.price} ETH`;
-        }
-        return `$${item.price.toLocaleString()}`;
+        return `₹${item.price.toLocaleString('en-IN')}`;
     };
 
     // Empty cart state
@@ -164,11 +161,6 @@ export default function CartDashboard() {
                                         </div>
                                         <div className="cart-item__price-section">
                                             <span className="cart-item__price">{formatPrice(item)}</span>
-                                            {item.currency === 'ETH' && (
-                                                <span className="cart-item__price-usd">
-                                                    ≈ ${(item.price * 2500).toLocaleString()}
-                                                </span>
-                                            )}
                                         </div>
                                         <button
                                             className="cart-item__remove"
@@ -199,22 +191,22 @@ export default function CartDashboard() {
                             <div className="cart-summary__rows">
                                 <div className="cart-summary__row">
                                     <span>Subtotal ({cartCount} items)</span>
-                                    <span>${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    <span>₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className="cart-summary__row">
                                     <span>Shipping</span>
                                     <span className={shipping === 0 ? 'cart-summary__free' : ''}>
-                                        {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+                                        {shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`}
                                     </span>
                                 </div>
                                 <div className="cart-summary__row">
                                     <span>Estimated Tax</span>
-                                    <span>${tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    <span>₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className="cart-summary__divider" />
                                 <div className="cart-summary__row cart-summary__row--total">
                                     <span>Total</span>
-                                    <span>${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    <span>₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                             </div>
 
@@ -255,7 +247,7 @@ export default function CartDashboard() {
                             <Truck size={20} />
                             <div>
                                 <h4>Insured Shipping</h4>
-                                <p>Free over $5,000</p>
+                                <p>Free over ₹5,000</p>
                             </div>
                         </div>
                         <div className="cart-trust-badge">

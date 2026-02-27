@@ -16,7 +16,7 @@ export default function ArtistUpload() {
         medium: '',
         style: '',
         price: '',
-        currency: 'USD',
+        currency: 'INR',
         description: '',
         culturalHistory: '',
         dimensions: '',
@@ -58,12 +58,10 @@ export default function ArtistUpload() {
                 culturalHistory: formData.culturalHistory,
                 origin: 'Artist Studio',
                 dimensions: formData.dimensions || 'Variable',
-                // Mock image or the provided URL from a real uploader
                 image: formData.image || '/src/assets/pic3.jpg',
                 thumbnail: formData.image || '/src/assets/pic3.jpg'
             };
 
-            // Add the new artwork to the global context
             addArtwork(newArtwork);
 
             setSuccess(true);
@@ -81,102 +79,97 @@ export default function ArtistUpload() {
         <div className="dashboard artist-dashboard">
             <div className="dashboard__header">
                 <div>
-                    <Link to="/dashboard/artist" className="btn btn-secondary inline-flex items-center gap-2 mb-4">
+                    <Link to="/dashboard/artist" className="upload-back-btn">
                         <ArrowLeft size={16} /> Back to Studio
                     </Link>
                     <motion.h1
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                     >
-                        <Upload size={28} className="mr-3 inline-block" />
+                        <Upload size={28} style={{ marginRight: '12px', display: 'inline-block', verticalAlign: 'middle' }} />
                         Upload New Artwork
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-secondary"
+                        style={{ color: 'var(--text-secondary)' }}
                     >
                         Publish your latest creation to the ArtWeb gallery.
                     </motion.p>
                 </div>
             </div>
 
-            <div className="dashboard__grid" style={{ gridTemplateColumns: '1fr', maxWidth: '800px' }}>
+            <div className="upload-form-container">
                 <motion.div
-                    className="dashboard__card dashboard__card--full"
+                    className="dashboard__card"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                 >
-                    <div className="dashboard__card-content p-6">
+                    <div className="dashboard__card-content" style={{ padding: 'var(--space-6)' }}>
                         {success ? (
-                            <div className="text-center py-12">
+                            <div className="upload-success">
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
-                                    className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-900/30 text-green-500 mb-6"
+                                    className="upload-success__icon"
                                 >
                                     <CheckCircle size={40} />
                                 </motion.div>
-                                <h2 className="text-2xl text-primary mb-2">Artwork Published!</h2>
-                                <p className="text-secondary mb-6">Your artwork is now live and available to collectors in the gallery.</p>
-                                <p className="text-sm text-muted">Redirecting to your studio...</p>
+                                <h2>Artwork Published!</h2>
+                                <p>Your artwork is now live and available to collectors in the gallery.</p>
+                                <span>Redirecting to your studio...</span>
                             </div>
                         ) : (
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            <form onSubmit={handleSubmit} className="upload-form">
                                 {error && (
-                                    <div className="bg-red-900/50 border border-red-500/50 text-white p-4 rounded-lg flex items-center gap-3">
+                                    <div className="upload-error">
                                         <AlertCircle size={20} />
                                         <p>{error}</p>
                                     </div>
                                 )}
 
-                                {/* Image Upload Placeholder */}
-                                <div className="border-2 border-dashed border-glass rounded-xl p-8 text-center hover:border-gold transition-colors cursor-pointer group">
-                                    <div className="w-16 h-16 rounded-full bg-secondary mx-auto flex items-center justify-center mb-4 group-hover:bg-gold/10 group-hover:text-gold transition-colors">
+                                {/* Image Upload Area */}
+                                <div className="upload-dropzone">
+                                    <div className="upload-dropzone__icon">
                                         <ImageIcon size={32} />
                                     </div>
-                                    <h3 className="text-lg text-primary mb-1">Click or drag image to upload</h3>
-                                    <p className="text-sm text-secondary">High-res JPG, PNG, or WebP. Max 20MB.</p>
-
+                                    <h3>Click or drag image to upload</h3>
+                                    <p>High-res JPG, PNG, or WebP. Max 20MB.</p>
                                     <input
                                         type="text"
                                         name="image"
                                         placeholder="Or paste an image URL..."
                                         value={formData.image}
                                         onChange={handleChange}
-                                        className="mt-6 w-full max-w-md mx-auto text-primary"
-                                        style={{ display: 'block' }}
+                                        className="upload-dropzone__url-input"
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="form-group col-span-2 md:col-span-1">
-                                        <label className="text-sm text-secondary mb-2 block">Artwork Title*</label>
+                                {/* Form Fields */}
+                                <div className="upload-form__grid">
+                                    <div className="upload-form__field">
+                                        <label>Artwork Title*</label>
                                         <input
                                             type="text"
                                             name="title"
                                             value={formData.title}
                                             onChange={handleChange}
                                             required
-                                            className="w-full text-primary"
                                             placeholder="e.g. Echoes of Silence"
                                         />
                                     </div>
 
-                                    <div className="form-group col-span-2 md:col-span-1">
-                                        <label className="text-sm text-secondary mb-2 block">Price*</label>
-                                        <div className="flex gap-2">
+                                    <div className="upload-form__field">
+                                        <label>Price*</label>
+                                        <div className="upload-form__price-row">
                                             <select
                                                 name="currency"
                                                 value={formData.currency}
                                                 onChange={handleChange}
-                                                className="w-1/3 text-primary bg-secondary"
                                             >
-                                                <option value="USD">USD ($)</option>
-                                                <option value="EUR">EUR (€)</option>
-                                                <option value="ETH">ETH (Ξ)</option>
+                                                <option value="INR">INR (₹)</option>
                                             </select>
                                             <input
                                                 type="number"
@@ -186,51 +179,69 @@ export default function ArtistUpload() {
                                                 required
                                                 min="0"
                                                 step="0.01"
-                                                className="w-2/3 text-primary"
                                                 placeholder="Amount"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="form-group col-span-2 md:col-span-1">
-                                        <label className="text-sm text-secondary mb-2 block">Medium*</label>
+                                    <div className="upload-form__field">
+                                        <label>Medium*</label>
                                         <input
                                             type="text"
                                             name="medium"
                                             value={formData.medium}
                                             onChange={handleChange}
                                             required
-                                            className="w-full text-primary"
                                             placeholder="e.g. Oil on Canvas, Digital"
                                         />
                                     </div>
 
-                                    <div className="form-group col-span-2 md:col-span-1">
-                                        <label className="text-sm text-secondary mb-2 block">Style</label>
+                                    <div className="upload-form__field">
+                                        <label>Style</label>
                                         <input
                                             type="text"
                                             name="style"
                                             value={formData.style}
                                             onChange={handleChange}
-                                            className="w-full text-primary"
                                             placeholder="e.g. Abstract, Realism"
                                         />
                                     </div>
 
-                                    <div className="form-group col-span-2">
-                                        <label className="text-sm text-secondary mb-2 block">Description</label>
+                                    <div className="upload-form__field upload-form__field--full">
+                                        <label>Dimensions</label>
+                                        <input
+                                            type="text"
+                                            name="dimensions"
+                                            value={formData.dimensions}
+                                            onChange={handleChange}
+                                            placeholder="e.g. 120 x 80 cm, 4000 x 3000 px"
+                                        />
+                                    </div>
+
+                                    <div className="upload-form__field upload-form__field--full">
+                                        <label>Description</label>
                                         <textarea
                                             name="description"
                                             value={formData.description}
                                             onChange={handleChange}
                                             rows="4"
-                                            className="w-full text-primary"
                                             placeholder="Tell the story behind your creation..."
+                                        ></textarea>
+                                    </div>
+
+                                    <div className="upload-form__field upload-form__field--full">
+                                        <label>Cultural History</label>
+                                        <textarea
+                                            name="culturalHistory"
+                                            value={formData.culturalHistory}
+                                            onChange={handleChange}
+                                            rows="3"
+                                            placeholder="Historical or cultural context behind your artwork..."
                                         ></textarea>
                                     </div>
                                 </div>
 
-                                <div className="pt-6 border-t border-glass flex justify-end gap-4">
+                                <div className="upload-form__actions">
                                     <Link to="/dashboard/artist" className="btn btn-secondary">
                                         Cancel
                                     </Link>

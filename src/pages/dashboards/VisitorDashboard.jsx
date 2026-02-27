@@ -272,7 +272,7 @@ export default function VisitorDashboard() {
                                         </Link>
                                         <p className="visitor-wishlist-card__artist">{artwork.artist}</p>
                                         <span className="visitor-wishlist-card__price">
-                                            {artwork.currency === 'ETH' ? `Ξ ${artwork.price} ` : `$${artwork.price.toLocaleString()} `}
+                                            {`₹${artwork.price.toLocaleString('en-IN')} `}
                                         </span>
                                     </div>
                                     <button

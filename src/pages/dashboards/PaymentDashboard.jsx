@@ -48,7 +48,7 @@ export default function PaymentDashboard() {
         city: '',
         state: '',
         zip: '',
-        country: 'United States',
+        country: 'India',
     });
 
     const [paymentInfo, setPaymentInfo] = useState({
@@ -109,8 +109,7 @@ export default function PaymentDashboard() {
     };
 
     const formatPrice = (item) => {
-        if (item.currency === 'ETH') return `${item.price} ETH`;
-        return `$${item.price.toLocaleString()}`;
+        return `₹${item.price.toLocaleString('en-IN')}`;
     };
 
     // Order confirmation screen
@@ -353,7 +352,7 @@ export default function PaymentDashboard() {
                                             <input
                                                 type="tel"
                                                 className="pay-input"
-                                                placeholder="+1 (555) 000-0000"
+                                                placeholder="+91 98765 43210"
                                                 value={shippingInfo.phone}
                                                 onChange={e => updateShipping('phone', e.target.value)}
                                             />
@@ -412,6 +411,7 @@ export default function PaymentDashboard() {
                                             value={shippingInfo.country}
                                             onChange={e => updateShipping('country', e.target.value)}
                                         >
+                                            <option>India</option>
                                             <option>United States</option>
                                             <option>United Kingdom</option>
                                             <option>Canada</option>
@@ -419,7 +419,7 @@ export default function PaymentDashboard() {
                                             <option>France</option>
                                             <option>Japan</option>
                                             <option>Australia</option>
-                                            <option>India</option>
+
                                         </select>
                                     </div>
 
@@ -442,7 +442,7 @@ export default function PaymentDashboard() {
                                                     <p>{method.time}</p>
                                                 </div>
                                                 <span className="pay-shipping-option__price">
-                                                    {method.price === 0 ? 'FREE' : `$${method.price}`}
+                                                    {method.price === 0 ? 'FREE' : `₹${method.price}`}
                                                 </span>
                                             </div>
                                         ))}
@@ -644,7 +644,7 @@ export default function PaymentDashboard() {
                                 ) : (
                                     <>
                                         <Lock size={18} />
-                                        Place Order — ${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        Place Order — ₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </>
                                 )}
                             </button>
@@ -683,22 +683,22 @@ export default function PaymentDashboard() {
                             <div className="cart-summary__rows">
                                 <div className="cart-summary__row">
                                     <span>Subtotal ({cartCount} items)</span>
-                                    <span>${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    <span>₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className="cart-summary__row">
                                     <span>Shipping</span>
                                     <span className={shippingCost === 0 ? 'cart-summary__free' : ''}>
-                                        {shippingCost === 0 ? 'FREE' : `$${shippingCost.toFixed(2)}`}
+                                        {shippingCost === 0 ? 'FREE' : `₹${shippingCost.toFixed(2)}`}
                                     </span>
                                 </div>
                                 <div className="cart-summary__row">
                                     <span>Tax</span>
-                                    <span>${tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    <span>₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className="cart-summary__divider" />
                                 <div className="cart-summary__row cart-summary__row--total">
                                     <span>Total</span>
-                                    <span>${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    <span>₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                             </div>
                         </div>
@@ -717,7 +717,7 @@ export default function PaymentDashboard() {
                             <Truck size={20} />
                             <div>
                                 <h4>Insured Shipping</h4>
-                                <p>Free over $5,000</p>
+                                <p>Free over ₹5,000</p>
                             </div>
                         </div>
                         <div className="cart-trust-badge">

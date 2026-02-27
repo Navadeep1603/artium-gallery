@@ -54,10 +54,15 @@ export default function Header() {
         { path: '/shop', label: 'Shop' },
     ];
 
-    // Hide Artists & Shop for logged-in visitors
-    const navLinks = (isAuthenticated && user?.role === 'visitor')
-        ? allNavLinks.filter(link => link.path !== '/artists' && link.path !== '/shop')
-        : allNavLinks;
+    // Hide Artists & Shop for logged-in visitors, and hide all public links for artists
+    let navLinks = allNavLinks;
+    if (isAuthenticated) {
+        if (user?.role === 'visitor') {
+            navLinks = allNavLinks.filter(link => link.path !== '/artists' && link.path !== '/shop');
+        } else if (user?.role === 'artist') {
+            navLinks = [];
+        }
+    }
 
     const getDashboardLink = () => {
         if (!user) return '/login';

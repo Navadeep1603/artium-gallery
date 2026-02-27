@@ -169,7 +169,7 @@ export default function ExhibitionDetail() {
                                             <div className="exhibition-artwork-card__header">
                                                 <h3>{artwork.title}</h3>
                                                 <span>
-                                                    {artwork.currency === 'ETH' ? 'Ξ' : '$'}{artwork.price.toLocaleString()}
+                                                    ₹{artwork.price.toLocaleString('en-IN')}
                                                 </span>
                                             </div>
                                             <Link to={`/artists`} className="exhibition-artwork-card__artist">

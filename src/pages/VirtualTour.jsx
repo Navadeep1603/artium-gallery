@@ -4,9 +4,11 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import {
     Play, Pause, Volume2, VolumeX, Maximize, Minimize, Maximize2, Minimize2,
     ChevronLeft, ChevronRight, Info, Eye, Camera, Map, Navigation,
-    X, ArrowLeft, Heart, Share2, Compass, Sparkles, Users, Headphones, Clock, Layers
+    X, ArrowLeft, ArrowRight, Heart, Share2, Compass, Sparkles, Users, Headphones, Clock, Layers,
+    Star, SkipBack, SkipForward
 } from 'lucide-react';
 import { tourThemes } from '../data/mockData';
+import { useArtworks } from '../context/ArtworkContext';
 import './VirtualTour.css';
 
 // ============================================
@@ -344,6 +346,8 @@ export default function VirtualTour() {
     const tourContainerRef = useRef(null);
     const uiTimeoutRef = useRef(null);
     const autoPlayRef = useRef(null);
+
+    const { artworks } = useArtworks();
 
     // Tour artworks
     const tourArtworks = artworks.slice(0, 9);

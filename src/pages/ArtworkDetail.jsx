@@ -15,8 +15,9 @@ import {
     Info,
     User
 } from 'lucide-react';
-import { artworks, artists } from '../data/mockData';
+import { artists } from '../data/mockData';
 import { useCart } from '../context/CartContext';
+import { useArtworks } from '../context/ArtworkContext';
 import './ArtworkDetail.css';
 
 export default function ArtworkDetail() {
@@ -25,6 +26,7 @@ export default function ArtworkDetail() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [activeTab, setActiveTab] = useState('about');
     const { addToCart, isInCart } = useCart();
+    const { artworks } = useArtworks();
 
     const artwork = artworks.find(a => a.id === parseInt(id));
     const artist = artists.find(a => a.id === artwork?.artistId);

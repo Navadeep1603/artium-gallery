@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -25,18 +25,20 @@ import {
     Filter,
     X
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { artworks, exhibitions, tourThemes } from '../../data/mockData';
+import { useArtworks } from '../../context/ArtworkContext';
+import { exhibitions, tourThemes } from '../../data/mockData';
 import './Dashboard.css';
 
 /* ── Mock data for visitor-specific features ── */
-const wishlistItems = artworks.slice(0, 4);
+// wishlistItems will be derived inside the component after artworks are loaded
 
 const purchaseHistory = [
-    { id: 'ORD-2024-001', artwork: artworks[0], date: '2024-12-15', price: '$2,500', status: 'Delivered' },
-    { id: 'ORD-2024-002', artwork: artworks[3], date: '2024-11-28', price: '$8,500', status: 'Delivered' },
-    { id: 'ORD-2024-003', artwork: artworks[7], date: '2024-11-10', price: '$950', status: 'In Transit' },
-    { id: 'ORD-2024-004', artwork: artworks[10], date: '2024-10-05', price: '$6,800', status: 'Delivered' },
+    { id: 'ORD-2024-001', artwork: { id: 'a1', title: 'Abstract Harmony', artist: 'Elena Petrova', thumbnail: 'https://via.placeholder.com/150/FF5733/FFFFFF?text=Artwork1' }, date: '2024-12-15', price: '$2,500', status: 'Delivered' },
+    { id: 'ORD-2024-002', artwork: { id: 'a4', title: 'City at Dusk', artist: 'Marcus Thorne', thumbnail: 'https://via.placeholder.com/150/33FF57/FFFFFF?text=Artwork4' }, date: '2024-11-28', price: '$8,500', status: 'Delivered' },
+    { id: 'ORD-2024-003', artwork: { id: 'a8', title: 'Whispers of the Forest', artist: 'Sophia Lee', thumbnail: 'https://via.placeholder.com/150/5733FF/FFFFFF?text=Artwork8' }, date: '2024-11-10', price: '$950', status: 'In Transit' },
+    { id: 'ORD-2024-004', artwork: { id: 'a11', title: 'Cosmic Dance', artist: 'David Chen', thumbnail: 'https://via.placeholder.com/150/FF33A1/FFFFFF?text=Artwork11' }, date: '2024-10-05', price: '$6,800', status: 'Delivered' },
 ];
 
 const notifications = [
@@ -120,9 +122,19 @@ function LoginGate() {
 
 /* ── Main Dashboard ── */
 export default function VisitorDashboard() {
+    const { theme } = useTheme();
     const { user, isAuthenticated } = useAuth();
-    const [wishlist, setWishlist] = useState(wishlistItems);
+    const { artworks } = useArtworks();
+    const navigate = useNavigate();
+    const [wishlist, setWishlist] = useState([]); // Initialize as empty, will be populated after artworks load
     const [activeNotifFilter, setActiveNotifFilter] = useState('all');
+
+    // Populate wishlist once artworks are available
+    useEffect(() => {
+        if (artworks && artworks.length > 0 && wishlist.length === 0) {
+            setWishlist(artworks.slice(0, 4));
+        }
+    }, [artworks, wishlist.length]);
 
     if (!isAuthenticated) {
         return <LoginGate />;
@@ -251,16 +263,16 @@ export default function VisitorDashboard() {
                                     exit={{ opacity: 0, scale: 0.8 }}
                                     transition={{ duration: 0.3 }}
                                 >
-                                    <Link to={`/artwork/${artwork.id}`} className="visitor-wishlist-card__image">
+                                    <Link to={`/ artwork / ${artwork.id} `} className="visitor-wishlist-card__image">
                                         <img src={artwork.thumbnail} alt={artwork.title} />
                                     </Link>
                                     <div className="visitor-wishlist-card__info">
-                                        <Link to={`/artwork/${artwork.id}`}>
+                                        <Link to={`/ artwork / ${artwork.id} `}>
                                             <h4>{artwork.title}</h4>
                                         </Link>
                                         <p className="visitor-wishlist-card__artist">{artwork.artist}</p>
                                         <span className="visitor-wishlist-card__price">
-                                            {artwork.currency === 'ETH' ? `Ξ ${artwork.price}` : `$${artwork.price.toLocaleString()}`}
+                                            {artwork.currency === 'ETH' ? `Ξ ${artwork.price} ` : `$${artwork.price.toLocaleString()} `}
                                         </span>
                                     </div>
                                     <button
@@ -326,7 +338,7 @@ export default function VisitorDashboard() {
                                     <td>{purchase.date}</td>
                                     <td><span className="visitor-purchase-price">{purchase.price}</span></td>
                                     <td>
-                                        <span className={`visitor-purchase-status visitor-purchase-status--${purchase.status.toLowerCase().replace(' ', '-')}`}>
+                                        <span className={`visitor - purchase - status visitor - purchase - status--${purchase.status.toLowerCase().replace(' ', '-')} `}>
                                             {purchase.status}
                                         </span>
                                     </td>
@@ -361,7 +373,7 @@ export default function VisitorDashboard() {
                         {['all', 'exhibition', 'tour', 'price'].map(filter => (
                             <button
                                 key={filter}
-                                className={`visitor-notif-filter ${activeNotifFilter === filter ? 'active' : ''}`}
+                                className={`visitor - notif - filter ${activeNotifFilter === filter ? 'active' : ''} `}
                                 onClick={() => setActiveNotifFilter(filter)}
                             >
                                 {filter === 'all' ? 'All' : filter === 'exhibition' ? 'Exhibitions' : filter === 'tour' ? 'Tours' : 'Price Drops'}
@@ -374,13 +386,13 @@ export default function VisitorDashboard() {
                         {filteredNotifications.map(notif => (
                             <motion.div
                                 key={notif.id}
-                                className={`visitor-notif-item ${notif.unread ? 'visitor-notif-item--unread' : ''}`}
+                                className={`visitor - notif - item ${notif.unread ? 'visitor-notif-item--unread' : ''} `}
                                 layout
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 20 }}
                             >
-                                <div className={`visitor-notif-item__icon visitor-notif-item__icon--${notif.type}`}>
+                                <div className={`visitor - notif - item__icon visitor - notif - item__icon--${notif.type} `}>
                                     <notif.icon size={20} />
                                 </div>
                                 <div className="visitor-notif-item__content">

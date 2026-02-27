@@ -28,11 +28,14 @@ import {
     Plus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { artworks } from '../../data/mockData';
+import { useTheme } from '../../context/ThemeContext';
+import { useArtworks } from '../../context/ArtworkContext';
 import './Dashboard.css';
 
 export default function ShopDashboard() {
     const { user } = useAuth();
+    const { theme } = useTheme();
+    const { artworks } = useArtworks();
     const [activeOrderTab, setActiveOrderTab] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
 

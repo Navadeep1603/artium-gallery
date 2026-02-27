@@ -7,13 +7,16 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { exhibitions, artworks } from '../data/mockData';
+import { useArtworks } from '../context/ArtworkContext';
+import { exhibitions } from '../data/mockData';
 import './Exhibition.css';
 
 export default function ExhibitionDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { addToCart } = useCart();
+    const { artworks } = useArtworks();
     const { dispatch: cartDispatch } = useCart();
 
     const [exhibition, setExhibition] = useState(null);

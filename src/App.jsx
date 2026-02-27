@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ArtworkProvider } from './context/ArtworkContext';
 
 // Layout
 import Header from './components/layout/Header';
@@ -20,6 +21,7 @@ import Signup from './pages/Signup';
 // Dashboards
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import ArtistDashboard from './pages/dashboards/ArtistDashboard';
+import ArtistUpload from './pages/dashboards/ArtistUpload';
 import VisitorDashboard from './pages/dashboards/VisitorDashboard';
 import CuratorDashboard from './pages/dashboards/CuratorDashboard';
 import ShopDashboard from './pages/dashboards/ShopDashboard';
@@ -35,37 +37,40 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <CartProvider>
-          <div className="app">
-            <Header />
-            <main className="main-content">
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/gallery" element={<Gallery />} />
-                <Route path="/artwork/:id" element={<ArtworkDetail />} />
-                <Route path="/virtual-tour" element={<VirtualTour />} />
-                <Route path="/exhibitions" element={<ExhibitionsDashboard />} />
-                <Route path="/exhibitions/:id" element={<ExhibitionDetail />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
+        <ArtworkProvider>
+          <CartProvider>
+            <div className="app">
+              <Header />
+              <main className="main-content">
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/gallery" element={<Gallery />} />
+                  <Route path="/artwork/:id" element={<ArtworkDetail />} />
+                  <Route path="/virtual-tour" element={<VirtualTour />} />
+                  <Route path="/exhibitions" element={<ExhibitionsDashboard />} />
+                  <Route path="/exhibitions/:id" element={<ExhibitionDetail />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
 
-                {/* Dashboard Routes */}
-                <Route path="/dashboard/admin" element={<AdminDashboard />} />
-                <Route path="/dashboard/artist" element={<ArtistDashboard />} />
-                <Route path="/artists" element={<ArtistDashboard />} />
-                <Route path="/dashboard/visitor" element={<VisitorDashboard />} />
-                <Route path="/dashboard/visitor/profile" element={<VisitorProfile />} />
-                <Route path="/dashboard/curator" element={<CuratorDashboard />} />
-                <Route path="/dashboard/shop" element={<ShopDashboard />} />
-                <Route path="/shop" element={<ShopDashboard />} />
-                <Route path="/cart" element={<CartDashboard />} />
-                <Route path="/checkout" element={<PaymentDashboard />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </CartProvider>
+                  {/* Dashboard Routes */}
+                  <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                  <Route path="/dashboard/artist" element={<ArtistDashboard />} />
+                  <Route path="/dashboard/artist/upload" element={<ArtistUpload />} />
+                  <Route path="/artists" element={<ArtistDashboard />} />
+                  <Route path="/dashboard/visitor" element={<VisitorDashboard />} />
+                  <Route path="/dashboard/visitor/profile" element={<VisitorProfile />} />
+                  <Route path="/dashboard/curator" element={<CuratorDashboard />} />
+                  <Route path="/dashboard/shop" element={<ShopDashboard />} />
+                  <Route path="/shop" element={<ShopDashboard />} />
+                  <Route path="/cart" element={<CartDashboard />} />
+                  <Route path="/checkout" element={<PaymentDashboard />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          </CartProvider>
+        </ArtworkProvider>
       </AuthProvider>
     </ThemeProvider>
   );

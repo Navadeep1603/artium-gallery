@@ -2,53 +2,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import {
-    Play,
-    Pause,
-    ChevronLeft,
-    ChevronRight,
-    X,
-    ZoomIn,
-    ZoomOut,
-    Maximize2,
-    Minimize2,
-    Volume2,
-    VolumeX,
-    Navigation,
-    Info,
-    Heart,
-    Compass,
-    Star,
-    Eye,
-    Clock,
-    Users,
-    MapPin,
-    Headphones,
-    Sparkles,
-    ArrowRight,
-    Camera,
-    Layers,
-    Grid,
-    SkipForward,
-    SkipBack,
-    Share2,
-    Download
+    Play, Pause, Volume2, VolumeX, Maximize, Minimize, Maximize2, Minimize2,
+    ChevronLeft, ChevronRight, Info, Eye, Camera, Map, Navigation,
+    X, ArrowLeft, Heart, Share2, Compass, Sparkles, Users, Headphones, Clock, Layers
 } from 'lucide-react';
-import { tourThemes, artworks as originalArtworks } from '../data/mockData';
+import { tourThemes } from '../data/mockData';
 import './VirtualTour.css';
-
-// Import local images
-import pic1 from '../assets/pic1.jpg';
-import pic2 from '../assets/pic2.jpg';
-import pic3 from '../assets/pic3.jpg';
-
-// Override artwork images with local files
-const artworks = originalArtworks.map((artwork, index) => {
-    const localImages = [pic1, pic2, pic3];
-    if (index < 3) {
-        return { ...artwork, image: localImages[index], thumbnail: localImages[index] };
-    }
-    return artwork;
-});
 
 // ============================================
 // ANIMATED BACKGROUND COMPONENTS

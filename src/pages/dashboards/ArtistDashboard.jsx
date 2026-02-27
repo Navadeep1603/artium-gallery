@@ -28,17 +28,28 @@ import {
     Filter
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { artworks } from '../../data/mockData';
+import { useArtworks } from '../../context/ArtworkContext';
 import './Dashboard.css';
 
 export default function ArtistDashboard() {
     const { user } = useAuth();
+    const { getArtworksByArtist } = useArtworks();
     const [activeTab, setActiveTab] = useState('all');
     const [selectedPeriod, setSelectedPeriod] = useState('month');
 
-    const myArtworks = artworks.slice(0, 8);
-    const totalViews = myArtworks.reduce((sum, a) => sum + a.views, 0);
-    const totalLikes = myArtworks.reduce((sum, a) => sum + a.likes, 0);
+    // Get dynamic artworks for this artist
+    // Defaulting to all if artist name isn't set, or simulating with slice if needed
+    // In a real app we'd filter strictly by the logged in ID.
+    const artistName = user?.name || 'Artist';
+    let myArtworks = getArtworksByArtist(artistName);
+
+    // Fallback just for display if this specific mock artist has no works yet
+    if (myArtworks.length === 0) {
+        myArtworks = getArtworksByArtist('Vincent Modern'); // Using a mock artist with data just to show UI if empty
+    }
+
+    const totalViews = myArtworks.reduce((sum, a) => sum + (a.views || 0), 0);
+    const totalLikes = myArtworks.reduce((sum, a) => sum + (a.likes || 0), 0);
 
     // Stats
     const stats = [

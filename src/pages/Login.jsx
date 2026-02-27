@@ -26,7 +26,7 @@ export default function Login() {
                 admin: '/dashboard/admin',
                 artist: '/dashboard/artist',
                 curator: '/dashboard/curator',
-                visitor: '/dashboard/visitor'
+                visitor: '/gallery'
             }[result.user.role] || '/';
 
             navigate(dashboardPath);

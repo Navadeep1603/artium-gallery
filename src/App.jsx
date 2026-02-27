@@ -13,6 +13,7 @@ import Gallery from './pages/Gallery';
 import ArtworkDetail from './pages/ArtworkDetail';
 import VirtualTour from './pages/VirtualTour';
 import ExhibitionsDashboard from './pages/ExhibitionsDashboard';
+import ExhibitionDetail from './pages/ExhibitionDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 
@@ -24,6 +25,7 @@ import CuratorDashboard from './pages/dashboards/CuratorDashboard';
 import ShopDashboard from './pages/dashboards/ShopDashboard';
 import CartDashboard from './pages/dashboards/CartDashboard';
 import PaymentDashboard from './pages/dashboards/PaymentDashboard';
+import VisitorProfile from './pages/dashboards/VisitorProfile';
 
 // Styles
 import './index.css';
@@ -44,6 +46,7 @@ function App() {
                 <Route path="/artwork/:id" element={<ArtworkDetail />} />
                 <Route path="/virtual-tour" element={<VirtualTour />} />
                 <Route path="/exhibitions" element={<ExhibitionsDashboard />} />
+                <Route path="/exhibitions/:id" element={<ExhibitionDetail />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
 
@@ -52,6 +55,7 @@ function App() {
                 <Route path="/dashboard/artist" element={<ArtistDashboard />} />
                 <Route path="/artists" element={<ArtistDashboard />} />
                 <Route path="/dashboard/visitor" element={<VisitorDashboard />} />
+                <Route path="/dashboard/visitor/profile" element={<VisitorProfile />} />
                 <Route path="/dashboard/curator" element={<CuratorDashboard />} />
                 <Route path="/dashboard/shop" element={<ShopDashboard />} />
                 <Route path="/shop" element={<ShopDashboard />} />

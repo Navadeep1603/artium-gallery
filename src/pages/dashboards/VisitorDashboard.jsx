@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Heart,
@@ -27,7 +27,8 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { useArtworks } from '../../context/ArtworkContext';
+import { useWishlist } from '../../context/WishlistContext';
+import { useOrder } from '../../context/OrderContext';
 import { exhibitions, tourThemes } from '../../data/mockData';
 import './Dashboard.css';
 
@@ -124,31 +125,23 @@ function LoginGate() {
 export default function VisitorDashboard() {
     const { theme } = useTheme();
     const { user, isAuthenticated } = useAuth();
-    const { artworks } = useArtworks();
+    const { wishlistItems, removeFromWishlist } = useWishlist();
+    const { orders } = useOrder();
     const navigate = useNavigate();
-    const [wishlist, setWishlist] = useState([]); // Initialize as empty, will be populated after artworks load
     const [activeNotifFilter, setActiveNotifFilter] = useState('all');
-
-    // Populate wishlist once artworks are available
-    useEffect(() => {
-        if (artworks && artworks.length > 0 && wishlist.length === 0) {
-            setWishlist(artworks.slice(0, 4));
-        }
-    }, [artworks, wishlist.length]);
 
     if (!isAuthenticated) {
         return <LoginGate />;
     }
-
-    const removeFromWishlist = (id) => {
-        setWishlist(prev => prev.filter(item => item.id !== id));
-    };
 
     const filteredNotifications = activeNotifFilter === 'all'
         ? notifications
         : notifications.filter(n => n.type === activeNotifFilter);
 
     const unreadCount = notifications.filter(n => n.unread).length;
+
+    // Use actual orders if available, otherwise mock
+    const displayPurchaseHistory = orders.length > 0 ? orders : purchaseHistory;
 
     return (
         <div className="dashboard">
@@ -248,12 +241,12 @@ export default function VisitorDashboard() {
             >
                 <div className="visitor-section__header">
                     <h2><Heart size={20} /> Wishlist / Saved Items</h2>
-                    <p>{wishlist.length} items saved for later</p>
+                    <p>{wishlistItems.length} items saved for later</p>
                 </div>
                 <AnimatePresence mode="popLayout">
-                    {wishlist.length > 0 ? (
+                    {wishlistItems.length > 0 ? (
                         <motion.div className="visitor-wishlist-grid" layout>
-                            {wishlist.map(artwork => (
+                            {wishlistItems.map(artwork => (
                                 <motion.div
                                     key={artwork.id}
                                     className="visitor-wishlist-card"
@@ -323,14 +316,14 @@ export default function VisitorDashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {purchaseHistory.map(purchase => (
+                            {displayPurchaseHistory.map(purchase => (
                                 <tr key={purchase.id}>
                                     <td>
                                         <div className="visitor-purchase-artwork">
-                                            <img src={purchase.artwork.thumbnail} alt={purchase.artwork.title} />
+                                            <img src={purchase.artwork?.thumbnail || purchase.img} alt={purchase.artwork?.title || purchase.name} />
                                             <div>
-                                                <h4>{purchase.artwork.title}</h4>
-                                                <p>{purchase.artwork.artist}</p>
+                                                <h4>{purchase.artwork?.title || purchase.name}</h4>
+                                                <p>{purchase.artwork?.artist || purchase.variant}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -338,7 +331,7 @@ export default function VisitorDashboard() {
                                     <td>{purchase.date}</td>
                                     <td><span className="visitor-purchase-price">{purchase.price}</span></td>
                                     <td>
-                                        <span className={`visitor - purchase - status visitor - purchase - status--${purchase.status.toLowerCase().replace(' ', '-')} `}>
+                                        <span className={`visitor-purchase-status visitor-purchase-status--${purchase.status.toLowerCase().replace(' ', '-')}`}>
                                             {purchase.status}
                                         </span>
                                     </td>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Palette, Users, Eye as EyeIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -10,12 +10,19 @@ export default function Signup() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState('visitor');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { signup } = useAuth();
+    const { signup, user } = useAuth();
     const navigate = useNavigate();
+
+    // Redirect already-logged-in users to their dashboard
+    if (user) {
+        const dest = { admin: '/dashboard/admin', artist: '/dashboard/artist', curator: '/dashboard/curator' }[user.role] || '/dashboard/visitor/profile';
+        return <Navigate to={dest} replace />;
+    }
 
     const roles = [
         { id: 'visitor', name: 'Art Enthusiast', icon: EyeIcon, description: 'Browse, save favorites, and purchase artworks' },
@@ -23,10 +30,36 @@ export default function Signup() {
         { id: 'curator', name: 'Curator', icon: Users, description: 'Organize exhibitions and curate collections' },
     ];
 
+    const validatePassword = (pass) => {
+        const errors = [];
+        if (pass.length < 8) errors.push('At least 8 characters');
+        if (!/[A-Z]/.test(pass)) errors.push('One uppercase letter');
+        if (!/[a-z]/.test(pass)) errors.push('One lowercase letter');
+        if (!/[0-9]/.test(pass)) errors.push('One number');
+        if (!/[!@#$%^&*]/.test(pass)) errors.push('One special character (!@#$%^&*)');
+        return errors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (step === 1) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                setError('Please enter a valid email address');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                setError('Passwords do not match');
+                return;
+            }
+
+            const passwordErrors = validatePassword(password);
+            if (passwordErrors.length > 0) {
+                setError('Please meet all password requirements');
+                return;
+            }
             setStep(2);
             return;
         }
@@ -129,7 +162,7 @@ export default function Signup() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="Create a password"
                                         required
-                                        minLength={6}
+                                        minLength={8}
                                     />
                                     <button
                                         type="button"
@@ -138,6 +171,62 @@ export default function Signup() {
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
+                                </div>
+                                {password && (() => {
+                                    const reqs = [
+                                        { label: '8+ chars', met: password.length >= 8 },
+                                        { label: 'Uppercase', met: /[A-Z]/.test(password) },
+                                        { label: 'Lowercase', met: /[a-z]/.test(password) },
+                                        { label: 'Number', met: /[0-9]/.test(password) },
+                                        { label: 'Special char', met: /[!@#$%^&*]/.test(password) }
+                                    ];
+                                    const score = reqs.filter(r => r.met).length;
+                                    let strengthText = 'Weak';
+                                    if (score >= 3) strengthText = 'Fair';
+                                    if (score >= 4) strengthText = 'Good';
+                                    if (score === 5) strengthText = 'Strong';
+
+                                    return (
+                                        <div className="auth-password-requirements">
+                                            <div className="auth-password-strength-text">
+                                                <span>Password Strength</span>
+                                                <span style={{
+                                                    color: score === 5 ? '#10b981' : score >= 3 ? 'var(--gold)' : '#ef4444'
+                                                }}>{strengthText}</span>
+                                            </div>
+                                            <div className="password-bars">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className={`password-bar ${i < score ? 'met' : ''} ${score === 5 ? 'strong' : ''}`}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <div className="password-req-list">
+                                                {reqs.map((req, i) => (
+                                                    <span key={i} className={`password-req-item ${req.met ? 'met' : ''}`}>
+                                                        {req.met ? '✓' : '○'} {req.label}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+
+                            <div className="auth-field">
+                                <label htmlFor="confirmPassword">Confirm Password</label>
+                                <div className="auth-input-wrapper">
+                                    <Lock size={18} />
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        id="confirmPassword"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="Confirm your password"
+                                        required
+                                        minLength={8}
+                                    />
                                 </div>
                             </div>
                         </>

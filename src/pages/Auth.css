@@ -168,6 +168,16 @@
     color: var(--text-muted);
 }
 
+/* Fix for browser autofill background color */
+.auth-input-wrapper input:-webkit-autofill,
+.auth-input-wrapper input:-webkit-autofill:hover,
+.auth-input-wrapper input:-webkit-autofill:focus,
+.auth-input-wrapper input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--bg-secondary) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 .auth-password-toggle {
     background: transparent;
     border: none;
@@ -178,6 +188,66 @@
 
 .auth-password-toggle:hover {
     color: var(--text-primary);
+}
+
+/* Password Requirements */
+.auth-password-requirements {
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.auth-password-strength-text {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+}
+
+.password-bars {
+    display: flex;
+    gap: 4px;
+    height: 4px;
+    width: 100%;
+}
+
+.password-bar {
+    flex: 1;
+    background-color: var(--glass-border);
+    border-radius: 2px;
+    transition: background-color 0.3s ease;
+}
+
+.password-bar.met {
+    background-color: var(--gold);
+}
+
+.password-bar.met.strong {
+    background-color: #10b981;
+    /* Green for very strong */
+}
+
+.password-req-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.password-req-item {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.password-req-item.met {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 /* Options */

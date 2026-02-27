@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import {
     Facebook,
@@ -20,8 +21,6 @@ export default function Footer() {
             { label: 'Gallery', path: '/gallery' },
             { label: 'Exhibitions', path: '/exhibitions' },
             { label: 'Virtual Tours', path: '/virtual-tour' },
-            { label: 'Artists', path: '/artists' },
-            { label: 'Shop', path: '/shop' },
         ],
         information: [
             { label: 'About Us', path: '/about' },

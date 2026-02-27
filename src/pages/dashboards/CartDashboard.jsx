@@ -76,10 +76,6 @@ export default function CartDashboard() {
                             <Sparkles size={18} />
                             Browse Gallery
                         </Link>
-                        <Link to="/shop" className="btn btn-secondary cart-empty__cta">
-                            <Package size={18} />
-                            Visit Shop
-                        </Link>
                     </motion.div>
                 </div>
             </div>

@@ -20,9 +20,12 @@ import {
     Award,
     Package,
     Sparkles,
-    CheckCircle
+    CheckCircle,
+    X
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import { useOrder } from '../../context/OrderContext';
 import './Dashboard.css';
 
 const STEPS = [
@@ -31,18 +34,45 @@ const STEPS = [
     { id: 3, label: 'Review', icon: CheckCircle },
 ];
 
+const mockAddresses = [
+    { id: 1, name: 'John Doe', phone: '+91 9876543210', address: '123 Art Gallery Lane, Kala Ghoda, Mumbai - 400001, Maharashtra', type: 'HOME' },
+    { id: 2, name: 'John Doe', phone: '+91 9876543210', address: '456 Studio Apartment, Whitefield, Bangalore - 560066, Karnataka', type: 'WORK' }
+];
+
+const mockCards = [
+    { id: 1, type: 'Visa', last4: '4242', expiry: '12/25', name: 'John Doe', isDefault: true },
+    { id: 2, type: 'Mastercard', last4: '8888', expiry: '08/24', name: 'John Doe', isDefault: false }
+];
+
+const mockUPIs = [
+    { id: 1, idString: 'john.doe@okbank', app: 'Google Pay', isDefault: true },
+    { id: 2, idString: '9876543210@paytm', app: 'Paytm', isDefault: false }
+];
+
 export default function PaymentDashboard() {
     const { cartItems, clearCart, getTotal, cartCount } = useCart();
+    const { user } = useAuth();
+    const { addOrders } = useOrder();
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(1);
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
 
+    // Check if the user is the demo user to decide whether to populate mock info
+    const isDemoUser = user?.email === 'visitor@gallery.com';
+    const savedAddresses = isDemoUser ? mockAddresses : [];
+    const savedCards = isDemoUser ? mockCards : [];
+    const savedUPIs = isDemoUser ? mockUPIs : [];
+
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
+    const [selectedCardId, setSelectedCardId] = useState(null);
+    const [selectedUpiId, setSelectedUpiId] = useState(null);
+
     // Form state
     const [shippingInfo, setShippingInfo] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
+        firstName: isDemoUser ? user?.name?.split(' ')[0] : '',
+        lastName: isDemoUser ? user?.name?.split(' ').slice(1).join(' ') : '',
+        email: user?.email || '',
         phone: '',
         address: '',
         city: '',
@@ -57,6 +87,7 @@ export default function PaymentDashboard() {
         expiry: '',
         cvv: '',
         saveCard: false,
+        isUpi: false,
     });
 
     const [shippingMethod, setShippingMethod] = useState('standard');
@@ -91,7 +122,138 @@ export default function PaymentDashboard() {
         return parts.length ? parts.join(' ') : value;
     };
 
+    const handleSelectSavedAddress = (addr) => {
+        if (selectedAddressId === addr.id) {
+            // Deselect and clear
+            setSelectedAddressId(null);
+            setShippingInfo(prev => ({
+                ...prev,
+                phone: '',
+                address: '',
+                city: '',
+                state: '',
+                zip: ''
+            }));
+            return;
+        }
+
+        setSelectedAddressId(addr.id);
+
+        // Simple parsing of mock addresses into fields
+        const addrParts = addr.address.split(', ');
+
+        let cityStateZip = '';
+        let address1 = addr.address;
+
+        if (addrParts.length >= 3) {
+            address1 = addrParts.slice(0, -2).join(', ');
+            cityStateZip = addrParts.slice(-2).join(', '); // e.g. "Mumbai - 400001, Maharashtra"
+        }
+
+        let parsedCity = '';
+        let parsedState = '';
+        let parsedZip = '';
+
+        if (cityStateZip) {
+            const stateSplit = cityStateZip.split(', ');
+            if (stateSplit.length === 2) {
+                parsedState = stateSplit[1];
+                const cityZip = stateSplit[0].split(' - ');
+                if (cityZip.length === 2) {
+                    parsedCity = cityZip[0];
+                    parsedZip = cityZip[1];
+                }
+            }
+        }
+
+        setShippingInfo(prev => ({
+            ...prev,
+            firstName: addr.name.split(' ')[0],
+            lastName: addr.name.split(' ').slice(1).join(' '),
+            phone: addr.phone,
+            address: address1,
+            city: parsedCity,
+            state: parsedState,
+            zip: parsedZip,
+        }));
+    };
+
+    const handleSelectSavedCard = (card) => {
+        if (selectedCardId === card.id) {
+            setSelectedCardId(null);
+            setPaymentInfo({
+                cardNumber: '',
+                cardName: '',
+                expiry: '',
+                cvv: '',
+                saveCard: false,
+                isUpi: false
+            });
+            return;
+        }
+
+        setSelectedCardId(card.id);
+        setSelectedUpiId(null); // Clear upi
+
+        setPaymentInfo({
+            cardNumber: `**** **** **** ${card.last4}`,
+            cardName: card.name,
+            expiry: card.expiry,
+            cvv: '***',
+            saveCard: false,
+            isUpi: false
+        });
+    };
+
+    const handleSelectSavedUpi = (upi) => {
+        if (selectedUpiId === upi.id) {
+            setSelectedUpiId(null);
+            setPaymentInfo({
+                cardNumber: '',
+                cardName: '',
+                expiry: '',
+                cvv: '',
+                saveCard: false,
+                isUpi: false
+            });
+            return;
+        }
+
+        setSelectedUpiId(upi.id);
+        setSelectedCardId(null); // Clear card
+
+        setPaymentInfo({
+            cardNumber: upi.idString,
+            cardName: upi.app,
+            expiry: '',
+            cvv: '',
+            saveCard: false,
+            isUpi: true
+        });
+    };
+
     const handleNext = () => {
+        if (currentStep === 1) {
+            const { firstName, lastName, email, phone, address, city, state, zip } = shippingInfo;
+            if (!firstName || !lastName || !email || !phone || !address || !city || !state || !zip) {
+                alert('Please fill in all required shipping information.');
+                return;
+            }
+        } else if (currentStep === 2) {
+            if (paymentInfo.isUpi) {
+                if (!paymentInfo.cardNumber) {
+                    alert('Please provide your UPI ID.');
+                    return;
+                }
+            } else {
+                const { cardNumber, cardName, expiry, cvv } = paymentInfo;
+                if (!cardNumber || !cardName || !expiry || !cvv) {
+                    alert('Please fill in all required payment information.');
+                    return;
+                }
+            }
+        }
+
         if (currentStep < 3) setCurrentStep(currentStep + 1);
     };
 
@@ -102,6 +264,18 @@ export default function PaymentDashboard() {
     const handlePlaceOrder = () => {
         setIsProcessing(true);
         setTimeout(() => {
+            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const newOrders = cartItems.map(item => ({
+                id: `ORD-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 100)}`,
+                name: item.title || item.name,
+                variant: `by ${item.artist}`,
+                price: `₹${item.price.toLocaleString('en-IN')}`,
+                status: 'On the way',
+                date: date,
+                img: item.image || item.thumbnail,
+                artwork: item // Save full artwork object for VisitorDashboard
+            }));
+            addOrders(newOrders);
             setIsProcessing(false);
             setOrderPlaced(true);
             clearCart();
@@ -306,6 +480,90 @@ export default function PaymentDashboard() {
                                     <h2><MapPin size={20} /> Shipping Information</h2>
                                 </div>
                                 <div className="dashboard__card-content">
+                                    {/* Saved Addresses Section */}
+                                    {savedAddresses.length > 0 && (
+                                        <div className="pay-saved-addresses" style={{ marginBottom: 'var(--space-6)' }}>
+                                            <h3 className="pay-section-title" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: 'var(--space-3)' }}>
+                                                Select a Saved Address
+                                            </h3>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                                                {savedAddresses.map(addr => (
+                                                    <div
+                                                        key={addr.id}
+                                                        onClick={() => handleSelectSavedAddress(addr)}
+                                                        style={{
+                                                            padding: 'var(--space-4)',
+                                                            border: `1px solid ${selectedAddressId === addr.id ? 'var(--gold)' : 'var(--glass-border)'}`,
+                                                            borderRadius: 'var(--radius-md)',
+                                                            background: selectedAddressId === addr.id ? 'rgba(212, 175, 55, 0.05)' : 'transparent',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'flex-start',
+                                                            gap: 'var(--space-3)',
+                                                            transition: 'all var(--transition-fast)'
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            width: '20px',
+                                                            height: '20px',
+                                                            borderRadius: '50%',
+                                                            border: `2px solid ${selectedAddressId === addr.id ? 'var(--gold)' : 'var(--glass-border)'}`,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            marginTop: '2px'
+                                                        }}>
+                                                            {selectedAddressId === addr.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--gold)' }} />}
+                                                        </div>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                                                <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{addr.name}</strong>
+                                                                <span style={{ fontSize: 'var(--text-xs)', padding: '2px 8px', background: 'var(--bg-primary)', borderRadius: 'var(--radius-full)', border: '1px solid var(--glass-border)' }}>{addr.type}</span>
+                                                            </div>
+                                                            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{addr.address}</p>
+                                                            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-1)' }}>{addr.phone}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {selectedAddressId && (
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedAddressId(null);
+                                                        setShippingInfo({
+                                                            firstName: isDemoUser ? user?.name?.split(' ')[0] : '',
+                                                            lastName: isDemoUser ? user?.name?.split(' ').slice(1).join(' ') : '',
+                                                            email: user?.email || '',
+                                                            phone: '',
+                                                            address: '',
+                                                            city: '',
+                                                            state: '',
+                                                            zip: '',
+                                                            country: 'India',
+                                                        });
+                                                    }}
+                                                    style={{
+                                                        marginTop: 'var(--space-3)',
+                                                        background: 'transparent',
+                                                        border: 'none',
+                                                        color: 'var(--text-muted)',
+                                                        fontSize: 'var(--text-sm)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 'var(--space-2)',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    <X size={14} /> Clear selection and enter manually
+                                                </button>
+                                            )}
+
+                                            <div style={{ margin: 'var(--space-6) 0', borderTop: '1px dashed var(--glass-border)', position: 'relative' }}>
+                                                <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--bg-secondary)', padding: '0 var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>OR</span>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="pay-form-grid">
                                         <div className="pay-form-group">
                                             <label className="pay-label">
@@ -470,6 +728,140 @@ export default function PaymentDashboard() {
                                     </div>
                                 </div>
                                 <div className="dashboard__card-content">
+                                    {/* Saved Cards */}
+                                    {savedCards.length > 0 && (
+                                        <div className="pay-saved-addresses" style={{ marginBottom: 'var(--space-6)' }}>
+                                            <h3 className="pay-section-title" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: 'var(--space-3)' }}>
+                                                Saved Cards
+                                            </h3>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                                                {savedCards.map(card => (
+                                                    <div
+                                                        key={card.id}
+                                                        onClick={() => handleSelectSavedCard(card)}
+                                                        style={{
+                                                            padding: 'var(--space-4)',
+                                                            border: `1px solid ${selectedCardId === card.id ? 'var(--gold)' : 'var(--glass-border)'}`,
+                                                            borderRadius: 'var(--radius-md)',
+                                                            background: selectedCardId === card.id ? 'rgba(212, 175, 55, 0.05)' : 'transparent',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'flex-start',
+                                                            gap: 'var(--space-3)',
+                                                            transition: 'all var(--transition-fast)'
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            width: '20px',
+                                                            height: '20px',
+                                                            borderRadius: '50%',
+                                                            border: `2px solid ${selectedCardId === card.id ? 'var(--gold)' : 'var(--glass-border)'}`,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            marginTop: '2px'
+                                                        }}>
+                                                            {selectedCardId === card.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--gold)' }} />}
+                                                        </div>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                                                <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{card.type} **** {card.last4}</strong>
+                                                                {card.isDefault && <span style={{ fontSize: 'var(--text-xs)', padding: '2px 8px', background: 'var(--bg-primary)', borderRadius: 'var(--radius-full)', border: '1px solid var(--glass-border)' }}>DEFAULT</span>}
+                                                            </div>
+                                                            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Name on Card: {card.name}</p>
+                                                            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-1)' }}>Expires: {card.expiry}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Saved UPIs */}
+                                    {savedUPIs.length > 0 && (
+                                        <div className="pay-saved-addresses" style={{ marginBottom: 'var(--space-6)' }}>
+                                            <h3 className="pay-section-title" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: 'var(--space-3)' }}>
+                                                Saved UPI
+                                            </h3>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                                                {savedUPIs.map(upi => (
+                                                    <div
+                                                        key={upi.id}
+                                                        onClick={() => handleSelectSavedUpi(upi)}
+                                                        style={{
+                                                            padding: 'var(--space-4)',
+                                                            border: `1px solid ${selectedUpiId === upi.id ? 'var(--gold)' : 'var(--glass-border)'}`,
+                                                            borderRadius: 'var(--radius-md)',
+                                                            background: selectedUpiId === upi.id ? 'rgba(212, 175, 55, 0.05)' : 'transparent',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'flex-start',
+                                                            gap: 'var(--space-3)',
+                                                            transition: 'all var(--transition-fast)'
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            width: '20px',
+                                                            height: '20px',
+                                                            borderRadius: '50%',
+                                                            border: `2px solid ${selectedUpiId === upi.id ? 'var(--gold)' : 'var(--glass-border)'}`,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            marginTop: '2px'
+                                                        }}>
+                                                            {selectedUpiId === upi.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--gold)' }} />}
+                                                        </div>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                                                <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{upi.idString}</strong>
+                                                                {upi.isDefault && <span style={{ fontSize: 'var(--text-xs)', padding: '2px 8px', background: 'var(--bg-primary)', borderRadius: 'var(--radius-full)', border: '1px solid var(--glass-border)' }}>DEFAULT</span>}
+                                                            </div>
+                                                            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-1)' }}>App: {upi.app}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Clear selection and OR separator */}
+                                    {(selectedCardId || selectedUpiId) && (
+                                        <div style={{ marginBottom: 'var(--space-6)' }}>
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedCardId(null);
+                                                    setSelectedUpiId(null);
+                                                    setPaymentInfo({
+                                                        cardNumber: '',
+                                                        cardName: '',
+                                                        expiry: '',
+                                                        cvv: '',
+                                                        saveCard: false,
+                                                        isUpi: false
+                                                    });
+                                                }}
+                                                style={{
+                                                    background: 'transparent',
+                                                    border: 'none',
+                                                    color: 'var(--text-muted)',
+                                                    fontSize: 'var(--text-sm)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 'var(--space-2)',
+                                                    cursor: 'pointer',
+                                                    marginBottom: 'var(--space-6)'
+                                                }}
+                                            >
+                                                <X size={14} /> Clear selection and enter a new card
+                                            </button>
+
+                                            <div style={{ borderTop: '1px dashed var(--glass-border)', position: 'relative' }}>
+                                                <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--bg-secondary)', padding: '0 var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>OR</span>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="pay-form-group pay-form-group--full">
                                         <label className="pay-label">
                                             <CreditCard size={14} /> Card Number
@@ -577,10 +969,21 @@ export default function PaymentDashboard() {
                                             <button className="pay-review-edit" onClick={() => setCurrentStep(2)}>Edit</button>
                                         </div>
                                         <div className="pay-review-details">
-                                            <p>
-                                                <strong>Card ending in {paymentInfo.cardNumber.slice(-4) || '••••'}</strong>
-                                            </p>
-                                            <p>{paymentInfo.cardName || 'Cardholder'}</p>
+                                            {paymentInfo.isUpi ? (
+                                                <>
+                                                    <p>
+                                                        <strong>UPI ID: {paymentInfo.cardNumber}</strong>
+                                                    </p>
+                                                    <p>{paymentInfo.cardName || 'UPI Payment'}</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <p>
+                                                        <strong>Card ending in {paymentInfo.cardNumber.slice(-4) || '••••'}</strong>
+                                                    </p>
+                                                    <p>{paymentInfo.cardName || 'Cardholder'}</p>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 

@@ -14,7 +14,6 @@ export default function Home() {
     const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
 
     const featuredArtworks = artworks.filter(a => a.featured).slice(0, 6);
-    const featuredArtists = artists.filter(a => a.featured).slice(0, 4);
     const currentExhibitions = exhibitions.filter(e => e.status === 'current').slice(0, 2);
 
     return (
@@ -306,61 +305,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Featured Artists */}
-            <section className="artists-preview section">
-                <div className="container">
-                    <motion.div
-                        className="section-header"
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <span className="section-eyebrow">Meet the Creators</span>
-                        <h2 className="section-title">Featured Artists</h2>
-                    </motion.div>
-
-                    <div className="artists-preview__grid">
-                        {featuredArtists.map((artist, index) => (
-                            <motion.div
-                                key={artist.id}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                            >
-                                <Link to={`/artists/${artist.id}`} className="artist-card">
-                                    <div className="artist-card__avatar-wrapper">
-                                        <img
-                                            src={artist.avatar}
-                                            alt={artist.name}
-                                            className="artist-card__avatar"
-                                        />
-                                        <div className="artist-card__glow" />
-                                    </div>
-                                    <h3 className="artist-card__name">{artist.name}</h3>
-                                    <p className="artist-card__specialty">{artist.specialty}</p>
-                                    <div className="artist-card__stats">
-                                        <span>{artist.artworks} Works</span>
-                                        <span>{artist.followers.toLocaleString()} Followers</span>
-                                    </div>
-                                </Link>
-                            </motion.div>
-                        ))}
-                    </div>
-
-                    <motion.div
-                        className="section-cta"
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                    >
-                        <Link to="/artists" className="btn btn-ghost">
-                            Discover All Artists
-                            <ArrowRight size={18} />
-                        </Link>
-                    </motion.div>
-                </div>
-            </section>
 
             {/* CTA Banner */}
             <section className="cta-banner">

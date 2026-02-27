@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Calendar,
@@ -120,7 +121,7 @@ function AdminCuratorExhibition() {
                                         <p>{exhibition.description}</p>
                                         <div className="exhibition-manage-card__meta">
                                             <span><Image size={14} /> {exhibition.artworkCount} artworks</span>
-                                            <span><Users size={14} /> {Math.floor(Math.random() * 500 + 200)} visitors</span>
+                                            <span><Users size={14} /> {200 + (exhibition.id % 500)} visitors</span>
                                             <span><Calendar size={14} /> {exhibition.startDate} - {exhibition.endDate}</span>
                                         </div>
                                     </div>
@@ -149,7 +150,7 @@ function AdminCuratorExhibition() {
                                     <h4>{exhibition.title}</h4>
                                     <p>
                                         <MapPin size={12} />
-                                        Gallery Hall {Math.floor(Math.random() * 3 + 1)}
+                                        Gallery Hall {(exhibition.id % 3) + 1}
                                     </p>
                                     <span>Starts: {exhibition.startDate}</span>
                                 </div>
@@ -277,7 +278,7 @@ function VisitorExhibition() {
                 {/* Grid */}
                 <div className="exhibition-grid">
                     <AnimatePresence mode="popLayout">
-                        {filteredExhibitions.map((exhibition, index) => (
+                        {filteredExhibitions.map((exhibition) => (
                             <motion.div
                                 key={exhibition.id}
                                 layout

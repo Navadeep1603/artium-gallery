@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import {
     ArrowLeft,
@@ -18,6 +19,7 @@ import {
 import { artists } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useArtworks } from '../context/ArtworkContext';
 import './ArtworkDetail.css';
 
@@ -30,6 +32,7 @@ export default function ArtworkDetail() {
     const { addToCart, isInCart } = useCart();
     const { user } = useAuth();
     const { artworks } = useArtworks();
+    const { toggleWishlist, isInWishlist } = useWishlist();
 
     const artwork = artworks.find(a => a.id === parseInt(id));
     const artist = artists.find(a => a.id === artwork?.artistId);
@@ -47,6 +50,7 @@ export default function ArtworkDetail() {
     }
 
     const inCart = isInCart(artwork.id);
+    const inWishlist = isInWishlist(artwork.id);
 
     return (
         <div className="artwork-detail">
@@ -134,9 +138,15 @@ export default function ArtworkDetail() {
                             <ShoppingCart size={20} />
                             {inCart ? 'Added to Cart' : artwork.available ? 'Add to Cart' : 'Sold Out'}
                         </button>
-                        <button className="btn btn-secondary">
-                            <Heart size={20} />
-                            Save
+                        <button
+                            className={`btn btn-secondary ${inWishlist ? 'text-gold border-gold' : ''}`}
+                            onClick={() => {
+                                if (!user) { navigate('/login'); return; }
+                                toggleWishlist(artwork);
+                            }}
+                        >
+                            <Heart size={20} className={inWishlist ? 'fill-gold' : ''} />
+                            {inWishlist ? 'Saved' : 'Save'}
                         </button>
                         <button className="btn btn-ghost">
                             <Share2 size={20} />

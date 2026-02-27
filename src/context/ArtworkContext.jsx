@@ -59,7 +59,7 @@ export function ArtworkProvider({ children }) {
         </ArtworkContext.Provider>
     );
 }
-
+// eslint-disable-next-line react-refresh/only-export-components
 export function useArtworks() {
     const context = useContext(ArtworkContext);
     if (!context) {

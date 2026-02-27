@@ -17,7 +17,7 @@ function matchesAny(input, keywords) {
 }
 
 // ─── Bot brain ─────────────────────────────────────────────
-function generateResponse(input, { user, cartItems, navigate, addToCart }) {
+function generateResponse(input, { user, cartItems }) {
     const q = normalize(input);
 
     // ── Role-specific greeting helpers ──
@@ -595,7 +595,7 @@ export default function Chatbot() {
             id: 1,
             sender: 'bot',
             text: getWelcomeMessage(user),
-            timestamp: Date.now()
+            timestamp: new Date().getTime()
         }
     ]);
 
@@ -604,12 +604,12 @@ export default function Chatbot() {
     useEffect(() => {
         if (prevUserRef.current !== user) {
             prevUserRef.current = user;
-            setMessages([{
+            setTimeout(() => setMessages([{
                 id: Date.now(),
                 sender: 'bot',
                 text: getWelcomeMessage(user),
                 timestamp: Date.now()
-            }]);
+            }]), 0);
         }
     }, [user]);
     const [input, setInput] = useState('');

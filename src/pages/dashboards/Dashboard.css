@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    DASHBOARD STYLES
    ============================================ */
 
@@ -1527,7 +1527,7 @@
     text-align: right;
 }
 
-/* Status Badges — Extended */
+/* Status Badges â€” Extended */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -1772,7 +1772,7 @@
     gap: var(--space-3);
 }
 
-/* Quick Actions — Shop */
+/* Quick Actions â€” Shop */
 .shop-quick-action {
     position: relative;
     overflow: hidden;
@@ -3097,7 +3097,7 @@
 }
 
 .pay-checkbox input:checked+.pay-checkbox__box::after {
-    content: '✓';
+    content: 'âœ“';
     color: white;
     font-size: 12px;
     font-weight: 700;
@@ -3524,7 +3524,7 @@
    VISITOR DASHBOARD
    ============================================ */
 
-/* ── Login Gate ── */
+/* â”€â”€ Login Gate â”€â”€ */
 .visitor-login-gate {
     display: flex;
     align-items: center;
@@ -3628,7 +3628,7 @@
     color: var(--gold);
 }
 
-/* ── Visitor Sections ── */
+/* â”€â”€ Visitor Sections â”€â”€ */
 .visitor-section {
     margin-top: var(--space-8);
 }
@@ -3656,7 +3656,7 @@
     color: var(--text-muted);
 }
 
-/* ── Browse Gallery Filters ── */
+/* â”€â”€ Browse Gallery Filters â”€â”€ */
 .visitor-browse-filters {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -3746,7 +3746,7 @@
     color: var(--filter-accent, var(--gold));
 }
 
-/* ── Virtual Tour Cards ── */
+/* â”€â”€ Virtual Tour Cards â”€â”€ */
 .visitor-tour-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -3869,7 +3869,7 @@
     color: var(--gold);
 }
 
-/* ── Wishlist Grid ── */
+/* â”€â”€ Wishlist Grid â”€â”€ */
 .visitor-wishlist-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -3967,7 +3967,7 @@
     background: #ef4444;
 }
 
-/* ── Empty State ── */
+/* â”€â”€ Empty State â”€â”€ */
 .visitor-empty-state {
     display: flex;
     flex-direction: column;
@@ -3984,7 +3984,7 @@
     opacity: 0.4;
 }
 
-/* ── Purchase History Table ── */
+/* â”€â”€ Purchase History Table â”€â”€ */
 .visitor-purchase-table-wrapper {
     background: var(--bg-secondary);
     border: 1px solid var(--glass-border);
@@ -4107,7 +4107,7 @@
     border-color: var(--gold);
 }
 
-/* ── Notifications ── */
+/* â”€â”€ Notifications â”€â”€ */
 .visitor-notif-badge {
     display: inline-flex;
     align-items: center;
@@ -4239,7 +4239,7 @@
     flex-shrink: 0;
 }
 
-/* ── Visitor Dashboard Responsive ── */
+/* â”€â”€ Visitor Dashboard Responsive â”€â”€ */
 @media (max-width: 1024px) {
     .visitor-browse-filters {
         grid-template-columns: repeat(2, 1fr);
@@ -4298,7 +4298,7 @@
     align-items: start;
 }
 
-/* ── Sidebar ── */
+/* â”€â”€ Sidebar â”€â”€ */
 .vp-sidebar {
     background: var(--bg-secondary);
     border: 1px solid var(--glass-border);
@@ -4400,7 +4400,7 @@
     color: var(--text-muted);
 }
 
-/* ── Main Content ── */
+/* â”€â”€ Main Content â”€â”€ */
 .vp-content {
     display: flex;
     flex-direction: column;
@@ -4700,7 +4700,7 @@
     color: #ef4444;
 }
 
-/* ── Sidebar item as button fix ── */
+/* â”€â”€ Sidebar item as button fix â”€â”€ */
 .vp-sidebar__item {
     background: none;
     border: none;
@@ -4708,7 +4708,7 @@
     width: 100%;
 }
 
-/* ── Manage Addresses ── */
+/* â”€â”€ Manage Addresses â”€â”€ */
 .vp-addresses-title {
     font-size: var(--text-lg);
     font-weight: 600;
@@ -4920,7 +4920,7 @@
     color: #ef4444;
 }
 
-/* ── PAN Card Information ── */
+/* â”€â”€ PAN Card Information â”€â”€ */
 .vp-pan-form {
     margin-top: var(--space-5);
     max-width: 480px;
@@ -5014,7 +5014,7 @@
     opacity: 0.7;
 }
 
-/* ── Gift Cards ── */
+/* â”€â”€ Gift Cards â”€â”€ */
 .vp-gc-header {
     display: flex;
     justify-content: space-between;
@@ -5231,7 +5231,7 @@
     }
 }
 
-/* ── Saved UPI ── */
+/* â”€â”€ Saved UPI â”€â”€ */
 .vp-upi-card {
     display: flex;
     justify-content: space-between;
@@ -5298,7 +5298,7 @@
     color: #ef4444;
 }
 
-/* ── Saved Cards ── */
+/* â”€â”€ Saved Cards â”€â”€ */
 .vp-card-item {
     display: flex;
     justify-content: space-between;
@@ -5357,7 +5357,7 @@
     font-family: 'Courier New', monospace;
 }
 
-/* ── My Coupons ── */
+/* â”€â”€ My Coupons â”€â”€ */
 .vp-coupon-card {
     display: flex;
     justify-content: space-between;
@@ -5445,7 +5445,7 @@
     margin-bottom: var(--space-3);
 }
 
-/* ── My Orders ── */
+/* â”€â”€ My Orders â”€â”€ */
 .vp-orders-breadcrumb {
     font-size: var(--text-xs);
     color: var(--text-muted);
@@ -5674,7 +5674,7 @@
     }
 }
 
-/* ── My Reviews & Ratings ── */
+/* â”€â”€ My Reviews & Ratings â”€â”€ */
 .vp-review-card {
     display: flex;
     gap: var(--space-4);
@@ -5739,7 +5739,7 @@
     margin-top: var(--space-1);
 }
 
-/* ── All Notifications ── */
+/* â”€â”€ All Notifications â”€â”€ */
 .vp-notif-card {
     display: flex;
     align-items: flex-start;
@@ -5791,7 +5791,7 @@
     flex-shrink: 0;
 }
 
-/* ── My Wishlist ── */
+/* â”€â”€ My Wishlist â”€â”€ */
 .vp-wishlist-card {
     display: flex;
     align-items: center;
@@ -6339,7 +6339,7 @@
 }
 
 /* =========================================
-   ADMIN DASHBOARD V2 — Full Styles
+   ADMIN DASHBOARD V2 â€” Full Styles
    ========================================= */
 
 .admin-dashboard-v2 {
@@ -6354,7 +6354,7 @@
     }
 }
 
-/* ── Toolbar ── */
+/* â”€â”€ Toolbar â”€â”€ */
 .admin-toolbar {
     display: flex;
     gap: 1rem;
@@ -6399,7 +6399,7 @@
     color: var(--text-muted);
 }
 
-/* ── Info Banner ── */
+/* â”€â”€ Info Banner â”€â”€ */
 .admin-info-banner {
     display: flex;
     align-items: center;
@@ -6418,7 +6418,7 @@
     color: var(--text-secondary);
 }
 
-/* ── Modal ── */
+/* â”€â”€ Modal â”€â”€ */
 .admin-modal-overlay {
     position: fixed;
     inset: 0;
@@ -6479,7 +6479,7 @@
     padding-top: 1rem;
 }
 
-/* ── Form Fields ── */
+/* â”€â”€ Form Fields â”€â”€ */
 .admin-field {
     display: flex;
     flex-direction: column;
@@ -6522,7 +6522,7 @@
     appearance: auto;
 }
 
-/* ── Users Table ── */
+/* â”€â”€ Users Table â”€â”€ */
 .admin-table-wrap {
     overflow-x: auto;
     padding: 0;
@@ -6581,7 +6581,7 @@
     border: 1px solid var(--glass-border);
 }
 
-/* ── Badges ── */
+/* â”€â”€ Badges â”€â”€ */
 .admin-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
@@ -6627,7 +6627,7 @@
     color: #60a5fa;
 }
 
-/* ── Status ── */
+/* â”€â”€ Status â”€â”€ */
 .admin-status {
     display: inline-flex;
     align-items: center;
@@ -6645,7 +6645,7 @@
     color: #ef4444;
 }
 
-/* ── Action Buttons ── */
+/* â”€â”€ Action Buttons â”€â”€ */
 .admin-actions {
     display: flex;
     gap: 0.5rem;
@@ -6683,7 +6683,7 @@
     background: rgba(34, 197, 94, 0.1);
 }
 
-/* ── Empty State ── */
+/* â”€â”€ Empty State â”€â”€ */
 .admin-empty {
     display: flex;
     flex-direction: column;
@@ -6694,7 +6694,7 @@
     text-align: center;
 }
 
-/* ── Role Assignment ── */
+/* â”€â”€ Role Assignment â”€â”€ */
 .admin-role-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -6783,7 +6783,7 @@
     font-weight: 500;
 }
 
-/* ── Content Moderation ── */
+/* â”€â”€ Content Moderation â”€â”€ */
 .admin-mod-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -6903,7 +6903,7 @@
     border-color: #ef4444;
 }
 
-/* ── Gallery Settings ── */
+/* â”€â”€ Gallery Settings â”€â”€ */
 .admin-settings-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -6982,7 +6982,7 @@
     font-weight: 600;
 }
 
-/* ── Toggle Switch ── */
+/* â”€â”€ Toggle Switch â”€â”€ */
 .admin-toggle-row {
     display: flex;
     align-items: center;
@@ -7073,7 +7073,7 @@
     justify-content: flex-end;
 }
 
-/* ── Analytics ── */
+/* â”€â”€ Analytics â”€â”€ */
 .admin-analytics-stats {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -7199,7 +7199,7 @@
     color: var(--text-primary);
 }
 
-/* ── Announcements ── */
+/* â”€â”€ Announcements â”€â”€ */
 .admin-announce-form {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -7277,7 +7277,7 @@
     border-top: 1px solid var(--glass-border);
 }
 
-/* ── stat-card color extensions ── */
+/* â”€â”€ stat-card color extensions â”€â”€ */
 .stat-card--cyan .stat-card__icon {
     background: rgba(6, 182, 212, 0.15);
     color: #06b6d4;
@@ -7287,3 +7287,59 @@
     background: rgba(236, 72, 153, 0.15);
     color: #ec4899;
 }
+
+/* Visitor Profile Empty Wishlist */
+.vp-empty-wishlist {
+    padding: var(--space-12) 0;
+    text-align: center;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--glass-border);
+    margin-top: var(--space-4);
+}
+
+.vp-empty-wishlist__content {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.vp-empty-wishlist__icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(201, 169, 98, 0.1);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    margin: 0 auto var(--space-6);
+}
+
+.vp-empty-wishlist h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-2);
+}
+
+.vp-empty-wishlist p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-8);
+    line-height: 1.6;
+}
+
+
+/* Coupon Cards */
+.vp-coupon-card{display:flex;align-items:stretch;background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:var(--space-3);transition:border-color var(--transition-fast);}
+.vp-coupon-card:hover{border-color:var(--gold);}
+.vp-coupon-card__badge{display:flex;align-items:center;justify-content:center;min-width:80px;background:linear-gradient(135deg,var(--gold),#c48a1e);color:var(--bg-primary);font-weight:800;font-size:var(--text-sm);text-align:center;padding:var(--space-2);}
+.vp-coupon-card__body{flex:1;padding:var(--space-4);border-left:2px dashed var(--glass-border);}
+.vp-coupon-card__code{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-2);}
+.vp-coupon-card__code span{font-family:var(--font-heading);font-size:var(--text-lg);font-weight:700;color:var(--gold);letter-spacing:0.1em;}
+.vp-coupon-card__copy{padding:var(--space-1) var(--space-3);background:transparent;border:1px solid var(--gold);border-radius:var(--radius-sm);color:var(--gold);font-size:var(--text-xs);font-weight:600;cursor:pointer;transition:all var(--transition-fast);}
+.vp-coupon-card__copy:hover{background:var(--gold);color:var(--bg-primary);}
+.vp-coupon-card__desc{font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-2);line-height:1.5;}
+.vp-coupon-card__meta{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;}
+.vp-coupon-card__tag{font-size:var(--text-xs);background:rgba(201,169,98,0.12);color:var(--gold);padding:2px var(--space-2);border-radius:var(--radius-sm);font-weight:600;}
+.vp-coupon-card__expiry{font-size:var(--text-xs);color:var(--text-muted);}
+/* View More Button */
+.vp-view-more-btn{display:flex;align-items:center;justify-content:center;gap:var(--space-2);padding:var(--space-3) var(--space-6);background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-lg);color:var(--text-secondary);font-size:var(--text-sm);font-weight:600;cursor:pointer;transition:all var(--transition-fast);letter-spacing:0.03em;}
+.vp-view-more-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,169,98,0.06);}

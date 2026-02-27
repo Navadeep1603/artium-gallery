@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -11,12 +11,24 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, user } = useAuth();
     const navigate = useNavigate();
+
+    // Redirect already-logged-in users to their dashboard
+    if (user) {
+        const dest = { admin: '/dashboard/admin', artist: '/dashboard/artist', curator: '/dashboard/curator' }[user.role] || '/dashboard/visitor/profile';
+        return <Navigate to={dest} replace />;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!email.trim() || !password.trim()) {
+            setError('Please enter both email and password.');
+            return;
+        }
+
         setLoading(true);
 
         const result = await login(email, password);

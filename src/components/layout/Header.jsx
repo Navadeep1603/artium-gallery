@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Menu,
@@ -43,23 +44,19 @@ export default function Header() {
     }, []);
 
     useEffect(() => {
-        setIsMobileMenuOpen(false);
+        setTimeout(() => setIsMobileMenuOpen(false), 0);
     }, [location]);
 
     const allNavLinks = [
         { path: '/gallery', label: 'Gallery' },
         { path: '/exhibitions', label: 'Exhibitions' },
-        { path: '/artists', label: 'Artists' },
         { path: '/virtual-tour', label: 'Virtual Tour' },
-        { path: '/shop', label: 'Shop' },
     ];
 
-    // Hide Artists & Shop for logged-in visitors, and hide all public links for artists
+    // Hide all public links for artists and admins
     let navLinks = allNavLinks;
     if (isAuthenticated) {
-        if (user?.role === 'visitor') {
-            navLinks = allNavLinks.filter(link => link.path !== '/artists' && link.path !== '/shop');
-        } else if (user?.role === 'artist' || user?.role === 'admin') {
+        if (user?.role === 'artist' || user?.role === 'admin') {
             navLinks = [];
         }
     }
@@ -70,7 +67,7 @@ export default function Header() {
             case 'admin': return '/dashboard/admin';
             case 'artist': return '/dashboard/artist';
             case 'curator': return '/dashboard/curator';
-            default: return '/dashboard/visitor';
+            default: return '/dashboard/visitor/profile';
         }
     };
 
@@ -228,14 +225,6 @@ export default function Header() {
                                                 >
                                                     <Bell size={18} />
                                                     <span>Notifications</span>
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/visitor/profile?section=giftcards"
-                                                    className="header__dropdown-item"
-                                                    onClick={() => setIsUserDropdownOpen(false)}
-                                                >
-                                                    <Gift size={18} />
-                                                    <span>Gift Cards</span>
                                                 </Link>
                                                 <button
                                                     onClick={() => {

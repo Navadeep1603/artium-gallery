@@ -71,6 +71,11 @@
     opacity: 0;
 }
 
+[data-theme="dark"] .artwork-card__action {
+    color: var(--bg-primary);
+    /* Use deep-blue in dark mode so it shows up on the white background */
+}
+
 .artwork-card:hover .artwork-card__action {
     transform: translateY(0);
     opacity: 1;
@@ -103,11 +108,18 @@
     cursor: not-allowed;
 }
 
-/* Badge */
-.artwork-card__badge {
+/* Badges */
+.artwork-card__badges {
     position: absolute;
     top: var(--space-3);
     left: var(--space-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    z-index: 10;
+}
+
+.artwork-card__badge {
     padding: var(--space-1) var(--space-3);
     background: var(--gold);
     color: var(--bg-primary);
@@ -183,6 +195,34 @@
     font-size: var(--text-lg);
     font-weight: 600;
     color: var(--gold);
+}
+
+/* Persistent Wishlist Button in Footer */
+.artwork-card__wishlist-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-full);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.artwork-card__wishlist-btn:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.08);
+}
+
+.artwork-card__wishlist-btn.active {
+    border-color: #e74c3c;
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
 }
 
 /* List View */

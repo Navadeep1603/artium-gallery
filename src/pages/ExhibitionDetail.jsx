@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
     Calendar, Users, MapPin, Play, Star, Heart,
     Share2, ArrowLeft, Image, ChevronRight, ShoppingCart
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useArtworks } from '../context/ArtworkContext';
 import { exhibitions } from '../data/mockData';
 import './Exhibition.css';
@@ -15,15 +15,35 @@ export default function ExhibitionDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { addToCart } = useCart();
     const { artworks } = useArtworks();
     const { dispatch: cartDispatch } = useCart();
+    const { toggleWishlist, isInWishlist } = useWishlist();
 
     const [exhibition, setExhibition] = useState(null);
     const [exhibitionArtworks, setExhibitionArtworks] = useState([]);
-    const [isSaved, setIsSaved] = useState(false);
     const [userRating, setUserRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
+
+    const inWishlist = exhibition ? isInWishlist(`exh-${exhibition.id}`) : false;
+
+    const handleToggleWishlist = () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+        if (exhibition) {
+            // Save as an exhibition item
+            toggleWishlist({
+                id: `exh-${exhibition.id}`,
+                title: exhibition.title,
+                artist: exhibition.curator,
+                price: 0, // Exhibitions don't have a price
+                thumbnail: exhibition.image,
+                available: true,
+                type: 'exhibition'
+            });
+        }
+    };
 
     // Setup and mock fetch
     useEffect(() => {
@@ -31,7 +51,7 @@ export default function ExhibitionDetail() {
         const found = exhibitions.find(e => e.id === parseInt(id));
 
         if (found) {
-            setExhibition(found);
+            setTimeout(() => setExhibition(found), 0);
 
             // Mock grabbing random artworks to display in this exhibition
             // In a real app, this would be a proper relationship in the DB
@@ -42,7 +62,7 @@ export default function ExhibitionDetail() {
             // Not found
             navigate('/exhibitions');
         }
-    }, [id, navigate]);
+    }, [id, navigate, artworks]);
 
     if (!exhibition) return null;
 
@@ -104,11 +124,11 @@ export default function ExhibitionDetail() {
                                 Enter Virtual Tour
                             </Link>
                             <button
-                                className={`btn btn-secondary ${isSaved ? 'text-gold border-gold' : ''}`}
-                                onClick={() => setIsSaved(!isSaved)}
+                                className={`btn btn-secondary ${inWishlist ? 'text-gold border-gold' : ''}`}
+                                onClick={handleToggleWishlist}
                             >
-                                <Heart size={20} className={isSaved ? 'fill-gold' : ''} />
-                                {isSaved ? 'Saved' : 'Save'}
+                                <Heart size={20} className={inWishlist ? 'fill-gold' : ''} />
+                                {inWishlist ? 'Saved' : 'Save'}
                             </button>
                             <button className="btn btn-secondary">
                                 <Share2 size={20} />

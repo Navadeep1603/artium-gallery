@@ -1,8 +1,10 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ArtworkProvider } from './context/ArtworkContext';
+import { WishlistProvider } from './context/WishlistContext';
+import { OrderProvider } from './context/OrderContext';
 
 // Layout
 import Header from './components/layout/Header';
@@ -24,7 +26,6 @@ import Signup from './pages/Signup';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import ArtistDashboard from './pages/dashboards/ArtistDashboard';
 import ArtistUpload from './pages/dashboards/ArtistUpload';
-import VisitorDashboard from './pages/dashboards/VisitorDashboard';
 import CuratorDashboard from './pages/dashboards/CuratorDashboard';
 import ShopDashboard from './pages/dashboards/ShopDashboard';
 import CartDashboard from './pages/dashboards/CartDashboard';
@@ -40,39 +41,43 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <ArtworkProvider>
-          <CartProvider>
-            <div className="app">
-              <Header />
-              <main className="main-content">
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/" element={<Home />} />
-                  <Route path="/gallery" element={<Gallery />} />
-                  <Route path="/artwork/:id" element={<ArtworkDetail />} />
-                  <Route path="/virtual-tour" element={<VirtualTour />} />
-                  <Route path="/exhibitions" element={<ExhibitionsDashboard />} />
-                  <Route path="/exhibitions/:id" element={<ExhibitionDetail />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
+          <WishlistProvider>
+            <CartProvider>
+              <OrderProvider>
+                <div className="app">
+                  <Header />
+                  <main className="main-content">
+                    <Routes>
+                      {/* Public Routes */}
+                      <Route path="/" element={<Home />} />
+                      <Route path="/gallery" element={<Gallery />} />
+                      <Route path="/artwork/:id" element={<ArtworkDetail />} />
+                      <Route path="/virtual-tour" element={<VirtualTour />} />
+                      <Route path="/exhibitions" element={<ExhibitionsDashboard />} />
+                      <Route path="/exhibitions/:id" element={<ExhibitionDetail />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/signup" element={<Signup />} />
 
-                  {/* Protected Dashboard Routes */}
-                  <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                  <Route path="/dashboard/artist" element={<ProtectedRoute><ArtistDashboard /></ProtectedRoute>} />
-                  <Route path="/dashboard/artist/upload" element={<ProtectedRoute><ArtistUpload /></ProtectedRoute>} />
-                  <Route path="/artists" element={<ProtectedRoute><ArtistDashboard /></ProtectedRoute>} />
-                  <Route path="/dashboard/visitor" element={<ProtectedRoute><VisitorDashboard /></ProtectedRoute>} />
-                  <Route path="/dashboard/visitor/profile" element={<ProtectedRoute><VisitorProfile /></ProtectedRoute>} />
-                  <Route path="/dashboard/curator" element={<ProtectedRoute><CuratorDashboard /></ProtectedRoute>} />
-                  <Route path="/dashboard/shop" element={<ProtectedRoute><ShopDashboard /></ProtectedRoute>} />
-                  <Route path="/shop" element={<ProtectedRoute><ShopDashboard /></ProtectedRoute>} />
-                  <Route path="/cart" element={<ProtectedRoute><CartDashboard /></ProtectedRoute>} />
-                  <Route path="/checkout" element={<ProtectedRoute><PaymentDashboard /></ProtectedRoute>} />
-                </Routes>
-              </main>
-              <Footer />
-              <Chatbot />
-            </div>
-          </CartProvider>
+                      {/* Protected Dashboard Routes */}
+                      <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                      <Route path="/dashboard/artist" element={<ProtectedRoute><ArtistDashboard /></ProtectedRoute>} />
+                      <Route path="/dashboard/artist/upload" element={<ProtectedRoute><ArtistUpload /></ProtectedRoute>} />
+                      <Route path="/artists" element={<ProtectedRoute><ArtistDashboard /></ProtectedRoute>} />
+                      <Route path="/dashboard/visitor" element={<Navigate to="/dashboard/visitor/profile" replace />} />
+                      <Route path="/dashboard/visitor/profile" element={<ProtectedRoute><VisitorProfile /></ProtectedRoute>} />
+                      <Route path="/dashboard/curator" element={<ProtectedRoute><CuratorDashboard /></ProtectedRoute>} />
+                      <Route path="/dashboard/shop" element={<ProtectedRoute><ShopDashboard /></ProtectedRoute>} />
+                      <Route path="/shop" element={<ProtectedRoute><ShopDashboard /></ProtectedRoute>} />
+                      <Route path="/cart" element={<ProtectedRoute><CartDashboard /></ProtectedRoute>} />
+                      <Route path="/checkout" element={<ProtectedRoute><PaymentDashboard /></ProtectedRoute>} />
+                    </Routes>
+                  </main>
+                  <Footer />
+                  <Chatbot />
+                </div>
+              </OrderProvider>
+            </CartProvider>
+          </WishlistProvider>
         </ArtworkProvider>
       </AuthProvider>
     </ThemeProvider>

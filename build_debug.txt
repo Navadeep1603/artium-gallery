@@ -1,0 +1,31 @@
+
+> artweb@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 35 modules transformed.
+[31m✗[39m Build failed in 253ms
+[31merror during build:
+[31m[vite:esbuild] Transform failed with 1 error:
+C:/Users/chall/OneDrive/Documents/Desktop/ArtWeb/src/pages/dashboards/VisitorProfile.jsx:147:10: ERROR: The symbol "searchParams" has already been declared[31m
+file: [36mC:/Users/chall/OneDrive/Documents/Desktop/ArtWeb/src/pages/dashboards/VisitorProfile.jsx:147:10[31m
+[33m
+[33mThe symbol "searchParams" has already been declared[33m
+145 |  
+146 |      // Read section from URL param (e.g. ?section=orders)
+147 |      const searchParams = new URLSearchParams(location.search);
+    |            ^
+148 |      const sectionFromUrl = searchParams.get('section');
+149 |  
+[31m
+    at failureErrorWithLog (C:\Users\chall\OneDrive\Documents\Desktop\ArtWeb\node_modules\esbuild\lib\main.js:1467:15)
+    at C:\Users\chall\OneDrive\Documents\Desktop\ArtWeb\node_modules\esbuild\lib\main.js:736:50
+    at responseCallbacks.<computed> (C:\Users\chall\OneDrive\Documents\Desktop\ArtWeb\node_modules\esbuild\lib\main.js:603:9)
+    at handleIncomingPacket (C:\Users\chall\OneDrive\Documents\Desktop\ArtWeb\node_modules\esbuild\lib\main.js:658:12)
+    at Socket.readFromStdout (C:\Users\chall\OneDrive\Documents\Desktop\ArtWeb\node_modules\esbuild\lib\main.js:581:7)
+    at Socket.emit (node:events:507:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m

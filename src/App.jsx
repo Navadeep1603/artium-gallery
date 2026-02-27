@@ -7,6 +7,7 @@ import { ArtworkProvider } from './context/ArtworkContext';
 // Layout
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import Home from './pages/Home';
@@ -53,18 +54,18 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
 
-                  {/* Dashboard Routes */}
-                  <Route path="/dashboard/admin" element={<AdminDashboard />} />
-                  <Route path="/dashboard/artist" element={<ArtistDashboard />} />
-                  <Route path="/dashboard/artist/upload" element={<ArtistUpload />} />
-                  <Route path="/artists" element={<ArtistDashboard />} />
-                  <Route path="/dashboard/visitor" element={<VisitorDashboard />} />
-                  <Route path="/dashboard/visitor/profile" element={<VisitorProfile />} />
-                  <Route path="/dashboard/curator" element={<CuratorDashboard />} />
-                  <Route path="/dashboard/shop" element={<ShopDashboard />} />
-                  <Route path="/shop" element={<ShopDashboard />} />
-                  <Route path="/cart" element={<CartDashboard />} />
-                  <Route path="/checkout" element={<PaymentDashboard />} />
+                  {/* Protected Dashboard Routes */}
+                  <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                  <Route path="/dashboard/artist" element={<ProtectedRoute><ArtistDashboard /></ProtectedRoute>} />
+                  <Route path="/dashboard/artist/upload" element={<ProtectedRoute><ArtistUpload /></ProtectedRoute>} />
+                  <Route path="/artists" element={<ProtectedRoute><ArtistDashboard /></ProtectedRoute>} />
+                  <Route path="/dashboard/visitor" element={<ProtectedRoute><VisitorDashboard /></ProtectedRoute>} />
+                  <Route path="/dashboard/visitor/profile" element={<ProtectedRoute><VisitorProfile /></ProtectedRoute>} />
+                  <Route path="/dashboard/curator" element={<ProtectedRoute><CuratorDashboard /></ProtectedRoute>} />
+                  <Route path="/dashboard/shop" element={<ProtectedRoute><ShopDashboard /></ProtectedRoute>} />
+                  <Route path="/shop" element={<ProtectedRoute><ShopDashboard /></ProtectedRoute>} />
+                  <Route path="/cart" element={<ProtectedRoute><CartDashboard /></ProtectedRoute>} />
+                  <Route path="/checkout" element={<ProtectedRoute><PaymentDashboard /></ProtectedRoute>} />
                 </Routes>
               </main>
               <Footer />

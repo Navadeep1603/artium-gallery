@@ -17,8 +17,8 @@ export const artworks = [
     culturalHistory: "This piece pays homage to the Post-Impressionist movement while embracing 21st-century digital artistry. It represents the bridge between classical art appreciation and contemporary creation.",
     origin: "New York, USA",
     dimensions: "4000 x 3000 px",
-    image: "/src/assets/pic1.jpg",
-    thumbnail: "/src/assets/pic1.jpg",
+    image: "https://images.unsplash.com/photo-1543857778-c4a1a3e0b2eb?w=800",
+    thumbnail: "https://images.unsplash.com/photo-1543857778-c4a1a3e0b2eb?w=400",
     views: 15420,
     likes: 892,
     audioNarration: true
@@ -40,8 +40,8 @@ export const artworks = [
     culturalHistory: "Inspired by the rich tradition of European landscape painting, this work incorporates elements from Spanish and Italian countryside traditions.",
     origin: "Barcelona, Spain",
     dimensions: "120 x 80 cm",
-    image: "/src/assets/pic2.jpg",
-    thumbnail: "/src/assets/pic2.jpg",
+    image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800",
+    thumbnail: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400",
     views: 8930,
     likes: 654,
     audioNarration: true
@@ -63,8 +63,8 @@ export const artworks = [
     culturalHistory: "Part of a series documenting the rhythm of Asian megacities, blending Eastern philosophy with Western documentary tradition.",
     origin: "Tokyo, Japan",
     dimensions: "60 x 40 cm",
-    image: "/src/assets/pic3.jpg",
-    thumbnail: "/src/assets/pic3.jpg",
+    image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800",
+    thumbnail: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400",
     views: 5670,
     likes: 423,
     audioNarration: false

@@ -59,7 +59,7 @@ export default function Header() {
     if (isAuthenticated) {
         if (user?.role === 'visitor') {
             navLinks = allNavLinks.filter(link => link.path !== '/artists' && link.path !== '/shop');
-        } else if (user?.role === 'artist') {
+        } else if (user?.role === 'artist' || user?.role === 'admin') {
             navLinks = [];
         }
     }

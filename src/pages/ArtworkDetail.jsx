@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     ArrowLeft,
@@ -15,16 +15,21 @@ import {
     Info,
     User
 } from 'lucide-react';
-import { artworks, artists } from '../data/mockData';
+import { artists } from '../data/mockData';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { useArtworks } from '../context/ArtworkContext';
 import './ArtworkDetail.css';
 
 export default function ArtworkDetail() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [isZoomed, setIsZoomed] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [activeTab, setActiveTab] = useState('about');
     const { addToCart, isInCart } = useCart();
+    const { user } = useAuth();
+    const { artworks } = useArtworks();
 
     const artwork = artworks.find(a => a.id === parseInt(id));
     const artist = artists.find(a => a.id === artwork?.artistId);
@@ -109,10 +114,7 @@ export default function ArtworkDetail() {
                     {/* Price */}
                     <div className="artwork-detail__price-section">
                         <div className="artwork-detail__price">
-                            {artwork.currency === 'ETH'
-                                ? `Ξ ${artwork.price}`
-                                : `$${artwork.price.toLocaleString()}`
-                            }
+                            {`₹${artwork.price.toLocaleString('en-IN')}`}
                         </div>
                         <span className={`artwork-detail__availability ${artwork.available ? '' : 'sold'}`}>
                             {artwork.available ? 'Available' : 'Sold'}
@@ -123,7 +125,10 @@ export default function ArtworkDetail() {
                     <div className="artwork-detail__actions">
                         <button
                             className={`btn btn-primary btn-lg ${inCart ? 'in-cart' : ''}`}
-                            onClick={() => !inCart && artwork.available && addToCart(artwork)}
+                            onClick={() => {
+                                if (!user) { navigate('/login'); return; }
+                                if (!inCart && artwork.available) addToCart(artwork);
+                            }}
                             disabled={!artwork.available || inCart}
                         >
                             <ShoppingCart size={20} />

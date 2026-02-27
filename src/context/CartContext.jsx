@@ -36,10 +36,6 @@ export function CartProvider({ children }) {
 
     const getTotal = () => {
         return cartItems.reduce((total, item) => {
-            if (item.currency === 'ETH') {
-                // Convert ETH to USD (mock rate)
-                return total + (item.price * 2500);
-            }
             return total + item.price;
         }, 0);
     };

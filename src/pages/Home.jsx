@@ -179,7 +179,7 @@ export default function Home() {
                                         <div className="featured__meta">
                                             <span className="featured__year">{artwork.year}</span>
                                             <span className="featured__price">
-                                                {artwork.currency === 'ETH' ? `Ξ ${artwork.price}` : `$${artwork.price.toLocaleString()}`}
+                                                {`₹${artwork.price.toLocaleString('en-IN')}`}
                                             </span>
                                         </div>
                                     </div>

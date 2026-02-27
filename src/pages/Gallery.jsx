@@ -1,19 +1,25 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Grid, List, Filter, X } from 'lucide-react';
-import { artworks, categories } from '../data/mockData';
+import { categories } from '../data/mockData';
+import { useCart } from '../context/CartContext';
+import { useArtworks } from '../context/ArtworkContext';
 import ArtworkCard from '../components/gallery/ArtworkCard';
 import './Gallery.css';
 
 export default function Gallery() {
-    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [activeCategory, setActiveCategory] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [priceRange, setPriceRange] = useState('all');
     const [viewMode, setViewMode] = useState('grid');
     const [sortBy, setSortBy] = useState('featured');
     const [showFilters, setShowFilters] = useState(false);
+    const { addToCart } = useCart();
+    const { artworks } = useArtworks();
 
     const filteredArtworks = artworks.filter(artwork => {
-        if (selectedCategory === 'all') return true;
-        return artwork.category === selectedCategory;
+        if (activeCategory === 'all') return true;
+        return artwork.category === activeCategory;
     });
 
     const sortedArtworks = [...filteredArtworks].sort((a, b) => {
@@ -54,8 +60,8 @@ export default function Gallery() {
                             {categories.map(category => (
                                 <button
                                     key={category.id}
-                                    className={`gallery-category ${selectedCategory === category.id ? 'active' : ''}`}
-                                    onClick={() => setSelectedCategory(category.id)}
+                                    className={`gallery-category ${activeCategory === category.id ? 'active' : ''}`}
+                                    onClick={() => setActiveCategory(category.id)}
                                 >
                                     {category.name}
                                 </button>

@@ -1,16 +1,23 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Eye, ExternalLink, ShoppingCart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import './ArtworkCard.css';
 
 export default function ArtworkCard({ artwork, viewMode = 'grid' }) {
     const { addToCart, isInCart } = useCart();
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const inCart = isInCart(artwork.id);
 
     const handleAddToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!user) {
+            navigate('/login');
+            return;
+        }
         if (!inCart && artwork.available) {
             addToCart(artwork);
         }
@@ -44,10 +51,7 @@ export default function ArtworkCard({ artwork, viewMode = 'grid' }) {
                             <span><Heart size={14} /> {artwork.likes.toLocaleString()}</span>
                         </div>
                         <div className="artwork-card__price">
-                            {artwork.currency === 'ETH'
-                                ? `Ξ ${artwork.price}`
-                                : `$${artwork.price.toLocaleString()}`
-                            }
+                            {`₹${artwork.price.toLocaleString('en-IN')}`}
                         </div>
                         <button
                             className={`artwork-card__cart-btn ${inCart ? 'in-cart' : ''}`}
@@ -112,10 +116,7 @@ export default function ArtworkCard({ artwork, viewMode = 'grid' }) {
                         <span><Heart size={12} /> {artwork.likes.toLocaleString()}</span>
                     </div>
                     <span className="artwork-card__price">
-                        {artwork.currency === 'ETH'
-                            ? `Ξ ${artwork.price}`
-                            : `$${artwork.price.toLocaleString()}`
-                        }
+                        {`₹${artwork.price.toLocaleString('en-IN')}`}
                     </span>
                 </div>
             </div>

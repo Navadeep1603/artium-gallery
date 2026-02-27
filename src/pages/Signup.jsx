@@ -40,7 +40,7 @@ export default function Signup() {
             const dashboardPath = {
                 artist: '/dashboard/artist',
                 curator: '/dashboard/curator',
-                visitor: '/dashboard/visitor'
+                visitor: '/gallery'
             }[role] || '/';
 
             navigate(dashboardPath);

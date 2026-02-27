@@ -28,11 +28,14 @@ import {
     Plus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { artworks } from '../../data/mockData';
+import { useTheme } from '../../context/ThemeContext';
+import { useArtworks } from '../../context/ArtworkContext';
 import './Dashboard.css';
 
 export default function ShopDashboard() {
     const { user } = useAuth();
+    const { theme } = useTheme();
+    const { artworks } = useArtworks();
     const [activeOrderTab, setActiveOrderTab] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -49,7 +52,7 @@ export default function ShopDashboard() {
         },
         {
             label: 'Total Revenue',
-            value: '$187,430',
+            value: '₹1,87,430',
             icon: DollarSign,
             color: 'green',
             change: '+18.2%',
@@ -83,7 +86,7 @@ export default function ShopDashboard() {
             customer: 'Isabella Martin',
             customerAvatar: 'IM',
             items: 2,
-            total: '$11,000',
+            total: '₹11,000',
             status: 'completed',
             date: 'Feb 12, 2026',
             artwork: 'Starry Night Reimagined'
@@ -93,7 +96,7 @@ export default function ShopDashboard() {
             customer: 'James Wilson',
             customerAvatar: 'JW',
             items: 1,
-            total: '$8,500',
+            total: '₹8,500',
             status: 'processing',
             date: 'Feb 11, 2026',
             artwork: 'Golden Serenity'
@@ -103,7 +106,7 @@ export default function ShopDashboard() {
             customer: 'Elena Fischer',
             customerAvatar: 'EF',
             items: 3,
-            total: '$15,200',
+            total: '₹15,200',
             status: 'shipped',
             date: 'Feb 10, 2026',
             artwork: 'Eternal Form'
@@ -113,7 +116,7 @@ export default function ShopDashboard() {
             customer: 'David Park',
             customerAvatar: 'DP',
             items: 1,
-            total: '$1,200',
+            total: '₹1,200',
             status: 'completed',
             date: 'Feb 09, 2026',
             artwork: 'Urban Symphony'
@@ -123,7 +126,7 @@ export default function ShopDashboard() {
             customer: 'Sarah Chen',
             customerAvatar: 'SC',
             items: 1,
-            total: '$4,200',
+            total: '₹4,200',
             status: 'cancelled',
             date: 'Feb 08, 2026',
             artwork: 'Whispers of Autumn'
@@ -138,7 +141,7 @@ export default function ShopDashboard() {
             ...artwork,
             rank: i + 1,
             soldCount: Math.floor(Math.random() * 50) + 10,
-            revenue: `$${((Math.random() * 50000) + 5000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`,
+            revenue: `₹${((Math.random() * 50000) + 5000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`,
         }));
 
     // Inventory alerts
@@ -151,20 +154,20 @@ export default function ShopDashboard() {
 
     // Weekly revenue data for chart
     const weeklyRevenue = [
-        { day: 'Mon', value: 72, amount: '$12,400' },
-        { day: 'Tue', value: 88, amount: '$15,200' },
-        { day: 'Wed', value: 55, amount: '$9,500' },
-        { day: 'Thu', value: 95, amount: '$16,800' },
-        { day: 'Fri', value: 68, amount: '$11,700' },
-        { day: 'Sat', value: 82, amount: '$14,100' },
-        { day: 'Sun', value: 60, amount: '$10,300' },
+        { day: 'Mon', value: 72, amount: '₹12,400' },
+        { day: 'Tue', value: 88, amount: '₹15,200' },
+        { day: 'Wed', value: 55, amount: '₹9,500' },
+        { day: 'Thu', value: 95, amount: '₹16,800' },
+        { day: 'Fri', value: 68, amount: '₹11,700' },
+        { day: 'Sat', value: 82, amount: '₹14,100' },
+        { day: 'Sun', value: 60, amount: '₹10,300' },
     ];
 
     // Customer insights mini-data
     const customerInsights = [
         { label: 'New Customers', value: '48', change: '+12%' },
         { label: 'Returning', value: '156', change: '+8%' },
-        { label: 'Avg. Order Value', value: '$2,840', change: '+5%' },
+        { label: 'Avg. Order Value', value: '₹2,840', change: '+5%' },
     ];
 
     const orderTabs = [

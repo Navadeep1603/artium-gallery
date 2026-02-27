@@ -1,506 +1,378 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
-    Image,
-    DollarSign,
-    Eye,
-    Heart,
-    Upload,
-    MessageSquare,
-    TrendingUp,
-    Plus,
-    Star,
-    BarChart2,
-    Calendar,
-    Clock,
-    ChevronRight,
-    ArrowUpRight,
-    ArrowDownRight,
-    Users,
-    ShoppingBag,
-    Award,
-    Palette,
-    Bell,
-    Settings,
-    ExternalLink,
-    Share2,
-    Filter
+    Palette, Image as ImageIcon, DollarSign, MessageSquare,
+    User, Calendar, Plus, Edit2, Trash2, CheckCircle, Clock, ExternalLink, Eye, Heart
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { artworks } from '../../data/mockData';
+import { useArtworks } from '../../context/ArtworkContext';
 import './Dashboard.css';
 
 export default function ArtistDashboard() {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState('all');
-    const [selectedPeriod, setSelectedPeriod] = useState('month');
+    const { getArtworksByArtist, deleteArtwork, updateArtwork } = useArtworks();
+    const [activeTab, setActiveTab] = useState('my-artworks');
+    const [editingArtwork, setEditingArtwork] = useState(null);
 
-    const myArtworks = artworks.slice(0, 8);
-    const totalViews = myArtworks.reduce((sum, a) => sum + a.views, 0);
-    const totalLikes = myArtworks.reduce((sum, a) => sum + a.likes, 0);
+    const artistName = user?.name || '';
+    const myArtworks = getArtworksByArtist(artistName);
 
-    // Stats
-    const stats = [
-        {
-            label: 'My Artworks',
-            value: myArtworks.length,
-            icon: Image,
-            color: 'gold',
-            change: '+2',
-            changeType: 'up',
-            subtitle: 'this month'
-        },
-        {
-            label: 'Total Views',
-            value: totalViews.toLocaleString(),
-            icon: Eye,
-            color: 'blue',
-            change: '+24.5%',
-            changeType: 'up',
-            subtitle: 'vs last month'
-        },
-        {
-            label: 'Total Likes',
-            value: totalLikes.toLocaleString(),
-            icon: Heart,
-            color: 'purple',
-            change: '+18.3%',
-            changeType: 'up',
-            subtitle: 'vs last month'
-        },
-        {
-            label: 'Earnings',
-            value: '$12,840',
-            icon: DollarSign,
-            color: 'green',
-            change: '+32.1%',
-            changeType: 'up',
-            subtitle: 'this month'
-        },
+    const totalRevenue = myArtworks.reduce((sum, a) => sum + (a.price * (a.views > 10000 ? 2 : 1)), 0);
+
+    const handleDelete = (id) => {
+        if (window.confirm('Are you sure you want to delete this artwork?')) {
+            deleteArtwork(id);
+        }
+    };
+
+    const handleEditSave = (e) => {
+        e.preventDefault();
+        updateArtwork(editingArtwork.id, editingArtwork);
+        setEditingArtwork(null);
+    };
+
+    const navItems = [
+        { id: 'my-artworks', icon: ImageIcon, label: 'My Artworks' },
+        { id: 'sales', icon: DollarSign, label: 'Sales Tracker' },
+        { id: 'messages', icon: MessageSquare, label: 'Buyer Interactions' },
+        { id: 'profile', icon: User, label: 'Profile Management' },
+        { id: 'exhibitions', icon: Calendar, label: 'Exhibition Requests' },
     ];
 
-    // Artwork tabs
-    const artworkTabs = [
-        { id: 'all', label: 'All Works', count: myArtworks.length },
-        { id: 'published', label: 'Published', count: myArtworks.filter(a => a.available).length },
-        { id: 'draft', label: 'Drafts', count: 2 },
-        { id: 'sold', label: 'Sold', count: 3 },
+    // Mock Data for other sections
+    const sales = [
+        { id: 'ORD-2026-001', artwork: 'Starry Night Reimagined', buyer: 'Isabella Martin', amount: 2500, status: 'completed', date: 'Feb 22, 2026' },
+        { id: 'ORD-2026-002', artwork: 'Neon Samurai', buyer: 'David Park', amount: 4100, status: 'pending', date: 'Feb 24, 2026' },
+        { id: 'ORD-2026-003', artwork: 'Urban Symphony', buyer: 'Sarah Chen', amount: 1800, status: 'completed', date: 'Feb 20, 2026' }
     ];
 
-    const filteredArtworks = activeTab === 'all'
-        ? myArtworks
-        : activeTab === 'published'
-            ? myArtworks.filter(a => a.available)
-            : activeTab === 'sold'
-                ? myArtworks.filter(a => !a.available).slice(0, 3)
-                : myArtworks.slice(0, 2);
-
-    // Messages
     const messages = [
-        { from: 'Isabella Martin', avatar: 'IM', preview: 'Interested in purchasing your latest piece...', time: '2h ago', unread: true },
-        { from: 'Gallery Admin', avatar: 'GA', preview: 'Your artwork "Starry Night" has been featured!', time: '5h ago', unread: true },
-        { from: 'James Wilson', avatar: 'JW', preview: 'Can you do a commission? Budget around $5k', time: '1d ago', unread: false },
-        { from: 'Sarah Chen', avatar: 'SC', preview: 'Beautiful work! Shared it with my collector friends.', time: '2d ago', unread: false },
+        { id: 1, from: 'Isabella Martin', artwork: 'Starry Night Reimagined', preview: 'I absolutely love this piece. Does it come framed?', time: '2 hours ago', unread: true },
+        { id: 2, from: 'Marcus Johnson', artwork: 'Commission Request', preview: 'Would you be open to painting a custom landscape?', time: '1 day ago', unread: false },
+        { id: 3, from: 'Gallery Curator', artwork: 'Neon Samurai', preview: 'We would like to feature this in our next digital exhibit.', time: '3 days ago', unread: false }
     ];
 
-    // Recent sales
-    const recentSales = [
-        { artwork: 'Starry Night Reimagined', buyer: 'Isabella Martin', price: '$8,500', date: 'Feb 22, 2026', status: 'completed' },
-        { artwork: 'Golden Serenity', buyer: 'David Park', price: '$5,200', date: 'Feb 18, 2026', status: 'processing' },
-        { artwork: 'Urban Symphony', buyer: 'Elena Fischer', price: '$3,400', date: 'Feb 14, 2026', status: 'completed' },
-    ];
-
-    // Engagement data
-    const weeklyEngagement = [
-        { day: 'Mon', views: 65, likes: 42 },
-        { day: 'Tue', views: 82, likes: 55 },
-        { day: 'Wed', views: 48, likes: 30 },
-        { day: 'Thu', views: 90, likes: 68 },
-        { day: 'Fri', views: 75, likes: 50 },
-        { day: 'Sat', views: 95, likes: 72 },
-        { day: 'Sun', views: 60, likes: 38 },
-    ];
-
-    // Notifications
-    const notifications = [
-        { text: 'Your artwork was featured on the homepage', icon: Star, type: 'success', time: '3h ago' },
-        { text: 'New commission request from James Wilson', icon: ShoppingBag, type: 'info', time: '1d ago' },
-        { text: 'Payout of $5,200 has been processed', icon: DollarSign, type: 'success', time: '2d ago' },
-        { text: 'Exhibition submission deadline in 3 days', icon: Calendar, type: 'warning', time: '3d ago' },
-    ];
-
-    // Milestones
-    const milestones = [
-        { label: '1K Views', progress: 85, current: '850', target: '1,000' },
-        { label: '100 Followers', progress: 62, current: '62', target: '100' },
-        { label: '$10K Earnings', progress: 78, current: '$7,840', target: '$10,000' },
+    const exhibitionRequests = [
+        { id: 1, title: 'Future Digitalism 2026', curator: 'Dr. Sarah Mitchell', dates: 'Mar 15 - Apr 15, 2026', status: 'pending', artworksRequested: ['Neon Samurai', 'Starry Night Reimagined'] },
+        { id: 2, title: 'Modern Masters', curator: 'Elena Rodriguez', dates: 'May 1 - Jun 30, 2026', status: 'approved', artworksRequested: ['Urban Symphony'] }
     ];
 
     return (
-        <div className="dashboard artist-dashboard">
-            {/* Header */}
-            <div className="dashboard__header">
-                <div>
-                    <motion.h1
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                    >
-                        <Palette size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
-                        Artist Studio
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 }}
-                    >
-                        Welcome back, {user?.name || 'Artist'} — here&apos;s your creative overview
-                    </motion.p>
+        <div className="dashboard artist-dashboard-v2">
+            <div className="dashboard__sidebar">
+                <div className="sidebar__profile">
+                    <div className="sidebar__avatar">
+                        <img src={user?.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100"} alt={artistName} />
+                    </div>
+                    <h3>{artistName}</h3>
+                    <p className="sidebar__role">Artist</p>
                 </div>
-                <div className="artist-header-actions">
-                    <Link to="/dashboard/artist/settings" className="btn btn-secondary">
-                        <Settings size={18} />
-                        Settings
-                    </Link>
-                    <Link to="/dashboard/artist/upload" className="btn btn-primary">
-                        <Plus size={18} />
-                        Upload Artwork
+
+                <nav className="sidebar__nav">
+                    {navItems.map(item => (
+                        <button
+                            key={item.id}
+                            className={`sidebar__nav-item ${activeTab === item.id ? 'active' : ''}`}
+                            onClick={() => setActiveTab(item.id)}
+                        >
+                            <item.icon size={18} />
+                            {item.label}
+                        </button>
+                    ))}
+                </nav>
+
+                <div className="sidebar__footer">
+                    <Link to="/" className="sidebar__nav-item text-secondary">
+                        <ExternalLink size={18} />
+                        View Live Public Page
                     </Link>
                 </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="dashboard__stats">
-                {stats.map((stat, index) => (
-                    <motion.div
-                        key={stat.label}
-                        className={`stat-card stat-card--${stat.color} artist-stat-card`}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1, type: 'spring', stiffness: 100 }}
-                        whileHover={{ scale: 1.02, y: -4 }}
-                    >
-                        <div className="stat-card__icon">
-                            <stat.icon size={24} />
-                        </div>
-                        <div className="stat-card__info">
-                            <span className="stat-card__value">{stat.value}</span>
-                            <span className="stat-card__label">{stat.label}</span>
-                        </div>
-                        <div className={`stat-card__change stat-card__change--${stat.changeType}`}>
-                            {stat.changeType === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                            <span>{stat.change}</span>
-                        </div>
-                    </motion.div>
-                ))}
-            </div>
+            <div className="dashboard__main-content">
+                <div className="dashboard__header" style={{ marginBottom: '1.5rem' }}>
+                    <div>
+                        <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+                            {navItems.find(i => i.id === activeTab)?.label}
+                        </motion.h1>
+                        <motion.p initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
+                            Manage your creative business and interactions
+                        </motion.p>
+                    </div>
+                    {activeTab === 'my-artworks' && (
+                        <Link to="/dashboard/artist/upload" className="btn btn-primary">
+                            <Plus size={18} />
+                            Upload New
+                        </Link>
+                    )}
+                </div>
 
-            <div className="dashboard__grid">
-                {/* My Artworks — Full width */}
-                <motion.div
-                    className="dashboard__card dashboard__card--full artist-artworks-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                >
-                    <div className="dashboard__card-header">
-                        <h2><Image size={20} /> My Artworks</h2>
-                        <div className="artist-artworks-header-actions">
-                            <Link to="/dashboard/artist/artworks">View All</Link>
-                        </div>
-                    </div>
-                    {/* Artwork Tabs */}
-                    <div className="artist-artwork-tabs">
-                        {artworkTabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                className={`artist-artwork-tab ${activeTab === tab.id ? 'artist-artwork-tab--active' : ''}`}
-                                onClick={() => setActiveTab(tab.id)}
-                            >
-                                {tab.label}
-                                <span className="artist-artwork-tab__count">{tab.count}</span>
-                            </button>
-                        ))}
-                    </div>
-                    <div className="dashboard__card-content">
-                        <div className="artist-artwork-grid">
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={activeTab}
-                                    className="artist-artwork-grid__inner"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    {filteredArtworks.map((artwork, index) => (
-                                        <motion.div
-                                            key={artwork.id}
-                                            className="artist-art-card"
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ delay: index * 0.06 }}
-                                            whileHover={{ y: -6 }}
-                                        >
-                                            <Link to={`/artwork/${artwork.id}`}>
-                                                <div className="artist-art-card__img-wrap">
-                                                    <img src={artwork.thumbnail} alt={artwork.title} />
-                                                    <div className="artist-art-card__overlay">
-                                                        <div className="artist-art-card__overlay-stats">
-                                                            <span><Eye size={14} /> {artwork.views}</span>
-                                                            <span><Heart size={14} /> {artwork.likes}</span>
+                <div className="dashboard__content-area">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            {/* MY ARTWORKS TAB */}
+                            {activeTab === 'my-artworks' && (
+                                <div className="artist-artworks-view">
+                                    {editingArtwork ? (
+                                        <div className="dashboard__card p-6 edit-artwork-form">
+                                            <h2 className="text-xl mb-4 text-primary">Edit Setting: {editingArtwork.title}</h2>
+                                            <form onSubmit={handleEditSave} className="space-y-4">
+                                                <div className="form-group grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label>Title</label>
+                                                        <input
+                                                            type="text"
+                                                            value={editingArtwork.title}
+                                                            onChange={e => setEditingArtwork({ ...editingArtwork, title: e.target.value })}
+                                                            className="w-full"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label>Price (INR)</label>
+                                                        <input
+                                                            type="number"
+                                                            value={editingArtwork.price}
+                                                            onChange={e => setEditingArtwork({ ...editingArtwork, price: Number(e.target.value) })}
+                                                            className="w-full"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Description</label>
+                                                    <textarea
+                                                        value={editingArtwork.description}
+                                                        onChange={e => setEditingArtwork({ ...editingArtwork, description: e.target.value })}
+                                                        className="w-full"
+                                                        rows="3"
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Cultural History</label>
+                                                    <textarea
+                                                        value={editingArtwork.culturalHistory || ''}
+                                                        onChange={e => setEditingArtwork({ ...editingArtwork, culturalHistory: e.target.value })}
+                                                        className="w-full"
+                                                        rows="2"
+                                                    />
+                                                </div>
+                                                <div className="flex justify-end gap-4 mt-6 pt-4 border-t border-glass">
+                                                    <button type="button" onClick={() => setEditingArtwork(null)} className="btn btn-secondary">Cancel</button>
+                                                    <button type="submit" className="btn btn-primary">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    ) : (
+                                        <div className="artist-art-grid">
+                                            {myArtworks.map(artwork => (
+                                                <div key={artwork.id} className="artist-art-card">
+                                                    <div className="artist-art-card__image relative">
+                                                        <img src={artwork.thumbnail} alt={artwork.title} loading="lazy" className="w-full h-48 object-cover rounded-t-lg" />
+                                                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-xs px-2 py-1 rounded">
+                                                            {artwork.available ? 'Live' : 'Sold'}
                                                         </div>
-                                                        <button className="artist-art-card__share" onClick={e => e.preventDefault()}>
-                                                            <Share2 size={14} />
-                                                        </button>
+                                                    </div>
+                                                    <div className="artist-art-card__content p-4 bg-tertiary rounded-b-lg border border-glass border-t-0">
+                                                        <h3 className="font-bold text-lg mb-1 truncate">{artwork.title}</h3>
+                                                        <p className="text-secondary text-sm mb-3">{artwork.medium} • ₹{artwork.price.toLocaleString('en-IN')}</p>
+
+                                                        <div className="artist-art-card__stats flex justify-between pb-3 border-b border-glass mb-3 text-secondary text-sm">
+                                                            <span title="Views" className="flex items-center gap-1"><Eye size={14} /> {artwork.views || 0}</span>
+                                                            <span title="Likes" className="flex items-center gap-1"><Heart size={14} /> {artwork.likes || 0}</span>
+                                                        </div>
+
+                                                        <div className="flex justify-between gap-2">
+                                                            <button className="btn btn-secondary text-sm py-1.5 flex-1 inline-flex justify-center" onClick={() => setEditingArtwork(artwork)} title="Edit">
+                                                                <Edit2 size={14} className="mr-1" /> Edit
+                                                            </button>
+                                                            <button className="btn btn-secondary text-red-500 hover:text-red-400 hover:bg-red-500/10 text-sm py-1.5 flex-1 inline-flex justify-center" onClick={() => handleDelete(artwork.id)} title="Delete">
+                                                                <Trash2 size={14} className="mr-1" /> Delete
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="artist-art-card__info">
-                                                    <h4>{artwork.title}</h4>
-                                                    <div className="artist-art-card__meta">
-                                                        <span className="artist-art-card__medium">{artwork.medium}</span>
-                                                        <span className="artist-art-card__price">
-                                                            {artwork.currency === 'ETH' ? `${artwork.price} ETH` : `$${artwork.price.toLocaleString()}`}
-                                                        </span>
-                                                    </div>
-                                                    <div className={`artist-art-card__status artist-art-card__status--${artwork.available ? 'available' : 'sold'}`}>
-                                                        {artwork.available ? 'Available' : 'Sold'}
-                                                    </div>
+                                            ))}
+                                            {myArtworks.length === 0 && (
+                                                <div className="col-span-full py-12 text-center text-secondary border-2 border-dashed border-glass rounded-lg">
+                                                    <ImageIcon size={32} className="mx-auto mb-3 opacity-50" />
+                                                    <p>You haven't uploaded any artworks yet.</p>
+                                                    <Link to="/dashboard/artist/upload" className="text-gold mt-2 inline-block">Upload your first piece</Link>
                                                 </div>
-                                            </Link>
-                                        </motion.div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* SALES TRACKER TAB */}
+                            {activeTab === 'sales' && (
+                                <div className="dashboard__card p-0 overflow-hidden">
+                                    <div className="p-6 border-b border-glass flex justify-between items-center">
+                                        <h2 className="text-xl">Recent Orders</h2>
+                                        <div className="text-right">
+                                            <p className="text-sm text-secondary">Total Revenue</p>
+                                            <p className="text-2xl text-gold">₹{totalRevenue.toLocaleString('en-IN')}</p>
+                                        </div>
+                                    </div>
+                                    <div className="table-responsive">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="border-b border-glass text-secondary text-sm">
+                                                    <th className="p-4 font-normal">Order ID</th>
+                                                    <th className="p-4 font-normal">Artwork</th>
+                                                    <th className="p-4 font-normal">Buyer</th>
+                                                    <th className="p-4 font-normal">Date</th>
+                                                    <th className="p-4 font-normal">Amount</th>
+                                                    <th className="p-4 font-normal">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {sales.map(sale => (
+                                                    <tr key={sale.id} className="border-b border-glass/50 hover:bg-white/5 transition-colors">
+                                                        <td className="p-4">{sale.id}</td>
+                                                        <td className="p-4 text-primary font-medium">{sale.artwork}</td>
+                                                        <td className="p-4">{sale.buyer}</td>
+                                                        <td className="p-4 text-secondary">{sale.date}</td>
+                                                        <td className="p-4 text-gold">₹{sale.amount.toLocaleString('en-IN')}</td>
+                                                        <td className="p-4">
+                                                            <span className={`px-2 py-1 rounded text-xs ${sale.status === 'completed' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                                                                {sale.status.charAt(0).toUpperCase() + sale.status.slice(1)}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* BUYER INTERACTIONS TAB */}
+                            {activeTab === 'messages' && (
+                                <div className="dashboard__card message-list p-0">
+                                    {messages.map((msg, idx) => (
+                                        <div key={msg.id} className={`message-item p-5 flex gap-4 hover:bg-white/5 transition-colors cursor-pointer ${msg.unread ? 'bg-white/5' : ''} ${idx !== messages.length - 1 ? 'border-b border-glass' : ''}`}>
+                                            <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-primary shrink-0 font-bold text-lg">
+                                                {msg.from.charAt(0)}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-start mb-1">
+                                                    <h4 className={`text-md ${msg.unread ? 'text-primary font-bold' : 'text-primary'}`}>
+                                                        {msg.from}
+                                                        <span className="text-sm font-normal text-secondary mx-2 hidden sm:inline-block">regarding</span>
+                                                        <span className="text-gold font-normal block sm:inline">{msg.artwork}</span>
+                                                    </h4>
+                                                    <span className="text-xs text-secondary whitespace-nowrap">{msg.time}</span>
+                                                </div>
+                                                <p className="text-sm text-secondary line-clamp-2 mt-1">{msg.preview}</p>
+                                            </div>
+                                            {msg.unread && <div className="w-2 h-2 rounded-full bg-gold shrink-0 self-center"></div>}
+                                        </div>
                                     ))}
-                                </motion.div>
-                            </AnimatePresence>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Recent Sales */}
-                <motion.div
-                    className="dashboard__card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                >
-                    <div className="dashboard__card-header">
-                        <h2><ShoppingBag size={20} /> Recent Sales</h2>
-                        <Link to="/dashboard/artist/sales">View All</Link>
-                    </div>
-                    <div className="dashboard__card-content">
-                        {recentSales.map((sale, index) => (
-                            <motion.div
-                                key={index}
-                                className="artist-sale-item"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.6 + index * 0.08 }}
-                            >
-                                <div className="artist-sale-item__info">
-                                    <h4>{sale.artwork}</h4>
-                                    <p>{sale.buyer} · {sale.date}</p>
                                 </div>
-                                <div className="artist-sale-item__right">
-                                    <span className="artist-sale-item__price">{sale.price}</span>
-                                    <span className={`status-badge status-badge--${sale.status}`}>
-                                        {sale.status === 'completed' ? 'Paid' : 'Pending'}
-                                    </span>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </motion.div>
+                            )}
 
-                {/* Messages */}
-                <motion.div
-                    className="dashboard__card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.55 }}
-                >
-                    <div className="dashboard__card-header">
-                        <h2><MessageSquare size={20} /> Messages</h2>
-                        <Link to="/dashboard/artist/messages">View All</Link>
-                    </div>
-                    <div className="dashboard__card-content">
-                        {messages.map((msg, index) => (
-                            <motion.div
-                                key={index}
-                                className={`artist-message-item ${msg.unread ? 'artist-message-item--unread' : ''}`}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.65 + index * 0.08 }}
-                            >
-                                <div className="artist-message-item__avatar">{msg.avatar}</div>
-                                <div className="artist-message-item__content">
-                                    <div className="artist-message-item__header">
-                                        <h4>{msg.from}</h4>
-                                        <span className="artist-message-item__time">{msg.time}</span>
+                            {/* PROFILE MANAGEMENT TAB */}
+                            {activeTab === 'profile' && (
+                                <div className="dashboard__card p-6">
+                                    <div className="flex flex-col md:flex-row items-start gap-8">
+                                        <div className="text-center shrink-0 w-full md:w-auto flex flex-col items-center">
+                                            <div className="w-32 h-32 rounded-full bg-glass border-2 border-dashed border-glass mb-4 flex items-center justify-center overflow-hidden group cursor-pointer hover:border-gold transition-colors relative">
+                                                <img src={user?.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100"} alt="Profile" className="w-full h-full object-cover group-hover:opacity-30 transition-opacity" />
+                                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-gold transition-opacity bg-black/40">
+                                                    <ImageIcon size={24} className="mb-1" />
+                                                    <span className="text-xs">Change</span>
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-secondary mt-2">JPG, PNG up to 5MB</p>
+                                        </div>
+
+                                        <form className="flex-1 space-y-4 w-full" onSubmit={(e) => e.preventDefault()}>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="form-group">
+                                                    <label className="block text-sm text-secondary mb-1">First Name</label>
+                                                    <input type="text" defaultValue={artistName.split(' ')[0]} className="w-full bg-primary border border-glass rounded p-3 text-primary focus:border-gold outline-none" />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label className="block text-sm text-secondary mb-1">Last Name</label>
+                                                    <input type="text" defaultValue={artistName.split(' ').slice(1).join(' ') || ''} className="w-full bg-primary border border-glass rounded p-3 text-primary focus:border-gold outline-none" />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="block text-sm text-secondary mb-1">Bio</label>
+                                                <textarea
+                                                    rows="4"
+                                                    defaultValue="A master of contemporary digital art, focusing on the intersection of reality and imagination. Based in San Francisco, CA."
+                                                    className="w-full bg-primary border border-glass rounded p-3 text-primary focus:border-gold outline-none"
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="block text-sm text-secondary mb-1">Portfolio / Personal Website Link</label>
+                                                <input type="url" defaultValue="https://myartportfolio.com" className="w-full bg-primary border border-glass rounded p-3 text-primary focus:border-gold outline-none" />
+                                            </div>
+                                            <div className="pt-4 border-t border-glass mt-6">
+                                                <button type="button" className="btn btn-primary">Save Profile Changes</button>
+                                            </div>
+                                        </form>
                                     </div>
-                                    <p>{msg.preview}</p>
                                 </div>
-                                {msg.unread && <div className="artist-message-item__dot" />}
-                            </motion.div>
-                        ))}
-                    </div>
-                </motion.div>
+                            )}
 
-                {/* Engagement Chart — Full width */}
-                <motion.div
-                    className="dashboard__card dashboard__card--full"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                >
-                    <div className="dashboard__card-header">
-                        <h2><BarChart2 size={20} /> Engagement Overview</h2>
-                        <div className="artist-chart-controls">
-                            <select
-                                className="dashboard__select"
-                                value={selectedPeriod}
-                                onChange={e => setSelectedPeriod(e.target.value)}
-                            >
-                                <option value="week">This Week</option>
-                                <option value="month">This Month</option>
-                                <option value="year">This Year</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="dashboard__chart-placeholder artist-engagement-chart">
-                        <div className="artist-chart-legend">
-                            <span className="artist-chart-legend__item artist-chart-legend__item--views">
-                                <span className="artist-chart-legend__dot" /> Views
-                            </span>
-                            <span className="artist-chart-legend__item artist-chart-legend__item--likes">
-                                <span className="artist-chart-legend__dot" /> Likes
-                            </span>
-                        </div>
-                        <div className="chart-bars artist-chart-bars">
-                            {weeklyEngagement.map((item, i) => (
-                                <div key={i} className="artist-chart-bar-group">
-                                    <motion.div
-                                        className="chart-bar artist-chart-bar--views"
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${item.views}%` }}
-                                        transition={{ delay: 0.7 + i * 0.08, duration: 0.6, ease: 'easeOut' }}
-                                    />
-                                    <motion.div
-                                        className="chart-bar artist-chart-bar--likes"
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${item.likes}%` }}
-                                        transition={{ delay: 0.75 + i * 0.08, duration: 0.6, ease: 'easeOut' }}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                        <div className="chart-labels">
-                            {weeklyEngagement.map(item => (
-                                <span key={item.day}>{item.day}</span>
-                            ))}
-                        </div>
-                    </div>
-                </motion.div>
+                            {/* EXHIBITION REQUESTS TAB */}
+                            {activeTab === 'exhibitions' && (
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                    {exhibitionRequests.map(req => (
+                                        <div key={req.id} className="dashboard__card p-6 flex flex-col">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-primary">{req.title}</h3>
+                                                    <p className="text-sm text-secondary mt-1">Curated by <span className="text-primary">{req.curator}</span></p>
+                                                </div>
+                                                <span className={`px-2 py-1 flex items-center gap-1 text-xs rounded-full border ${req.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                    }`}>
+                                                    {req.status === 'pending' ? <Clock size={12} /> : <CheckCircle size={12} />}
+                                                    {req.status === 'pending' ? 'Pending Review' : 'Approved'}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-secondary mb-4 flex items-center gap-2">
+                                                <Calendar size={14} className="text-gold" /> {req.dates}
+                                            </p>
 
-                {/* Notifications */}
-                <motion.div
-                    className="dashboard__card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.65 }}
-                >
-                    <div className="dashboard__card-header">
-                        <h2><Bell size={20} /> Notifications</h2>
-                        <Link to="/dashboard/artist/notifications">View All</Link>
-                    </div>
-                    <div className="dashboard__card-content">
-                        {notifications.map((notif, index) => {
-                            const NotifIcon = notif.icon;
-                            return (
-                                <motion.div
-                                    key={index}
-                                    className={`artist-notif-item artist-notif-item--${notif.type}`}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.75 + index * 0.08 }}
-                                >
-                                    <div className={`artist-notif-item__icon artist-notif-item__icon--${notif.type}`}>
-                                        <NotifIcon size={16} />
-                                    </div>
-                                    <div className="artist-notif-item__info">
-                                        <p>{notif.text}</p>
-                                        <span>{notif.time}</span>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                </motion.div>
+                                            <div className="mb-4 bg-primary/30 p-4 rounded border border-glass flex-1">
+                                                <p className="text-sm text-primary mb-2 font-medium">Requested Artworks ({req.artworksRequested.length}):</p>
+                                                <ul className="list-disc list-inside text-sm text-secondary space-y-1">
+                                                    {req.artworksRequested.map((art, i) => (
+                                                        <li key={i}>{art}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
 
-                {/* Milestones */}
-                <motion.div
-                    className="dashboard__card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                >
-                    <div className="dashboard__card-header">
-                        <h2><Award size={20} /> Milestones</h2>
-                    </div>
-                    <div className="dashboard__card-content">
-                        {milestones.map((milestone, index) => (
-                            <motion.div
-                                key={milestone.label}
-                                className="artist-milestone"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.8 + index * 0.1 }}
-                            >
-                                <div className="artist-milestone__header">
-                                    <h4>{milestone.label}</h4>
-                                    <span className="artist-milestone__progress-text">{milestone.progress}%</span>
+                                            {req.status === 'pending' && (
+                                                <div className="flex gap-3 mt-4">
+                                                    <button className="btn btn-primary flex-1">Accept All</button>
+                                                    <button className="btn btn-secondary flex-1 hover:text-red-400 hover:border-red-500/30">Decline</button>
+                                                </div>
+                                            )}
+                                            {req.status === 'approved' && (
+                                                <div className="mt-4 p-3 bg-green-500/10 rounded border border-green-500/20 text-center text-sm text-green-500 font-medium">
+                                                    You are participating in this exhibition!
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
-                                <div className="artist-milestone__bar">
-                                    <motion.div
-                                        className="artist-milestone__bar-fill"
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${milestone.progress}%` }}
-                                        transition={{ delay: 0.9 + index * 0.1, duration: 0.8, ease: 'easeOut' }}
-                                    />
-                                </div>
-                                <div className="artist-milestone__meta">
-                                    <span>{milestone.current}</span>
-                                    <span>/ {milestone.target}</span>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </motion.div>
+                            )}
+
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
             </div>
-
-            {/* Quick Actions */}
-            <motion.div
-                className="dashboard__actions"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.85 }}
-            >
-                <Link to="/dashboard/artist/upload" className="quick-action artist-quick-action">
-                    <Upload size={24} />
-                    <span>Upload Artwork</span>
-                </Link>
-                <Link to="/dashboard/artist/portfolio" className="quick-action artist-quick-action">
-                    <ExternalLink size={24} />
-                    <span>My Portfolio</span>
-                </Link>
-                <Link to="/dashboard/artist/analytics" className="quick-action artist-quick-action">
-                    <BarChart2 size={24} />
-                    <span>Analytics</span>
-                </Link>
-                <Link to="/dashboard/artist/commissions" className="quick-action artist-quick-action">
-                    <Palette size={24} />
-                    <span>Commissions</span>
-                </Link>
-            </motion.div>
         </div>
     );
 }

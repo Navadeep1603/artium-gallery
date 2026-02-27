@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Menu,
@@ -9,7 +9,14 @@ import {
     ShoppingCart,
     User,
     Search,
-    ChevronDown
+    ChevronDown,
+    Package,
+    Heart,
+    MapPin,
+    Bell,
+    Gift,
+    CreditCard,
+    LogOut
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -25,6 +32,7 @@ export default function Header() {
     const { user, isAuthenticated, logout } = useAuth();
     const { cartCount } = useCart();
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -38,13 +46,23 @@ export default function Header() {
         setIsMobileMenuOpen(false);
     }, [location]);
 
-    const navLinks = [
+    const allNavLinks = [
         { path: '/gallery', label: 'Gallery' },
         { path: '/exhibitions', label: 'Exhibitions' },
         { path: '/artists', label: 'Artists' },
         { path: '/virtual-tour', label: 'Virtual Tour' },
         { path: '/shop', label: 'Shop' },
     ];
+
+    // Hide Artists & Shop for logged-in visitors, and hide all public links for artists
+    let navLinks = allNavLinks;
+    if (isAuthenticated) {
+        if (user?.role === 'visitor') {
+            navLinks = allNavLinks.filter(link => link.path !== '/artists' && link.path !== '/shop');
+        } else if (user?.role === 'artist') {
+            navLinks = [];
+        }
+    }
 
     const getDashboardLink = () => {
         if (!user) return '/login';
@@ -158,24 +176,102 @@ export default function Header() {
                                         exit={{ opacity: 0, y: -10 }}
                                         transition={{ duration: 0.2 }}
                                     >
-                                        <Link
-                                            to={getDashboardLink()}
-                                            className="header__dropdown-item"
-                                            onClick={() => setIsUserDropdownOpen(false)}
-                                        >
-                                            <User size={18} />
-                                            <span>Dashboard</span>
-                                        </Link>
-                                        <button
-                                            onClick={() => {
-                                                logout();
-                                                setIsUserDropdownOpen(false);
-                                            }}
-                                            className="header__dropdown-item header__dropdown-logout"
-                                        >
-                                            <X size={18} />
-                                            <span>Logout</span>
-                                        </button>
+                                        {user?.role === 'visitor' ? (
+                                            <>
+                                                <div className="header__dropdown-header">
+                                                    Your Account
+                                                </div>
+                                                <Link
+                                                    to="/dashboard/visitor/profile"
+                                                    className="header__dropdown-item"
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    <User size={18} />
+                                                    <span>My Profile</span>
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/visitor/profile?section=orders"
+                                                    className="header__dropdown-item"
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    <Package size={18} />
+                                                    <span>Orders</span>
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/visitor/profile?section=wishlist"
+                                                    className="header__dropdown-item"
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    <Heart size={18} />
+                                                    <span>Wishlist</span>
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/visitor/profile?section=cards"
+                                                    className="header__dropdown-item"
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    <CreditCard size={18} />
+                                                    <span>Saved Cards & Wallet</span>
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/visitor/profile?section=addresses"
+                                                    className="header__dropdown-item"
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    <MapPin size={18} />
+                                                    <span>Saved Addresses</span>
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/visitor/profile?section=notifications"
+                                                    className="header__dropdown-item"
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    <Bell size={18} />
+                                                    <span>Notifications</span>
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/visitor/profile?section=giftcards"
+                                                    className="header__dropdown-item"
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    <Gift size={18} />
+                                                    <span>Gift Cards</span>
+                                                </Link>
+                                                <button
+                                                    onClick={() => {
+                                                        logout();
+                                                        setIsUserDropdownOpen(false);
+                                                        navigate('/');
+                                                    }}
+                                                    className="header__dropdown-item header__dropdown-logout"
+                                                >
+                                                    <LogOut size={18} />
+                                                    <span>Logout</span>
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Link
+                                                    to={getDashboardLink()}
+                                                    className="header__dropdown-item"
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    <User size={18} />
+                                                    <span>Dashboard</span>
+                                                </Link>
+                                                <button
+                                                    onClick={() => {
+                                                        logout();
+                                                        setIsUserDropdownOpen(false);
+                                                        navigate('/');
+                                                    }}
+                                                    className="header__dropdown-item header__dropdown-logout"
+                                                >
+                                                    <LogOut size={18} />
+                                                    <span>Logout</span>
+                                                </button>
+                                            </>
+                                        )}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -257,10 +353,16 @@ export default function Header() {
 
                             {isAuthenticated ? (
                                 <>
-                                    <Link to={getDashboardLink()} className="header__mobile-link">
-                                        Dashboard
-                                    </Link>
-                                    <button onClick={logout} className="header__mobile-link header__mobile-logout">
+                                    {user?.role === 'visitor' ? (
+                                        <Link to="/dashboard/visitor/profile" className="header__mobile-link">
+                                            My Profile
+                                        </Link>
+                                    ) : (
+                                        <Link to={getDashboardLink()} className="header__mobile-link">
+                                            Dashboard
+                                        </Link>
+                                    )}
+                                    <button onClick={() => { logout(); navigate('/'); }} className="header__mobile-link header__mobile-logout">
                                         Logout
                                     </button>
                                 </>

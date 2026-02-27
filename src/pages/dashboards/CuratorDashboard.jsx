@@ -10,11 +10,13 @@ import {
     Eye
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { exhibitions, artworks } from '../../data/mockData';
+import { useArtworks } from '../../context/ArtworkContext';
+import { exhibitions } from '../../data/mockData';
 import './Dashboard.css';
 
 export default function CuratorDashboard() {
     const { user } = useAuth();
+    const { artworks } = useArtworks();
 
     const myExhibitions = exhibitions.slice(0, 3);
     const featuredArtworks = artworks.filter(a => a.featured).slice(0, 4);

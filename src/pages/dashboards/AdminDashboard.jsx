@@ -14,12 +14,16 @@ import {
     XCircle,
     Clock
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { artworks, artists } from '../../data/mockData';
+import { useArtworks } from '../../context/ArtworkContext';
+import { artists } from '../../data/mockData';
 import './Dashboard.css';
 
 export default function AdminDashboard() {
+    const { theme } = useTheme();
     const { user } = useAuth();
+    const { artworks } = useArtworks();
 
     const stats = [
         { label: 'Total Artworks', value: artworks.length, icon: Image, color: 'gold' },

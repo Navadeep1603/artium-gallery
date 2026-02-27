@@ -8,6 +8,7 @@ import { ArtworkProvider } from './context/ArtworkContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import Chatbot from './components/chatbot/Chatbot';
 
 // Pages
 import Home from './pages/Home';
@@ -69,6 +70,7 @@ function App() {
                 </Routes>
               </main>
               <Footer />
+              <Chatbot />
             </div>
           </CartProvider>
         </ArtworkProvider>

@@ -32,12 +32,11 @@ const mockAnnouncements = [
 ];
 
 export default function AdminDashboard() {
-    const { user } = useAuth();
+    const { user, allUsers, adminAddUser, adminToggleUserStatus, adminUpdateUserRole } = useAuth();
     const { artworks } = useArtworks();
     const [activeTab, setActiveTab] = useState('users');
 
     // ── User Management state ──
-    const [users, setUsers] = useState(allUsers);
     const [userSearch, setUserSearch] = useState('');
     const [showAddUser, setShowAddUser] = useState(false);
     const [newUser, setNewUser] = useState({ name: '', email: '', role: 'visitor' });
@@ -71,7 +70,7 @@ export default function AdminDashboard() {
     ];
 
     // ── Filtered users ──
-    const filteredUsers = users.filter(u =>
+    const filteredUsers = (allUsers || []).filter(u =>
         u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
         u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
         u.role.toLowerCase().includes(userSearch.toLowerCase())
@@ -80,24 +79,17 @@ export default function AdminDashboard() {
     // ── Handlers ──
     const handleAddUser = (e) => {
         e.preventDefault();
-        const added = {
-            id: Date.now(),
-            ...newUser,
-            status: 'active',
-            joined: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
-        };
-        setUsers([added, ...users]);
+        adminAddUser(newUser);
         setNewUser({ name: '', email: '', role: 'visitor' });
         setShowAddUser(false);
     };
 
     const toggleUserStatus = (id) => {
-        setUsers(users.map(u => u.id === id ? { ...u, status: u.status === 'active' ? 'deactivated' : 'active' } : u));
+        adminToggleUserStatus(id);
     };
 
     const changeUserRole = (id, newRole) => {
-        setUsers(users.map(u => u.id === id ? { ...u, role: newRole } : u));
+        adminUpdateUserRole(id, newRole);
     };
 
     const handleModeration = (id, action) => {
@@ -133,7 +125,7 @@ export default function AdminDashboard() {
         { label: 'Active Artists', value: artists.length, icon: Palette, color: 'blue' },
         { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: DollarSign, color: 'green' },
         { label: 'Total Views', value: totalViews.toLocaleString(), icon: Eye, color: 'purple' },
-        { label: 'Active Users', value: users.filter(u => u.status === 'active').length, icon: Users, color: 'cyan' },
+        { label: 'Active Users', value: (allUsers || []).filter(u => u.status === 'active').length, icon: Users, color: 'cyan' },
         { label: 'Virtual Tours', value: '1,240', icon: TrendingUp, color: 'pink' },
     ];
 
@@ -336,7 +328,7 @@ export default function AdminDashboard() {
                                     </div>
 
                                     <div className="admin-role-grid">
-                                        {users.map(u => (
+                                        {(allUsers || []).map(u => (
                                             <motion.div
                                                 key={u.id}
                                                 className="admin-role-card dashboard__card"

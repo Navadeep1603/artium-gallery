@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [loginAttempts, setLoginAttempts] = useState({});
+    const [allUsers, setAllUsers] = useState(mockUsers);
 
     useEffect(() => {
         // Check for saved session
@@ -48,7 +49,7 @@ export function AuthProvider({ children }) {
             return { success: false, error: `Account temporarily locked due to too many failed attempts. Try again in ${remaining} seconds.` };
         }
 
-        const foundUser = mockUsers.find(u => u.email === email);
+        const foundUser = allUsers.find(u => u.email === email);
 
         if (!foundUser) {
             return { success: false, error: 'Invalid email or password' };
@@ -74,6 +75,10 @@ export function AuthProvider({ children }) {
             return { success: false, error: errorMsg };
         }
 
+        if (foundUser.status === 'deactivated') {
+            return { success: false, error: 'This account has been deactivated by an administrator.' };
+        }
+
         // Successful login
         // Clear previous attempts
         setLoginAttempts(prev => {
@@ -93,21 +98,24 @@ export function AuthProvider({ children }) {
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Check if email already exists
-        if (mockUsers.find(u => u.email === email)) {
+        if (allUsers.find(u => u.email === email)) {
             return { success: false, error: 'Email already registered' };
         }
 
         const newUser = {
-            id: mockUsers.length + 1,
+            id: Date.now(),
             email,
             password, // Store password in mock implementation so the user can log in later
             name,
             role,
+            status: 'active',
+            joined: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
             avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'
         };
 
-        mockUsers.push(newUser); // Register the user in our mock database
-        localStorage.setItem('gallery-users-db', JSON.stringify(mockUsers));
+        const updatedUsers = [...allUsers, newUser];
+        setAllUsers(updatedUsers);
+        localStorage.setItem('gallery-users-db', JSON.stringify(updatedUsers));
 
         const { password: _, ...userWithoutPassword } = newUser;
         setUser(userWithoutPassword);
@@ -125,17 +133,54 @@ export function AuthProvider({ children }) {
         const updatedUser = { ...user, ...updates };
         setUser(updatedUser);
         localStorage.setItem('gallery-user', JSON.stringify(updatedUser));
+
+        // Also update in allUsers
+        const updatedUsers = allUsers.map(u => u.id === user.id ? { ...u, ...updates } : u);
+        setAllUsers(updatedUsers);
+        localStorage.setItem('gallery-users-db', JSON.stringify(updatedUsers));
+
         return { success: true };
+    };
+
+    const adminAddUser = (newUser) => {
+        const userToAdd = {
+            id: Date.now(),
+            ...newUser,
+            password: 'defaultPassword123', // Hardcoded for newly added users by admin
+            status: 'active',
+            joined: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'
+        };
+        const updatedUsers = [userToAdd, ...allUsers];
+        setAllUsers(updatedUsers);
+        localStorage.setItem('gallery-users-db', JSON.stringify(updatedUsers));
+        return userToAdd;
+    };
+
+    const adminUpdateUserRole = (id, newRole) => {
+        const updatedUsers = allUsers.map(u => u.id === id ? { ...u, role: newRole } : u);
+        setAllUsers(updatedUsers);
+        localStorage.setItem('gallery-users-db', JSON.stringify(updatedUsers));
+    };
+
+    const adminToggleUserStatus = (id) => {
+        const updatedUsers = allUsers.map(u => u.id === id ? { ...u, status: u.status === 'active' ? 'deactivated' : 'active' } : u);
+        setAllUsers(updatedUsers);
+        localStorage.setItem('gallery-users-db', JSON.stringify(updatedUsers));
     };
 
     return (
         <AuthContext.Provider value={{
             user,
+            allUsers,
             loading,
             login,
             signup,
             logout,
             updateProfile,
+            adminAddUser,
+            adminUpdateUserRole,
+            adminToggleUserStatus,
             isAuthenticated: !!user
         }}>
             {children}

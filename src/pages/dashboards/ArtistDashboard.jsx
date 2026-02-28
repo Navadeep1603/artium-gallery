@@ -41,22 +41,22 @@ export default function ArtistDashboard() {
     ];
 
     // Mock Data for other sections
-    const sales = [
+    const sales = myArtworks.length > 0 ? [
         { id: 'ORD-2026-001', artwork: 'Starry Night Reimagined', buyer: 'Isabella Martin', amount: 2500, status: 'completed', date: 'Feb 22, 2026' },
         { id: 'ORD-2026-002', artwork: 'Neon Samurai', buyer: 'David Park', amount: 4100, status: 'pending', date: 'Feb 24, 2026' },
         { id: 'ORD-2026-003', artwork: 'Urban Symphony', buyer: 'Sarah Chen', amount: 1800, status: 'completed', date: 'Feb 20, 2026' }
-    ];
+    ] : [];
 
-    const messages = [
+    const messages = myArtworks.length > 0 ? [
         { id: 1, from: 'Isabella Martin', artwork: 'Starry Night Reimagined', preview: 'I absolutely love this piece. Does it come framed?', time: '2 hours ago', unread: true },
         { id: 2, from: 'Marcus Johnson', artwork: 'Commission Request', preview: 'Would you be open to painting a custom landscape?', time: '1 day ago', unread: false },
         { id: 3, from: 'Gallery Curator', artwork: 'Neon Samurai', preview: 'We would like to feature this in our next digital exhibit.', time: '3 days ago', unread: false }
-    ];
+    ] : [];
 
-    const exhibitionRequests = [
+    const exhibitionRequests = myArtworks.length > 0 ? [
         { id: 1, title: 'Future Digitalism 2026', curator: 'Dr. Sarah Mitchell', dates: 'Mar 15 - Apr 15, 2026', status: 'pending', artworksRequested: ['Neon Samurai', 'Starry Night Reimagined'] },
         { id: 2, title: 'Modern Masters', curator: 'Elena Rodriguez', dates: 'May 1 - Jun 30, 2026', status: 'approved', artworksRequested: ['Urban Symphony'] }
-    ];
+    ] : [];
 
     return (
         <div className="dashboard artist-dashboard-v2">
@@ -236,21 +236,29 @@ export default function ArtistDashboard() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {sales.map(sale => (
-                                                    <tr key={sale.id}>
-                                                        <td className="sales-table__id">{sale.id}</td>
-                                                        <td className="sales-table__artwork">{sale.artwork}</td>
-                                                        <td className="sales-table__buyer">{sale.buyer}</td>
-                                                        <td className="sales-table__date">{sale.date}</td>
-                                                        <td className="sales-table__amount">₹{sale.amount.toLocaleString('en-IN')}</td>
-                                                        <td>
-                                                            <span className={`sales-table__status sales-table__status--${sale.status}`}>
-                                                                {sale.status === 'completed' ? <CheckCircle size={12} /> : <Clock size={12} />}
-                                                                {sale.status.charAt(0).toUpperCase() + sale.status.slice(1)}
-                                                            </span>
+                                                {sales.length > 0 ? (
+                                                    sales.map(sale => (
+                                                        <tr key={sale.id}>
+                                                            <td className="sales-table__id">{sale.id}</td>
+                                                            <td className="sales-table__artwork">{sale.artwork}</td>
+                                                            <td className="sales-table__buyer">{sale.buyer}</td>
+                                                            <td className="sales-table__date">{sale.date}</td>
+                                                            <td className="sales-table__amount">₹{sale.amount.toLocaleString('en-IN')}</td>
+                                                            <td>
+                                                                <span className={`sales-table__status sales-table__status--${sale.status}`}>
+                                                                    {sale.status === 'completed' ? <CheckCircle size={12} /> : <Clock size={12} />}
+                                                                    {sale.status.charAt(0).toUpperCase() + sale.status.slice(1)}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan="6" className="text-center py-8 text-secondary">
+                                                            No sales transactions yet.
                                                         </td>
                                                     </tr>
-                                                ))}
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
@@ -260,28 +268,35 @@ export default function ArtistDashboard() {
                             {/* BUYER INTERACTIONS TAB */}
                             {activeTab === 'messages' && (
                                 <div className="msg-list dashboard__card">
-                                    {messages.map((msg, idx) => (
-                                        <div
-                                            key={msg.id}
-                                            className={`msg-item ${msg.unread ? 'msg-item--unread' : ''} ${idx !== messages.length - 1 ? 'msg-item--bordered' : ''}`}
-                                        >
-                                            <div className="msg-item__avatar">
-                                                {msg.from.charAt(0)}
-                                            </div>
-                                            <div className="msg-item__body">
-                                                <div className="msg-item__header">
-                                                    <div className="msg-item__title">
-                                                        <span className="msg-item__sender">{msg.from}</span>
-                                                        <span className="msg-item__re">regarding</span>
-                                                        <span className="msg-item__artwork">{msg.artwork}</span>
-                                                    </div>
-                                                    <span className="msg-item__time">{msg.time}</span>
+                                    {messages.length > 0 ? (
+                                        messages.map((msg, idx) => (
+                                            <div
+                                                key={msg.id}
+                                                className={`msg-item ${msg.unread ? 'msg-item--unread' : ''} ${idx !== messages.length - 1 ? 'msg-item--bordered' : ''}`}
+                                            >
+                                                <div className="msg-item__avatar">
+                                                    {msg.from.charAt(0)}
                                                 </div>
-                                                <p className="msg-item__preview">{msg.preview}</p>
+                                                <div className="msg-item__body">
+                                                    <div className="msg-item__header">
+                                                        <div className="msg-item__title">
+                                                            <span className="msg-item__sender">{msg.from}</span>
+                                                            <span className="msg-item__re">regarding</span>
+                                                            <span className="msg-item__artwork">{msg.artwork}</span>
+                                                        </div>
+                                                        <span className="msg-item__time">{msg.time}</span>
+                                                    </div>
+                                                    <p className="msg-item__preview">{msg.preview}</p>
+                                                </div>
+                                                {msg.unread && <span className="msg-item__dot" />}
                                             </div>
-                                            {msg.unread && <span className="msg-item__dot" />}
+                                        ))
+                                    ) : (
+                                        <div className="py-8 text-center text-secondary">
+                                            <MessageSquare size={32} className="mx-auto mb-3 opacity-50" />
+                                            <p>No messages from buyers yet.</p>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
                             )}
 
@@ -336,45 +351,52 @@ export default function ArtistDashboard() {
                             {/* EXHIBITION REQUESTS TAB */}
                             {activeTab === 'exhibitions' && (
                                 <div className="exhibit-grid">
-                                    {exhibitionRequests.map(req => (
-                                        <div key={req.id} className="exhibit-card dashboard__card">
-                                            <div className="exhibit-card__header">
-                                                <div>
-                                                    <h3 className="exhibit-card__title">{req.title}</h3>
-                                                    <p className="exhibit-card__curator">Curated by <strong>{req.curator}</strong></p>
+                                    {exhibitionRequests.length > 0 ? (
+                                        exhibitionRequests.map(req => (
+                                            <div key={req.id} className="exhibit-card dashboard__card">
+                                                <div className="exhibit-card__header">
+                                                    <div>
+                                                        <h3 className="exhibit-card__title">{req.title}</h3>
+                                                        <p className="exhibit-card__curator">Curated by <strong>{req.curator}</strong></p>
+                                                    </div>
+                                                    <span className={`exhibit-card__status exhibit-card__status--${req.status}`}>
+                                                        {req.status === 'pending' ? <Clock size={12} /> : <CheckCircle size={12} />}
+                                                        {req.status === 'pending' ? 'Pending Review' : 'Approved'}
+                                                    </span>
                                                 </div>
-                                                <span className={`exhibit-card__status exhibit-card__status--${req.status}`}>
-                                                    {req.status === 'pending' ? <Clock size={12} /> : <CheckCircle size={12} />}
-                                                    {req.status === 'pending' ? 'Pending Review' : 'Approved'}
-                                                </span>
+
+                                                <p className="exhibit-card__dates">
+                                                    <Calendar size={13} /> {req.dates}
+                                                </p>
+
+                                                <div className="exhibit-card__artworks">
+                                                    <p className="exhibit-card__artworks-heading">Requested Artworks ({req.artworksRequested.length})</p>
+                                                    <ul className="exhibit-card__artworks-list">
+                                                        {req.artworksRequested.map((art, i) => (
+                                                            <li key={i}>{art}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                                {req.status === 'pending' && (
+                                                    <div className="exhibit-card__actions">
+                                                        <button className="btn btn-primary">Accept All</button>
+                                                        <button className="btn btn-secondary exhibit-card__decline-btn">Decline</button>
+                                                    </div>
+                                                )}
+                                                {req.status === 'approved' && (
+                                                    <div className="exhibit-card__approved-banner">
+                                                        <CheckCircle size={16} /> You are participating in this exhibition!
+                                                    </div>
+                                                )}
                                             </div>
-
-                                            <p className="exhibit-card__dates">
-                                                <Calendar size={13} /> {req.dates}
-                                            </p>
-
-                                            <div className="exhibit-card__artworks">
-                                                <p className="exhibit-card__artworks-heading">Requested Artworks ({req.artworksRequested.length})</p>
-                                                <ul className="exhibit-card__artworks-list">
-                                                    {req.artworksRequested.map((art, i) => (
-                                                        <li key={i}>{art}</li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-
-                                            {req.status === 'pending' && (
-                                                <div className="exhibit-card__actions">
-                                                    <button className="btn btn-primary">Accept All</button>
-                                                    <button className="btn btn-secondary exhibit-card__decline-btn">Decline</button>
-                                                </div>
-                                            )}
-                                            {req.status === 'approved' && (
-                                                <div className="exhibit-card__approved-banner">
-                                                    <CheckCircle size={16} /> You are participating in this exhibition!
-                                                </div>
-                                            )}
+                                        ))
+                                    ) : (
+                                        <div className="col-span-full py-12 text-center text-secondary border-2 border-dashed border-glass dashboard__card">
+                                            <Calendar size={32} className="mx-auto mb-3 opacity-50" />
+                                            <p>You haven't received any exhibition requests yet.</p>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
                             )}
 

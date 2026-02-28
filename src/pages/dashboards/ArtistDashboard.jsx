@@ -199,10 +199,10 @@ export default function ArtistDashboard() {
                                                 </div>
                                             ))}
                                             {myArtworks.length === 0 && (
-                                                <div className="col-span-full py-12 text-center text-secondary border-2 border-dashed border-glass rounded-lg">
-                                                    <ImageIcon size={32} className="mx-auto mb-3 opacity-50" />
+                                                <div className="col-span-full py-12 flex flex-col items-center justify-center text-center text-secondary border-2 border-dashed border-glass rounded-lg">
+                                                    <ImageIcon size={32} className="mb-3 opacity-50" />
                                                     <p>You haven't uploaded any artworks yet.</p>
-                                                    <Link to="/dashboard/artist/upload" className="text-gold mt-2 inline-block">Upload your first piece</Link>
+                                                    <Link to="/dashboard/artist/upload" className="text-gold mt-2">Upload your first piece</Link>
                                                 </div>
                                             )}
                                         </div>

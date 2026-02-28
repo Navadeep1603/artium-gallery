@@ -174,25 +174,25 @@ export default function ArtistDashboard() {
                                                 <div key={artwork.id} className="artist-art-card">
                                                     <div className="artist-art-card__image">
                                                         <img src={artwork.thumbnail} alt={artwork.title} loading="lazy" />
-                                                        <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', fontSize: 'var(--text-xs)', padding: '2px 8px', borderRadius: 'var(--radius-sm)', color: '#fff' }}>
+                                                        <span className={`artist-art-card__live-badge ${!artwork.available ? 'artist-art-card__live-badge--sold' : ''}`}>
                                                             {artwork.available ? 'Live' : 'Sold'}
-                                                        </div>
+                                                        </span>
                                                     </div>
                                                     <div className="artist-art-card__content">
-                                                        <h3 className="font-bold text-lg mb-1 truncate">{artwork.title}</h3>
-                                                        <p className="text-secondary text-sm mb-3">{artwork.medium} • ₹{artwork.price.toLocaleString('en-IN')}</p>
+                                                        <h3 className="artist-art-card__title">{artwork.title}</h3>
+                                                        <p className="artist-art-card__subtitle">{artwork.medium} &bull; &#8377;{artwork.price.toLocaleString('en-IN')}</p>
 
-                                                        <div className="artist-art-card__stats flex justify-between pb-3 border-b border-glass mb-3 text-secondary text-sm">
-                                                            <span title="Views" className="flex items-center gap-1"><Eye size={14} /> {artwork.views || 0}</span>
-                                                            <span title="Likes" className="flex items-center gap-1"><Heart size={14} /> {artwork.likes || 0}</span>
+                                                        <div className="artist-art-card__stats-row">
+                                                            <span className="artist-art-card__stat"><Eye size={13} /> {(artwork.views || 0).toLocaleString()}</span>
+                                                            <span className="artist-art-card__stat"><Heart size={13} /> {(artwork.likes || 0).toLocaleString()}</span>
                                                         </div>
 
-                                                        <div className="flex justify-between gap-2">
-                                                            <button className="btn btn-secondary text-sm py-1.5 flex-1 inline-flex justify-center" onClick={() => setEditingArtwork(artwork)} title="Edit">
-                                                                <Edit2 size={14} className="mr-1" /> Edit
+                                                        <div className="artist-art-card__actions">
+                                                            <button className="artist-art-card__btn artist-art-card__btn--edit" onClick={() => setEditingArtwork(artwork)}>
+                                                                <Edit2 size={14} /> Edit
                                                             </button>
-                                                            <button className="btn btn-secondary text-red-500 hover:text-red-400 hover:bg-red-500/10 text-sm py-1.5 flex-1 inline-flex justify-center" onClick={() => handleDelete(artwork.id)} title="Delete">
-                                                                <Trash2 size={14} className="mr-1" /> Delete
+                                                            <button className="artist-art-card__btn artist-art-card__btn--delete" onClick={() => handleDelete(artwork.id)}>
+                                                                <Trash2 size={14} /> Delete
                                                             </button>
                                                         </div>
                                                     </div>

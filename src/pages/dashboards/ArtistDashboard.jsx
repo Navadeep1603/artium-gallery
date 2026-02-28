@@ -172,13 +172,13 @@ export default function ArtistDashboard() {
                                         <div className="artist-art-grid">
                                             {myArtworks.map(artwork => (
                                                 <div key={artwork.id} className="artist-art-card">
-                                                    <div className="artist-art-card__image relative">
-                                                        <img src={artwork.thumbnail} alt={artwork.title} loading="lazy" className="w-full h-48 object-cover rounded-t-lg" />
-                                                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-xs px-2 py-1 rounded">
+                                                    <div className="artist-art-card__image">
+                                                        <img src={artwork.thumbnail} alt={artwork.title} loading="lazy" />
+                                                        <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', fontSize: 'var(--text-xs)', padding: '2px 8px', borderRadius: 'var(--radius-sm)', color: '#fff' }}>
                                                             {artwork.available ? 'Live' : 'Sold'}
                                                         </div>
                                                     </div>
-                                                    <div className="artist-art-card__content p-4 bg-tertiary rounded-b-lg border border-glass border-t-0">
+                                                    <div className="artist-art-card__content">
                                                         <h3 className="font-bold text-lg mb-1 truncate">{artwork.title}</h3>
                                                         <p className="text-secondary text-sm mb-3">{artwork.medium} • ₹{artwork.price.toLocaleString('en-IN')}</p>
 

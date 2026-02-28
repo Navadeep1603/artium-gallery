@@ -47,7 +47,7 @@ export default function CuratorDashboard() {
     const filteredInsightsArtworks = artworks.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()) || a.artist.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return (
-        <div className="dashboard curator-dashboard-v2">
+        <div className="dashboard dashboard--grid curator-dashboard-v2">
             <div className="dashboard__sidebar">
                 <div className="sidebar__profile">
                     <div className="sidebar__avatar">

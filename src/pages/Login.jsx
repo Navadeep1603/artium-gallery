@@ -16,7 +16,7 @@ export default function Login() {
 
     // Redirect already-logged-in users to their dashboard
     if (user) {
-        const dest = { admin: '/dashboard/admin', artist: '/dashboard/artist', curator: '/dashboard/curator' }[user.role] || '/dashboard/visitor/profile';
+        const dest = { admin: '/dashboard/admin', artist: '/dashboard/artist', curator: '/dashboard/curator' }[user.role] || '/gallery';
         return <Navigate to={dest} replace />;
     }
 

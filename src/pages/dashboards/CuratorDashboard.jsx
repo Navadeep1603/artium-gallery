@@ -102,13 +102,13 @@ export default function CuratorDashboard() {
                             {/* 1. EXHIBITION MANAGER */}
                             {activeTab === 'exhibitions' && (
                                 <div className="curator-exhibit-grid">
-                                    <div className="dashboard__card p-6 flex items-center justify-center border-dashed border-2 cursor-pointer hover:border-gold transition-colors min-h-[250px] group">
-                                        <div className="text-center">
-                                            <div className="w-16 h-16 rounded-full bg-glass border border-glass flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                                <Plus size={24} className="text-gold" />
+                                    <div className="dashboard__card curator-create-card">
+                                        <div className="curator-create-card__content">
+                                            <div className="curator-create-card__icon">
+                                                <Plus size={24} />
                                             </div>
-                                            <h3 className="text-lg font-bold">Create Exhibition</h3>
-                                            <p className="text-sm text-secondary">Group artworks by theme or period</p>
+                                            <h3>Create Exhibition</h3>
+                                            <p>Group artworks by theme or period</p>
                                         </div>
                                     </div>
                                     {exhibitions.map(ex => (

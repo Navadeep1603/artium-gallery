@@ -8690,3 +8690,58 @@
     background: var(--glass-border);
     border-radius: 4px;
 }
+/* Create Exhibition Card */
+.curator-create-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+    border: 2px dashed var(--glass-border);
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.curator-create-card:hover {
+    border-color: var(--gold);
+    background: rgba(201, 169, 98, 0.05);
+}
+
+.curator-create-card__content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.curator-create-card__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.curator-create-card:hover .curator-create-card__icon {
+    transform: scale(1.1);
+    background: rgba(201, 169, 98, 0.1);
+}
+
+.curator-create-card__content h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.curator-create-card__content p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+}

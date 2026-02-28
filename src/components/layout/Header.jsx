@@ -53,10 +53,10 @@ export default function Header() {
         { path: '/virtual-tour', label: 'Virtual Tour' },
     ];
 
-    // Hide all public links for artists and admins
+    // Hide all public links for artists, admins, and curators
     let navLinks = allNavLinks;
     if (isAuthenticated) {
-        if (user?.role === 'artist' || user?.role === 'admin') {
+        if (user?.role === 'artist' || user?.role === 'admin' || user?.role === 'curator') {
             navLinks = [];
         }
     }

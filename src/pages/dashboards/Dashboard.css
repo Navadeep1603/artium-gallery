@@ -8457,3 +8457,75 @@
 @media (max-width: 768px) {
     .exhibit-grid { grid-template-columns: 1fr; }
 }
+
+/* ============================================
+   CURATOR DASHBOARD SPECIFIC
+   ============================================ */
+
+.curator-dashboard-v2 .dashboard__main-content {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--glass-border);
+    padding: var(--space-8);
+    min-height: calc(100vh - 120px);
+}
+
+/* Exhibition Manager Grid */
+.curator-exhibit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-6);
+}
+
+.exhibit-manage-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    border: 1px solid var(--glass-border);
+}
+
+.exhibit-manage-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(201, 169, 98, 0.4);
+}
+
+.exhibit-manage-card img {
+    transition: transform 0.5s ease, opacity 0.3s ease;
+}
+
+.exhibit-manage-card:hover img {
+    transform: scale(1.05);
+    opacity: 0.8 !important;
+}
+
+/* Insights View */
+.curator-insights-view table th {
+    letter-spacing: 0.05em;
+}
+
+.curator-insights-view table tr:hover td {
+    background: rgba(201, 169, 98, 0.03);
+}
+
+/* Tours View */
+.curator-tours-view .dashboard__card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+}
+
+.curator-tours-view .dashboard__card:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* Collaboration View */
+.dashboard__card[class*="flex h-"] {
+    background: var(--bg-primary);
+}
+
+/* Hide scrollbar for message list */
+.overflow-y-auto::-webkit-scrollbar {
+    width: 4px;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 4px;
+}

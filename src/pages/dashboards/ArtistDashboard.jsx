@@ -259,24 +259,27 @@ export default function ArtistDashboard() {
 
                             {/* BUYER INTERACTIONS TAB */}
                             {activeTab === 'messages' && (
-                                <div className="dashboard__card message-list p-0">
+                                <div className="msg-list dashboard__card">
                                     {messages.map((msg, idx) => (
-                                        <div key={msg.id} className={`message-item p-5 flex gap-4 hover:bg-white/5 transition-colors cursor-pointer ${msg.unread ? 'bg-white/5' : ''} ${idx !== messages.length - 1 ? 'border-b border-glass' : ''}`}>
-                                            <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-primary shrink-0 font-bold text-lg">
+                                        <div
+                                            key={msg.id}
+                                            className={`msg-item ${msg.unread ? 'msg-item--unread' : ''} ${idx !== messages.length - 1 ? 'msg-item--bordered' : ''}`}
+                                        >
+                                            <div className="msg-item__avatar">
                                                 {msg.from.charAt(0)}
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <h4 className={`text-md ${msg.unread ? 'text-primary font-bold' : 'text-primary'}`}>
-                                                        {msg.from}
-                                                        <span className="text-sm font-normal text-secondary mx-2 hidden sm:inline-block">regarding</span>
-                                                        <span className="text-gold font-normal block sm:inline">{msg.artwork}</span>
-                                                    </h4>
-                                                    <span className="text-xs text-secondary whitespace-nowrap">{msg.time}</span>
+                                            <div className="msg-item__body">
+                                                <div className="msg-item__header">
+                                                    <div className="msg-item__title">
+                                                        <span className="msg-item__sender">{msg.from}</span>
+                                                        <span className="msg-item__re">regarding</span>
+                                                        <span className="msg-item__artwork">{msg.artwork}</span>
+                                                    </div>
+                                                    <span className="msg-item__time">{msg.time}</span>
                                                 </div>
-                                                <p className="text-sm text-secondary line-clamp-2 mt-1">{msg.preview}</p>
+                                                <p className="msg-item__preview">{msg.preview}</p>
                                             </div>
-                                            {msg.unread && <div className="w-2 h-2 rounded-full bg-gold shrink-0 self-center"></div>}
+                                            {msg.unread && <span className="msg-item__dot" />}
                                         </div>
                                     ))}
                                 </div>
@@ -284,43 +287,45 @@ export default function ArtistDashboard() {
 
                             {/* PROFILE MANAGEMENT TAB */}
                             {activeTab === 'profile' && (
-                                <div className="dashboard__card p-6">
-                                    <div className="flex flex-col md:flex-row items-start gap-8">
-                                        <div className="text-center shrink-0 w-full md:w-auto flex flex-col items-center">
-                                            <div className="w-32 h-32 rounded-full bg-glass border-2 border-dashed border-glass mb-4 flex items-center justify-center overflow-hidden group cursor-pointer hover:border-gold transition-colors relative">
-                                                <img src={user?.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100"} alt="Profile" className="w-full h-full object-cover group-hover:opacity-30 transition-opacity" />
-                                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-gold transition-opacity bg-black/40">
-                                                    <ImageIcon size={24} className="mb-1" />
-                                                    <span className="text-xs">Change</span>
+                                <div className="dashboard__card profile-card">
+                                    <div className="profile-card__layout">
+                                        {/* Avatar column */}
+                                        <div className="profile-card__avatar-col">
+                                            <div className="profile-avatar-wrap">
+                                                <img
+                                                    src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200'}
+                                                    alt="Profile"
+                                                    className="profile-avatar"
+                                                />
+                                                <div className="profile-avatar__overlay">
+                                                    <ImageIcon size={22} />
+                                                    <span>Change</span>
                                                 </div>
                                             </div>
-                                            <p className="text-xs text-secondary mt-2">JPG, PNG up to 5MB</p>
+                                            <p className="profile-avatar__hint">JPG, PNG up to 5MB</p>
                                         </div>
 
-                                        <form className="flex-1 space-y-4 w-full" onSubmit={(e) => e.preventDefault()}>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                <div className="form-group">
-                                                    <label className="block text-sm text-secondary mb-1">First Name</label>
-                                                    <input type="text" defaultValue={artistName.split(' ')[0]} className="w-full bg-primary border border-glass rounded p-3 text-primary focus:border-gold outline-none" />
+                                        {/* Form column */}
+                                        <form className="profile-form" onSubmit={(e) => e.preventDefault()}>
+                                            <div className="profile-form__grid">
+                                                <div className="profile-form__field">
+                                                    <label>First Name</label>
+                                                    <input type="text" defaultValue={artistName.split(' ')[0]} />
                                                 </div>
-                                                <div className="form-group">
-                                                    <label className="block text-sm text-secondary mb-1">Last Name</label>
-                                                    <input type="text" defaultValue={artistName.split(' ').slice(1).join(' ') || ''} className="w-full bg-primary border border-glass rounded p-3 text-primary focus:border-gold outline-none" />
+                                                <div className="profile-form__field">
+                                                    <label>Last Name</label>
+                                                    <input type="text" defaultValue={artistName.split(' ').slice(1).join(' ') || ''} />
                                                 </div>
                                             </div>
-                                            <div className="form-group">
-                                                <label className="block text-sm text-secondary mb-1">Bio</label>
-                                                <textarea
-                                                    rows="4"
-                                                    defaultValue="A master of contemporary digital art, focusing on the intersection of reality and imagination. Based in San Francisco, CA."
-                                                    className="w-full bg-primary border border-glass rounded p-3 text-primary focus:border-gold outline-none"
-                                                />
+                                            <div className="profile-form__field">
+                                                <label>Bio</label>
+                                                <textarea rows="4" defaultValue="A master of contemporary digital art, focusing on the intersection of reality and imagination. Based in San Francisco, CA." />
                                             </div>
-                                            <div className="form-group">
-                                                <label className="block text-sm text-secondary mb-1">Portfolio / Personal Website Link</label>
-                                                <input type="url" defaultValue="https://myartportfolio.com" className="w-full bg-primary border border-glass rounded p-3 text-primary focus:border-gold outline-none" />
+                                            <div className="profile-form__field">
+                                                <label>Portfolio / Personal Website</label>
+                                                <input type="url" defaultValue="https://myartportfolio.com" />
                                             </div>
-                                            <div className="pt-4 border-t border-glass mt-6">
+                                            <div className="profile-form__footer">
                                                 <button type="button" className="btn btn-primary">Save Profile Changes</button>
                                             </div>
                                         </form>
@@ -330,27 +335,27 @@ export default function ArtistDashboard() {
 
                             {/* EXHIBITION REQUESTS TAB */}
                             {activeTab === 'exhibitions' && (
-                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                <div className="exhibit-grid">
                                     {exhibitionRequests.map(req => (
-                                        <div key={req.id} className="dashboard__card p-6 flex flex-col">
-                                            <div className="flex justify-between items-start mb-4">
+                                        <div key={req.id} className="exhibit-card dashboard__card">
+                                            <div className="exhibit-card__header">
                                                 <div>
-                                                    <h3 className="text-lg font-bold text-primary">{req.title}</h3>
-                                                    <p className="text-sm text-secondary mt-1">Curated by <span className="text-primary">{req.curator}</span></p>
+                                                    <h3 className="exhibit-card__title">{req.title}</h3>
+                                                    <p className="exhibit-card__curator">Curated by <strong>{req.curator}</strong></p>
                                                 </div>
-                                                <span className={`px-2 py-1 flex items-center gap-1 text-xs rounded-full border ${req.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                    }`}>
+                                                <span className={`exhibit-card__status exhibit-card__status--${req.status}`}>
                                                     {req.status === 'pending' ? <Clock size={12} /> : <CheckCircle size={12} />}
                                                     {req.status === 'pending' ? 'Pending Review' : 'Approved'}
                                                 </span>
                                             </div>
-                                            <p className="text-sm text-secondary mb-4 flex items-center gap-2">
-                                                <Calendar size={14} className="text-gold" /> {req.dates}
+
+                                            <p className="exhibit-card__dates">
+                                                <Calendar size={13} /> {req.dates}
                                             </p>
 
-                                            <div className="mb-4 bg-primary/30 p-4 rounded border border-glass flex-1">
-                                                <p className="text-sm text-primary mb-2 font-medium">Requested Artworks ({req.artworksRequested.length}):</p>
-                                                <ul className="list-disc list-inside text-sm text-secondary space-y-1">
+                                            <div className="exhibit-card__artworks">
+                                                <p className="exhibit-card__artworks-heading">Requested Artworks ({req.artworksRequested.length})</p>
+                                                <ul className="exhibit-card__artworks-list">
                                                     {req.artworksRequested.map((art, i) => (
                                                         <li key={i}>{art}</li>
                                                     ))}
@@ -358,14 +363,14 @@ export default function ArtistDashboard() {
                                             </div>
 
                                             {req.status === 'pending' && (
-                                                <div className="flex gap-3 mt-4">
-                                                    <button className="btn btn-primary flex-1">Accept All</button>
-                                                    <button className="btn btn-secondary flex-1 hover:text-red-400 hover:border-red-500/30">Decline</button>
+                                                <div className="exhibit-card__actions">
+                                                    <button className="btn btn-primary">Accept All</button>
+                                                    <button className="btn btn-secondary exhibit-card__decline-btn">Decline</button>
                                                 </div>
                                             )}
                                             {req.status === 'approved' && (
-                                                <div className="mt-4 p-3 bg-green-500/10 rounded border border-green-500/20 text-center text-sm text-green-500 font-medium">
-                                                    You are participating in this exhibition!
+                                                <div className="exhibit-card__approved-banner">
+                                                    <CheckCircle size={16} /> You are participating in this exhibition!
                                                 </div>
                                             )}
                                         </div>

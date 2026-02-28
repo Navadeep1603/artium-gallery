@@ -212,36 +212,40 @@ export default function ArtistDashboard() {
 
                             {/* SALES TRACKER TAB */}
                             {activeTab === 'sales' && (
-                                <div className="dashboard__card p-0 overflow-hidden">
-                                    <div className="p-6 border-b border-glass flex justify-between items-center">
-                                        <h2 className="text-xl">Recent Orders</h2>
-                                        <div className="text-right">
-                                            <p className="text-sm text-secondary">Total Revenue</p>
-                                            <p className="text-2xl text-gold">₹{totalRevenue.toLocaleString('en-IN')}</p>
+                                <div className="dashboard__card sales-card">
+                                    <div className="sales-card__header">
+                                        <div>
+                                            <h2 className="sales-card__title">Recent Orders</h2>
+                                            <p className="sales-card__subtitle">Your latest sales and transactions</p>
+                                        </div>
+                                        <div className="sales-card__revenue">
+                                            <span className="sales-card__revenue-label">Total Revenue</span>
+                                            <span className="sales-card__revenue-value">₹{totalRevenue.toLocaleString('en-IN')}</span>
                                         </div>
                                     </div>
-                                    <div className="table-responsive">
-                                        <table className="w-full text-left border-collapse">
+                                    <div className="sales-table-wrap">
+                                        <table className="sales-table">
                                             <thead>
-                                                <tr className="border-b border-glass text-secondary text-sm">
-                                                    <th className="p-4 font-normal">Order ID</th>
-                                                    <th className="p-4 font-normal">Artwork</th>
-                                                    <th className="p-4 font-normal">Buyer</th>
-                                                    <th className="p-4 font-normal">Date</th>
-                                                    <th className="p-4 font-normal">Amount</th>
-                                                    <th className="p-4 font-normal">Status</th>
+                                                <tr>
+                                                    <th>Order ID</th>
+                                                    <th>Artwork</th>
+                                                    <th>Buyer</th>
+                                                    <th>Date</th>
+                                                    <th>Amount</th>
+                                                    <th>Status</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {sales.map(sale => (
-                                                    <tr key={sale.id} className="border-b border-glass/50 hover:bg-white/5 transition-colors">
-                                                        <td className="p-4">{sale.id}</td>
-                                                        <td className="p-4 text-primary font-medium">{sale.artwork}</td>
-                                                        <td className="p-4">{sale.buyer}</td>
-                                                        <td className="p-4 text-secondary">{sale.date}</td>
-                                                        <td className="p-4 text-gold">₹{sale.amount.toLocaleString('en-IN')}</td>
-                                                        <td className="p-4">
-                                                            <span className={`px-2 py-1 rounded text-xs ${sale.status === 'completed' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                                                    <tr key={sale.id}>
+                                                        <td className="sales-table__id">{sale.id}</td>
+                                                        <td className="sales-table__artwork">{sale.artwork}</td>
+                                                        <td className="sales-table__buyer">{sale.buyer}</td>
+                                                        <td className="sales-table__date">{sale.date}</td>
+                                                        <td className="sales-table__amount">₹{sale.amount.toLocaleString('en-IN')}</td>
+                                                        <td>
+                                                            <span className={`sales-table__status sales-table__status--${sale.status}`}>
+                                                                {sale.status === 'completed' ? <CheckCircle size={12} /> : <Clock size={12} />}
                                                                 {sale.status.charAt(0).toUpperCase() + sale.status.slice(1)}
                                                             </span>
                                                         </td>

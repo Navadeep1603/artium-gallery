@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    DASHBOARD STYLES
    ============================================ */
 
@@ -8744,4 +8744,121 @@
     font-size: var(--text-sm);
     color: var(--text-secondary);
     margin: 0;
+}
+
+/* ============================================
+   RAZORPAY PAYMENT STYLES
+   ============================================ */
+
+/* Pay with Razorpay Button */
+.pay-razorpay-btn {
+    background: linear-gradient(135deg, #1a73e8 0%, #0b57d0 50%, #072e6f 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: var(--space-4) var(--space-8) !important;
+    font-size: var(--text-base) !important;
+    font-weight: 700 !important;
+    border-radius: var(--radius-lg) !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    transition: all var(--transition-base);
+    box-shadow: 0 4px 16px rgba(26, 115, 232, 0.35);
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.pay-razorpay-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.pay-razorpay-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(26, 115, 232, 0.5);
+    background: linear-gradient(135deg, #2b7de9 0%, #1565c0 50%, #0d47a1 100%) !important;
+}
+
+.pay-razorpay-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.pay-razorpay-btn--processing {
+    opacity: 0.85;
+    cursor: not-allowed;
+}
+
+/* Razorpay Info Badge on Review Step */
+.pay-razorpay-info {
+    padding: var(--space-4);
+    background: rgba(26, 115, 232, 0.04);
+    border: 1px solid rgba(26, 115, 232, 0.15);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-3);
+}
+
+.pay-razorpay-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.pay-razorpay-badge svg {
+    color: #1a73e8;
+    flex-shrink: 0;
+}
+
+.pay-razorpay-badge h4 {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 2px 0;
+}
+
+.pay-razorpay-badge p {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.pay-razorpay-note {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+    padding-top: var(--space-2);
+    border-top: 1px dashed rgba(26, 115, 232, 0.12);
+}
+
+/* Payment ID on Confirmation Screen */
+.pay-success__payment-id {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-6);
+    background: rgba(26, 115, 232, 0.06);
+    border: 1px solid rgba(26, 115, 232, 0.15);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-3);
+}
+
+.pay-success__payment-id span {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.pay-success__payment-id strong {
+    font-size: var(--text-sm);
+    color: #1a73e8;
+    font-family: var(--font-mono, monospace);
+    word-break: break-all;
 }

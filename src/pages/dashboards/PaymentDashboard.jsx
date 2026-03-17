@@ -16,12 +16,12 @@ import {
     Phone,
     Home,
     Globe,
-    Calendar,
     Award,
     Package,
     Sparkles,
     CheckCircle,
-    X
+    X,
+    Zap
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -30,8 +30,7 @@ import './Dashboard.css';
 
 const STEPS = [
     { id: 1, label: 'Shipping', icon: Truck },
-    { id: 2, label: 'Payment', icon: CreditCard },
-    { id: 3, label: 'Review', icon: CheckCircle },
+    { id: 2, label: 'Review & Pay', icon: CreditCard },
 ];
 
 const mockAddresses = [
@@ -39,15 +38,8 @@ const mockAddresses = [
     { id: 2, name: 'John Doe', phone: '+91 9876543210', address: '456 Studio Apartment, Whitefield, Bangalore - 560066, Karnataka', type: 'WORK' }
 ];
 
-const mockCards = [
-    { id: 1, type: 'Visa', last4: '4242', expiry: '12/25', name: 'John Doe', isDefault: true },
-    { id: 2, type: 'Mastercard', last4: '8888', expiry: '08/24', name: 'John Doe', isDefault: false }
-];
-
-const mockUPIs = [
-    { id: 1, idString: 'john.doe@okbank', app: 'Google Pay', isDefault: true },
-    { id: 2, idString: '9876543210@paytm', app: 'Paytm', isDefault: false }
-];
+// Razorpay Key ID (read from env in production, fallback for dev)
+const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_SSFFNn34IoJThv';
 
 export default function PaymentDashboard() {
     const { cartItems, clearCart, getTotal, cartCount } = useCart();
@@ -57,16 +49,13 @@ export default function PaymentDashboard() {
     const [currentStep, setCurrentStep] = useState(1);
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
+    const [razorpayPaymentId, setRazorpayPaymentId] = useState(null);
 
     // Check if the user is the demo user to decide whether to populate mock info
     const isDemoUser = user?.email === 'visitor@gallery.com';
     const savedAddresses = isDemoUser ? mockAddresses : [];
-    const savedCards = isDemoUser ? mockCards : [];
-    const savedUPIs = isDemoUser ? mockUPIs : [];
 
     const [selectedAddressId, setSelectedAddressId] = useState(null);
-    const [selectedCardId, setSelectedCardId] = useState(null);
-    const [selectedUpiId, setSelectedUpiId] = useState(null);
 
     // Form state
     const [shippingInfo, setShippingInfo] = useState({
@@ -79,15 +68,6 @@ export default function PaymentDashboard() {
         state: '',
         zip: '',
         country: 'India',
-    });
-
-    const [paymentInfo, setPaymentInfo] = useState({
-        cardNumber: '',
-        cardName: '',
-        expiry: '',
-        cvv: '',
-        saveCard: false,
-        isUpi: false,
     });
 
     const [shippingMethod, setShippingMethod] = useState('standard');
@@ -105,21 +85,6 @@ export default function PaymentDashboard() {
 
     const updateShipping = (field, value) => {
         setShippingInfo(prev => ({ ...prev, [field]: value }));
-    };
-
-    const updatePayment = (field, value) => {
-        setPaymentInfo(prev => ({ ...prev, [field]: value }));
-    };
-
-    const formatCardNumber = (value) => {
-        const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-        const matches = v.match(/\d{4,16}/g);
-        const match = matches && matches[0] || '';
-        const parts = [];
-        for (let i = 0, len = match.length; i < len; i += 4) {
-            parts.push(match.substring(i, i + 4));
-        }
-        return parts.length ? parts.join(' ') : value;
     };
 
     const handleSelectSavedAddress = (addr) => {
@@ -142,12 +107,12 @@ export default function PaymentDashboard() {
         // Simple parsing of mock addresses into fields
         const addrParts = addr.address.split(', ');
 
-        let cityStateZip = '';
         let address1 = addr.address;
 
+        let cityStateZip = '';
         if (addrParts.length >= 3) {
             address1 = addrParts.slice(0, -2).join(', ');
-            cityStateZip = addrParts.slice(-2).join(', '); // e.g. "Mumbai - 400001, Maharashtra"
+            cityStateZip = addrParts.slice(-2).join(', ');
         }
 
         let parsedCity = '';
@@ -178,60 +143,6 @@ export default function PaymentDashboard() {
         }));
     };
 
-    const handleSelectSavedCard = (card) => {
-        if (selectedCardId === card.id) {
-            setSelectedCardId(null);
-            setPaymentInfo({
-                cardNumber: '',
-                cardName: '',
-                expiry: '',
-                cvv: '',
-                saveCard: false,
-                isUpi: false
-            });
-            return;
-        }
-
-        setSelectedCardId(card.id);
-        setSelectedUpiId(null); // Clear upi
-
-        setPaymentInfo({
-            cardNumber: `**** **** **** ${card.last4}`,
-            cardName: card.name,
-            expiry: card.expiry,
-            cvv: '***',
-            saveCard: false,
-            isUpi: false
-        });
-    };
-
-    const handleSelectSavedUpi = (upi) => {
-        if (selectedUpiId === upi.id) {
-            setSelectedUpiId(null);
-            setPaymentInfo({
-                cardNumber: '',
-                cardName: '',
-                expiry: '',
-                cvv: '',
-                saveCard: false,
-                isUpi: false
-            });
-            return;
-        }
-
-        setSelectedUpiId(upi.id);
-        setSelectedCardId(null); // Clear card
-
-        setPaymentInfo({
-            cardNumber: upi.idString,
-            cardName: upi.app,
-            expiry: '',
-            cvv: '',
-            saveCard: false,
-            isUpi: true
-        });
-    };
-
     const handleNext = () => {
         if (currentStep === 1) {
             const { firstName, lastName, email, phone, address, city, state, zip } = shippingInfo;
@@ -239,47 +150,117 @@ export default function PaymentDashboard() {
                 alert('Please fill in all required shipping information.');
                 return;
             }
-        } else if (currentStep === 2) {
-            if (paymentInfo.isUpi) {
-                if (!paymentInfo.cardNumber) {
-                    alert('Please provide your UPI ID.');
-                    return;
-                }
-            } else {
-                const { cardNumber, cardName, expiry, cvv } = paymentInfo;
-                if (!cardNumber || !cardName || !expiry || !cvv) {
-                    alert('Please fill in all required payment information.');
-                    return;
-                }
-            }
         }
 
-        if (currentStep < 3) setCurrentStep(currentStep + 1);
+        if (currentStep < 2) setCurrentStep(currentStep + 1);
     };
 
     const handleBack = () => {
         if (currentStep > 1) setCurrentStep(currentStep - 1);
     };
 
-    const handlePlaceOrder = () => {
+    // ─── Razorpay Integration (Server-side order + verification) ────────
+    const handlePayWithRazorpay = async () => {
+        const amountInPaise = Math.round(grandTotal * 100);
+
         setIsProcessing(true);
-        setTimeout(() => {
-            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const newOrders = cartItems.map(item => ({
-                id: `ORD-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 100)}`,
-                name: item.title || item.name,
-                variant: `by ${item.artist}`,
-                price: `₹${item.price.toLocaleString('en-IN')}`,
-                status: 'On the way',
-                date: date,
-                img: item.image || item.thumbnail,
-                artwork: item // Save full artwork object for VisitorDashboard
-            }));
-            addOrders(newOrders);
+
+        try {
+            // Step 1: Create order on the server
+            const orderRes = await fetch('/api/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: amountInPaise, currency: 'INR' }),
+            });
+
+            if (!orderRes.ok) {
+                throw new Error('Failed to create order');
+            }
+
+            const orderData = await orderRes.json();
+
             setIsProcessing(false);
-            setOrderPlaced(true);
-            clearCart();
-        }, 2500);
+
+            // Step 2: Open Razorpay checkout with server-generated order_id
+            const options = {
+                key: RAZORPAY_KEY,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: 'Artium Gallery',
+                description: `Payment for ${cartCount} artwork${cartCount > 1 ? 's' : ''}`,
+                image: '/vite.svg',
+                order_id: orderData.orderId, // Server-generated order ID
+                prefill: {
+                    name: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
+                    email: shippingInfo.email,
+                    contact: shippingInfo.phone,
+                },
+                theme: {
+                    color: '#D4AF37',
+                },
+                handler: async function (response) {
+                    // Step 3: Verify payment signature on the server
+                    setIsProcessing(true);
+
+                    try {
+                        const verifyRes = await fetch('/api/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                            }),
+                        });
+
+                        const verifyData = await verifyRes.json();
+
+                        if (verifyData.verified) {
+                            // Payment verified — create orders
+                            setRazorpayPaymentId(response.razorpay_payment_id);
+
+                            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            const newOrders = cartItems.map(item => ({
+                                id: `ORD-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 100)}`,
+                                name: item.title || item.name,
+                                variant: `by ${item.artist}`,
+                                price: `₹${item.price.toLocaleString('en-IN')}`,
+                                status: 'On the way',
+                                date: date,
+                                img: item.image || item.thumbnail,
+                                artwork: item
+                            }));
+                            addOrders(newOrders);
+
+                            setTimeout(() => {
+                                setIsProcessing(false);
+                                setOrderPlaced(true);
+                                clearCart();
+                            }, 1200);
+                        } else {
+                            setIsProcessing(false);
+                            alert('Payment verification failed. Please contact support.');
+                        }
+                    } catch {
+                        setIsProcessing(false);
+                        alert('Payment verification error. Please contact support.');
+                    }
+                },
+                modal: {
+                    ondismiss: function () {
+                        alert('Payment was cancelled. Your order has not been placed.');
+                    },
+                    escape: true,
+                    confirm_close: true,
+                },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch {
+            setIsProcessing(false);
+            alert('Could not initiate payment. Please try again later.');
+        }
     };
 
     const formatPrice = (item) => {
@@ -304,7 +285,7 @@ export default function PaymentDashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                     >
-                        Order Confirmed!
+                        Payment Successful!
                     </motion.h1>
                     <motion.p
                         className="pay-success__subtitle"
@@ -312,8 +293,21 @@ export default function PaymentDashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
                     >
-                        Thank you for your purchase. Your order has been placed successfully.
+                        Thank you for your purchase. Your order has been placed and payment confirmed via Razorpay.
                     </motion.p>
+
+                    {razorpayPaymentId && (
+                        <motion.div
+                            className="pay-success__payment-id"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.55 }}
+                        >
+                            <span>Razorpay Payment ID</span>
+                            <strong>{razorpayPaymentId}</strong>
+                        </motion.div>
+                    )}
+
                     <motion.div
                         className="pay-success__order-id"
                         initial={{ opacity: 0, y: 20 }}
@@ -422,7 +416,7 @@ export default function PaymentDashboard() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 }}
                     >
-                        Complete your purchase securely
+                        Complete your purchase securely with Razorpay
                     </motion.p>
                 </div>
                 <Link to="/cart" className="btn btn-secondary">
@@ -709,232 +703,8 @@ export default function PaymentDashboard() {
                             </motion.div>
                         )}
 
-                        {/* Step 2: Payment */}
+                        {/* Step 2: Review & Pay */}
                         {currentStep === 2 && (
-                            <motion.div
-                                key="payment"
-                                className="dashboard__card pay-form-card"
-                                initial={{ opacity: 0, x: -30 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 30 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                <div className="dashboard__card-header">
-                                    <h2><CreditCard size={20} /> Payment Details</h2>
-                                    <div className="pay-card-brands">
-                                        <span className="pay-card-brand">VISA</span>
-                                        <span className="pay-card-brand">MC</span>
-                                        <span className="pay-card-brand">AMEX</span>
-                                    </div>
-                                </div>
-                                <div className="dashboard__card-content">
-                                    {/* Saved Cards */}
-                                    {savedCards.length > 0 && (
-                                        <div className="pay-saved-addresses" style={{ marginBottom: 'var(--space-6)' }}>
-                                            <h3 className="pay-section-title" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: 'var(--space-3)' }}>
-                                                Saved Cards
-                                            </h3>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                                                {savedCards.map(card => (
-                                                    <div
-                                                        key={card.id}
-                                                        onClick={() => handleSelectSavedCard(card)}
-                                                        style={{
-                                                            padding: 'var(--space-4)',
-                                                            border: `1px solid ${selectedCardId === card.id ? 'var(--gold)' : 'var(--glass-border)'}`,
-                                                            borderRadius: 'var(--radius-md)',
-                                                            background: selectedCardId === card.id ? 'rgba(212, 175, 55, 0.05)' : 'transparent',
-                                                            cursor: 'pointer',
-                                                            display: 'flex',
-                                                            alignItems: 'flex-start',
-                                                            gap: 'var(--space-3)',
-                                                            transition: 'all var(--transition-fast)'
-                                                        }}
-                                                    >
-                                                        <div style={{
-                                                            width: '20px',
-                                                            height: '20px',
-                                                            borderRadius: '50%',
-                                                            border: `2px solid ${selectedCardId === card.id ? 'var(--gold)' : 'var(--glass-border)'}`,
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            marginTop: '2px'
-                                                        }}>
-                                                            {selectedCardId === card.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--gold)' }} />}
-                                                        </div>
-                                                        <div style={{ flex: 1 }}>
-                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
-                                                                <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{card.type} **** {card.last4}</strong>
-                                                                {card.isDefault && <span style={{ fontSize: 'var(--text-xs)', padding: '2px 8px', background: 'var(--bg-primary)', borderRadius: 'var(--radius-full)', border: '1px solid var(--glass-border)' }}>DEFAULT</span>}
-                                                            </div>
-                                                            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Name on Card: {card.name}</p>
-                                                            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-1)' }}>Expires: {card.expiry}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Saved UPIs */}
-                                    {savedUPIs.length > 0 && (
-                                        <div className="pay-saved-addresses" style={{ marginBottom: 'var(--space-6)' }}>
-                                            <h3 className="pay-section-title" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: 'var(--space-3)' }}>
-                                                Saved UPI
-                                            </h3>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                                                {savedUPIs.map(upi => (
-                                                    <div
-                                                        key={upi.id}
-                                                        onClick={() => handleSelectSavedUpi(upi)}
-                                                        style={{
-                                                            padding: 'var(--space-4)',
-                                                            border: `1px solid ${selectedUpiId === upi.id ? 'var(--gold)' : 'var(--glass-border)'}`,
-                                                            borderRadius: 'var(--radius-md)',
-                                                            background: selectedUpiId === upi.id ? 'rgba(212, 175, 55, 0.05)' : 'transparent',
-                                                            cursor: 'pointer',
-                                                            display: 'flex',
-                                                            alignItems: 'flex-start',
-                                                            gap: 'var(--space-3)',
-                                                            transition: 'all var(--transition-fast)'
-                                                        }}
-                                                    >
-                                                        <div style={{
-                                                            width: '20px',
-                                                            height: '20px',
-                                                            borderRadius: '50%',
-                                                            border: `2px solid ${selectedUpiId === upi.id ? 'var(--gold)' : 'var(--glass-border)'}`,
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            marginTop: '2px'
-                                                        }}>
-                                                            {selectedUpiId === upi.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--gold)' }} />}
-                                                        </div>
-                                                        <div style={{ flex: 1 }}>
-                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
-                                                                <strong style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{upi.idString}</strong>
-                                                                {upi.isDefault && <span style={{ fontSize: 'var(--text-xs)', padding: '2px 8px', background: 'var(--bg-primary)', borderRadius: 'var(--radius-full)', border: '1px solid var(--glass-border)' }}>DEFAULT</span>}
-                                                            </div>
-                                                            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-1)' }}>App: {upi.app}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Clear selection and OR separator */}
-                                    {(selectedCardId || selectedUpiId) && (
-                                        <div style={{ marginBottom: 'var(--space-6)' }}>
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedCardId(null);
-                                                    setSelectedUpiId(null);
-                                                    setPaymentInfo({
-                                                        cardNumber: '',
-                                                        cardName: '',
-                                                        expiry: '',
-                                                        cvv: '',
-                                                        saveCard: false,
-                                                        isUpi: false
-                                                    });
-                                                }}
-                                                style={{
-                                                    background: 'transparent',
-                                                    border: 'none',
-                                                    color: 'var(--text-muted)',
-                                                    fontSize: 'var(--text-sm)',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 'var(--space-2)',
-                                                    cursor: 'pointer',
-                                                    marginBottom: 'var(--space-6)'
-                                                }}
-                                            >
-                                                <X size={14} /> Clear selection and enter a new card
-                                            </button>
-
-                                            <div style={{ borderTop: '1px dashed var(--glass-border)', position: 'relative' }}>
-                                                <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--bg-secondary)', padding: '0 var(--space-3)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>OR</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="pay-form-group pay-form-group--full">
-                                        <label className="pay-label">
-                                            <CreditCard size={14} /> Card Number
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="pay-input pay-input--card"
-                                            placeholder="4242 4242 4242 4242"
-                                            maxLength={19}
-                                            value={paymentInfo.cardNumber}
-                                            onChange={e => updatePayment('cardNumber', formatCardNumber(e.target.value))}
-                                        />
-                                    </div>
-                                    <div className="pay-form-group pay-form-group--full">
-                                        <label className="pay-label">
-                                            <User size={14} /> Cardholder Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="pay-input"
-                                            placeholder="John Doe"
-                                            value={paymentInfo.cardName}
-                                            onChange={e => updatePayment('cardName', e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="pay-form-grid">
-                                        <div className="pay-form-group">
-                                            <label className="pay-label">
-                                                <Calendar size={14} /> Expiry Date
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="pay-input"
-                                                placeholder="MM / YY"
-                                                maxLength={7}
-                                                value={paymentInfo.expiry}
-                                                onChange={e => updatePayment('expiry', e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="pay-form-group">
-                                            <label className="pay-label">
-                                                <Lock size={14} /> CVV
-                                            </label>
-                                            <input
-                                                type="password"
-                                                className="pay-input"
-                                                placeholder="•••"
-                                                maxLength={4}
-                                                value={paymentInfo.cvv}
-                                                onChange={e => updatePayment('cvv', e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                    <label className="pay-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            checked={paymentInfo.saveCard}
-                                            onChange={e => updatePayment('saveCard', e.target.checked)}
-                                        />
-                                        <span className="pay-checkbox__box" />
-                                        <span>Save this card for future purchases</span>
-                                    </label>
-
-                                    <div className="pay-security-notice">
-                                        <ShieldCheck size={18} />
-                                        <p>Your payment information is encrypted with 256-bit SSL encryption and never stored on our servers.</p>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Step 3: Review */}
-                        {currentStep === 3 && (
                             <motion.div
                                 key="review"
                                 className="dashboard__card pay-form-card"
@@ -962,28 +732,22 @@ export default function PaymentDashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Payment Review */}
+                                    {/* Payment Method */}
                                     <div className="pay-review-section">
                                         <div className="pay-review-header">
                                             <h3><CreditCard size={16} /> Payment Method</h3>
-                                            <button className="pay-review-edit" onClick={() => setCurrentStep(2)}>Edit</button>
                                         </div>
-                                        <div className="pay-review-details">
-                                            {paymentInfo.isUpi ? (
-                                                <>
-                                                    <p>
-                                                        <strong>UPI ID: {paymentInfo.cardNumber}</strong>
-                                                    </p>
-                                                    <p>{paymentInfo.cardName || 'UPI Payment'}</p>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <p>
-                                                        <strong>Card ending in {paymentInfo.cardNumber.slice(-4) || '••••'}</strong>
-                                                    </p>
-                                                    <p>{paymentInfo.cardName || 'Cardholder'}</p>
-                                                </>
-                                            )}
+                                        <div className="pay-razorpay-info">
+                                            <div className="pay-razorpay-badge">
+                                                <ShieldCheck size={20} />
+                                                <div>
+                                                    <h4>Powered by Razorpay</h4>
+                                                    <p>UPI · Cards · Net Banking · Wallets</p>
+                                                </div>
+                                            </div>
+                                            <p className="pay-razorpay-note">
+                                                You'll be redirected to Razorpay's secure payment page when you click "Pay Now".
+                                            </p>
                                         </div>
                                     </div>
 
@@ -1024,16 +788,17 @@ export default function PaymentDashboard() {
                             </button>
                         )}
                         <div style={{ flex: 1 }} />
-                        {currentStep < 3 ? (
+                        {currentStep < 2 ? (
                             <button className="btn btn-primary pay-next-btn" onClick={handleNext}>
                                 Continue
                                 <ChevronRight size={18} />
                             </button>
                         ) : (
                             <button
-                                className={`btn btn-primary pay-place-order-btn ${isProcessing ? 'pay-place-order-btn--processing' : ''}`}
-                                onClick={handlePlaceOrder}
+                                className={`btn pay-razorpay-btn ${isProcessing ? 'pay-razorpay-btn--processing' : ''}`}
+                                onClick={handlePayWithRazorpay}
                                 disabled={isProcessing}
+                                id="razorpay-pay-button"
                             >
                                 {isProcessing ? (
                                     <>
@@ -1042,12 +807,12 @@ export default function PaymentDashboard() {
                                             animate={{ rotate: 360 }}
                                             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                                         />
-                                        Processing...
+                                        Processing Payment...
                                     </>
                                 ) : (
                                     <>
-                                        <Lock size={18} />
-                                        Place Order — ₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        <Zap size={18} />
+                                        Pay ₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} with Razorpay
                                     </>
                                 )}
                             </button>
@@ -1112,8 +877,8 @@ export default function PaymentDashboard() {
                         <div className="cart-trust-badge">
                             <ShieldCheck size={20} />
                             <div>
-                                <h4>Secure Payment</h4>
-                                <p>256-bit SSL encryption</p>
+                                <h4>Razorpay Secured</h4>
+                                <p>PCI DSS compliant payments</p>
                             </div>
                         </div>
                         <div className="cart-trust-badge">

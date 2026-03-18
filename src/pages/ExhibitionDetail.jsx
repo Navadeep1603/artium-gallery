@@ -9,6 +9,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useArtworks } from '../context/ArtworkContext';
 import { exhibitions } from '../data/mockData';
+import { useShare } from '../hooks/useShare';
 import './Exhibition.css';
 
 export default function ExhibitionDetail() {
@@ -18,6 +19,7 @@ export default function ExhibitionDetail() {
     const { artworks } = useArtworks();
     const { dispatch: cartDispatch } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
+    const { share, isShared } = useShare();
 
     const [exhibition, setExhibition] = useState(null);
     const [exhibitionArtworks, setExhibitionArtworks] = useState([]);
@@ -130,9 +132,16 @@ export default function ExhibitionDetail() {
                                 <Heart size={20} className={inWishlist ? 'fill-gold' : ''} />
                                 {inWishlist ? 'Saved' : 'Save'}
                             </button>
-                            <button className="btn btn-secondary">
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={() => share({
+                                    title: exhibition.title,
+                                    text: `Check out the ${exhibition.title} exhibition on ArtWeb`,
+                                    url: window.location.href
+                                })}
+                            >
                                 <Share2 size={20} />
-                                Share
+                                {isShared ? 'Copied!' : 'Share'}
                             </button>
                         </div>
                     </div>

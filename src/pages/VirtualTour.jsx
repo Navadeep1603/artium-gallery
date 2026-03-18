@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { tourThemes } from '../data/mockData';
 import { useArtworks } from '../context/ArtworkContext';
+import { useShare } from '../hooks/useShare';
 import './VirtualTour.css';
 
 // ============================================
@@ -348,6 +349,7 @@ export default function VirtualTour() {
     const autoPlayRef = useRef(null);
 
     const { artworks } = useArtworks();
+    const { share } = useShare();
 
     // Tour artworks
     const tourArtworks = artworks.slice(0, 9);
@@ -744,6 +746,17 @@ export default function VirtualTour() {
                                 </button>
                                 <button className="vt-icon-btn" onClick={toggleFullscreen} title="Fullscreen">
                                     {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                                </button>
+                                <button 
+                                    className="vt-icon-btn" 
+                                    onClick={() => share({
+                                        title: 'Virtual Tour',
+                                        text: `Check out this amazing virtual gallery tour on ArtWeb!`,
+                                        url: window.location.href
+                                    })} 
+                                    title="Share"
+                                >
+                                    <Share2 size={18} />
                                 </button>
                             </div>
                         </motion.div>

@@ -21,6 +21,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useArtworks } from '../context/ArtworkContext';
+import { useShare } from '../hooks/useShare';
 import './ArtworkDetail.css';
 
 export default function ArtworkDetail() {
@@ -33,6 +34,7 @@ export default function ArtworkDetail() {
     const { user } = useAuth();
     const { artworks } = useArtworks();
     const { toggleWishlist, isInWishlist } = useWishlist();
+    const { share, isShared } = useShare();
 
     const artwork = artworks.find(a => a.id === parseInt(id));
     const artist = artists.find(a => a.id === artwork?.artistId);
@@ -148,8 +150,16 @@ export default function ArtworkDetail() {
                             <Heart size={20} className={inWishlist ? 'fill-gold' : ''} />
                             {inWishlist ? 'Saved' : 'Save'}
                         </button>
-                        <button className="btn btn-ghost">
+                        <button 
+                            className="btn btn-ghost"
+                            onClick={() => share({
+                                title: artwork.title,
+                                text: `Check out ${artwork.title} by ${artwork.artist} on ArtWeb`,
+                                url: window.location.href
+                            })}
+                        >
                             <Share2 size={20} />
+                            {isShared ? 'Copied!' : ''}
                         </button>
                     </div>
 

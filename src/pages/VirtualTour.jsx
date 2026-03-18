@@ -10,6 +10,7 @@ import {
 import { tourThemes } from '../data/mockData';
 import { useArtworks } from '../context/ArtworkContext';
 import { useShare } from '../hooks/useShare';
+import ShareModal from '../components/common/ShareModal';
 import './VirtualTour.css';
 
 // ============================================
@@ -349,7 +350,7 @@ export default function VirtualTour() {
     const autoPlayRef = useRef(null);
 
     const { artworks } = useArtworks();
-    const { share } = useShare();
+    const { share, isModalOpen, shareData, closeShareModal } = useShare();
 
     // Tour artworks
     const tourArtworks = artworks.slice(0, 9);
@@ -832,6 +833,7 @@ export default function VirtualTour() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            <ShareModal isOpen={isModalOpen} onClose={closeShareModal} shareData={shareData} />
         </div>
     );
 }

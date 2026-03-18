@@ -22,6 +22,7 @@ import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useArtworks } from '../context/ArtworkContext';
 import { useShare } from '../hooks/useShare';
+import ShareModal from '../components/common/ShareModal';
 import './ArtworkDetail.css';
 
 export default function ArtworkDetail() {
@@ -34,7 +35,7 @@ export default function ArtworkDetail() {
     const { user } = useAuth();
     const { artworks } = useArtworks();
     const { toggleWishlist, isInWishlist } = useWishlist();
-    const { share, isShared } = useShare();
+    const { share, isShared, isModalOpen, shareData, closeShareModal } = useShare();
 
     const artwork = artworks.find(a => a.id === parseInt(id));
     const artist = artists.find(a => a.id === artwork?.artistId);
@@ -259,6 +260,7 @@ export default function ArtworkDetail() {
                     </div>
                 </section>
             )}
+            <ShareModal isOpen={isModalOpen} onClose={closeShareModal} shareData={shareData} />
         </div>
     );
 }

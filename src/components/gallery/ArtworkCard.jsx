@@ -3,6 +3,8 @@ import { Heart, Eye, ExternalLink, ShoppingCart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useShare } from '../../hooks/useShare';
+import ShareModal from '../common/ShareModal';
 import './ArtworkCard.css';
 
 export default function ArtworkCard({ artwork, viewMode = 'grid' }) {
@@ -10,6 +12,7 @@ export default function ArtworkCard({ artwork, viewMode = 'grid' }) {
     const { toggleWishlist, isInWishlist } = useWishlist();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { share, isShared, isModalOpen, shareData, closeShareModal } = useShare();
     const inCart = isInCart(artwork.id);
     const inWishlist = isInWishlist(artwork.id);
 
@@ -33,6 +36,16 @@ export default function ArtworkCard({ artwork, viewMode = 'grid' }) {
         if (!inCart && artwork.available) {
             addToCart(artwork);
         }
+    };
+
+    const handleShare = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        share({
+            title: artwork.title,
+            text: `Check out ${artwork.title} by ${artwork.artist} on ArtWeb`,
+            url: `${window.location.origin}/artwork/${artwork.id}`
+        });
     };
 
     if (viewMode === 'list') {
@@ -98,7 +111,12 @@ export default function ArtworkCard({ artwork, viewMode = 'grid' }) {
                         >
                             <Heart size={18} fill={inWishlist ? "currentColor" : "none"} color={inWishlist ? "#e74c3c" : "currentColor"} />
                         </button>
-                        <button className="artwork-card__action" aria-label="Quick view">
+                        <button 
+                            className="artwork-card__action" 
+                            aria-label="Share artwork"
+                            onClick={handleShare}
+                            title={isShared ? "Copied!" : "Share"}
+                        >
                             <ExternalLink size={18} />
                         </button>
                         <button
@@ -152,6 +170,7 @@ export default function ArtworkCard({ artwork, viewMode = 'grid' }) {
                     </div>
                 </div>
             </div>
+            <ShareModal isOpen={isModalOpen} onClose={closeShareModal} shareData={shareData} />
         </Link>
     );
 }

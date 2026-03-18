@@ -10,6 +10,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { useArtworks } from '../context/ArtworkContext';
 import { exhibitions } from '../data/mockData';
 import { useShare } from '../hooks/useShare';
+import ShareModal from '../components/common/ShareModal';
 import './Exhibition.css';
 
 export default function ExhibitionDetail() {
@@ -19,7 +20,7 @@ export default function ExhibitionDetail() {
     const { artworks } = useArtworks();
     const { dispatch: cartDispatch } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
-    const { share, isShared } = useShare();
+    const { share, isShared, isModalOpen, shareData, closeShareModal } = useShare();
 
     const [exhibition, setExhibition] = useState(null);
     const [exhibitionArtworks, setExhibitionArtworks] = useState([]);
@@ -331,6 +332,7 @@ export default function ExhibitionDetail() {
                     </div>
                 </div>
             </div>
+            <ShareModal isOpen={isModalOpen} onClose={closeShareModal} shareData={shareData} />
         </div>
     );
 }

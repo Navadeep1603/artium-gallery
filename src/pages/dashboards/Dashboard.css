@@ -8752,9 +8752,9 @@
 
 /* Pay with Razorpay Button */
 .pay-razorpay-btn {
-    background: linear-gradient(135deg, #1a73e8 0%, #0b57d0 50%, #072e6f 100%) !important;
-    color: white !important;
-    border: none !important;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 50%, #8a6c1e 100%) !important;
+    color: var(--bg-primary) !important;
+    border: 1px solid var(--gold-light) !important;
     padding: var(--space-4) var(--space-8) !important;
     font-size: var(--text-base) !important;
     font-weight: 700 !important;
@@ -8764,7 +8764,7 @@
     align-items: center;
     gap: var(--space-3);
     transition: all var(--transition-base);
-    box-shadow: 0 4px 16px rgba(26, 115, 232, 0.35);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
     letter-spacing: 0.3px;
     position: relative;
     overflow: hidden;
@@ -8774,14 +8774,14 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
     pointer-events: none;
 }
 
 .pay-razorpay-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(26, 115, 232, 0.5);
-    background: linear-gradient(135deg, #2b7de9 0%, #1565c0 50%, #0d47a1 100%) !important;
+    box-shadow: 0 8px 28px rgba(212, 175, 55, 0.4);
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%) !important;
 }
 
 .pay-razorpay-btn:active:not(:disabled) {
@@ -8796,8 +8796,8 @@
 /* Razorpay Info Badge on Review Step */
 .pay-razorpay-info {
     padding: var(--space-4);
-    background: rgba(26, 115, 232, 0.04);
-    border: 1px solid rgba(26, 115, 232, 0.15);
+    background: rgba(212, 175, 55, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.2);
     border-radius: var(--radius-md);
     margin-top: var(--space-3);
 }
@@ -8810,7 +8810,7 @@
 }
 
 .pay-razorpay-badge svg {
-    color: #1a73e8;
+    color: var(--gold);
     flex-shrink: 0;
 }
 
@@ -8833,7 +8833,7 @@
     margin: 0;
     line-height: 1.5;
     padding-top: var(--space-2);
-    border-top: 1px dashed rgba(26, 115, 232, 0.12);
+    border-top: 1px dashed rgba(212, 175, 55, 0.2);
 }
 
 /* Payment ID on Confirmation Screen */
@@ -8843,8 +8843,8 @@
     align-items: center;
     gap: var(--space-1);
     padding: var(--space-3) var(--space-6);
-    background: rgba(26, 115, 232, 0.06);
-    border: 1px solid rgba(26, 115, 232, 0.15);
+    background: rgba(212, 175, 55, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.2);
     border-radius: var(--radius-md);
     margin-bottom: var(--space-3);
 }
@@ -8858,7 +8858,7 @@
 
 .pay-success__payment-id strong {
     font-size: var(--text-sm);
-    color: #1a73e8;
+    color: var(--gold);
     font-family: var(--font-mono, monospace);
     word-break: break-all;
 }

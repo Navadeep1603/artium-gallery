@@ -13,17 +13,24 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
 
-    @Autowired
+    @Autowired(required = false)
     private JavaMailSender mailSender;
 
     @Value("${app.gallery.name}")
     private String galleryName;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:}")
     private String fromEmail;
+
+    @Value("${mail.enabled:true}")
+    private boolean mailEnabled;
 
     @Async
     public void sendWelcomeEmail(String toEmail, String userName) {
+        if (!mailEnabled || mailSender == null) {
+            System.out.println("📧 Email disabled or not configured — skipping welcome email for: " + toEmail);
+            return;
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -35,7 +42,7 @@ public class EmailService {
 
             mailSender.send(message);
             System.out.println("✅ Welcome email sent to: " + toEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             System.err.println("❌ Failed to send welcome email to " + toEmail + ": " + e.getMessage());
         }
     }
@@ -70,32 +77,15 @@ public class EmailService {
                                             Thank you for creating an account with <strong style="color:#e8d48b;">%s</strong>! 🎨
                                         </p>
                                         <p style="margin:0 0 24px; font-size:15px; color:#c4c4c4; line-height:1.7;">
-                                            We're excited to have you join our creative community. Our platform is a space where art lovers, collectors, and creators come together to explore unique artworks and discover inspiration.
+                                            We're excited to have you join our creative community.
                                         </p>
 
-                                        <!-- What you can do -->
                                         <p style="margin:0 0 16px; font-size:16px; color:#e8d48b;">✨ What you can do next:</p>
                                         <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px 8px;">
                                             <tr><td style="padding:6px 0; font-size:14px; color:#c4c4c4;">🖼️&nbsp;&nbsp;Browse stunning art collections</td></tr>
                                             <tr><td style="padding:6px 0; font-size:14px; color:#c4c4c4;">👨‍🎨&nbsp;&nbsp;Discover new artists</td></tr>
                                             <tr><td style="padding:6px 0; font-size:14px; color:#c4c4c4;">❤️&nbsp;&nbsp;Save your favorite pieces</td></tr>
                                             <tr><td style="padding:6px 0; font-size:14px; color:#c4c4c4;">🏛️&nbsp;&nbsp;Stay updated with latest exhibitions</td></tr>
-                                        </table>
-
-                                        <p style="margin:0 0 24px; font-size:15px; color:#c4c4c4; line-height:1.7;">
-                                            If you have any questions or need assistance, feel free to reach out to us anytime.
-                                        </p>
-                                        <p style="margin:0 0 32px; font-size:15px; color:#c4c4c4; line-height:1.7;">
-                                            Once again, thank you for joining us — we're thrilled to have you here!
-                                        </p>
-
-                                        <!-- CTA Button -->
-                                        <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 auto 24px;">
-                                            <tr>
-                                                <td style="background:linear-gradient(135deg, #c9a84c, #e8d48b); border-radius:8px; padding:14px 36px;">
-                                                    <a href="http://localhost:5173/gallery" style="font-size:14px; font-weight:600; color:#1a1a2e; text-decoration:none; letter-spacing:0.05em;">EXPLORE THE GALLERY</a>
-                                                </td>
-                                            </tr>
                                         </table>
 
                                         <p style="margin:0; font-size:15px; color:#c4c4c4; line-height:1.7;">

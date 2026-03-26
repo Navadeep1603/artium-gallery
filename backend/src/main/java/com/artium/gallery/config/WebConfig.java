@@ -9,6 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        // Allows all Vercel preview URLs and the production domain
         registry.addMapping("/**")
                 .allowedOriginPatterns(
                     "http://localhost:*",

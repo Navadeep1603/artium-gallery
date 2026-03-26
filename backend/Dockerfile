@@ -11,5 +11,8 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
+# Render free tier has 512MB RAM — limit JVM heap to fit
+ENV JAVA_OPTS="-Xms128m -Xmx384m -XX:+UseSerialGC"
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

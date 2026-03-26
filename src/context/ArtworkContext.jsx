@@ -1,54 +1,83 @@
-import React, { createContext, useContext, useState } from 'react';
-import { artworks as initialArtworks } from '../data/mockData';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
 
 const ArtworkContext = createContext(null);
 
 export function ArtworkProvider({ children }) {
-    const [artworks, setArtworks] = useState(initialArtworks);
+    const [artworks, setArtworks] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const addArtwork = (newArtwork) => {
-        // Generate a temporary ID (in a real app, this comes from the backend)
-        const id = Math.max(...artworks.map(a => a.id), 0) + 1;
+    // Load artworks from backend on mount
+    useEffect(() => {
+        api.get('/artworks')
+            .then(res => {
+                setArtworks(res.data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error('Failed to load artworks from backend', err);
+                setLoading(false);
+            });
+    }, []);
 
-        const artworkWithDefaults = {
-            ...newArtwork,
-            id,
-            featured: false,
-            available: true,
-            views: 0,
-            likes: 0,
-            // For images, if none provided or it's a file, we'll placeholder it for now
-            // In a real app we'd upload the file and get a URL
-            image: newArtwork.image || '/src/assets/pic1.jpg',
-            thumbnail: newArtwork.image || '/src/assets/pic1.jpg'
-        };
-
-        setArtworks(prev => [artworkWithDefaults, ...prev]);
+    const addArtwork = async (newArtwork) => {
+        try {
+            const res = await api.post('/artworks', {
+                ...newArtwork,
+                featured: false,
+                available: true,
+                views: 0,
+                likes: 0,
+                image: newArtwork.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800',
+                thumbnail: newArtwork.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400'
+            });
+            setArtworks(prev => [res.data, ...prev]);
+        } catch (err) {
+            console.error('Failed to add artwork', err);
+        }
     };
 
-    const toggleAvailability = (id) => {
-        setArtworks(prev => prev.map(a =>
-            a.id === id ? { ...a, available: !a.available } : a
-        ));
+    const toggleAvailability = async (id) => {
+        const artwork = artworks.find(a => a.id === id);
+        if (artwork) {
+            try {
+                const res = await api.put(`/artworks/${id}`, { ...artwork, available: !artwork.available });
+                setArtworks(prev => prev.map(a => a.id === id ? res.data : a));
+            } catch (err) {
+                console.error('Failed to toggle availability', err);
+            }
+        }
     };
 
-    const updateArtwork = (id, updatedFields) => {
-        setArtworks(prev => prev.map(a =>
-            a.id === id ? { ...a, ...updatedFields } : a
-        ));
+    const updateArtwork = async (id, updatedFields) => {
+        const artwork = artworks.find(a => a.id === id);
+        if (artwork) {
+            try {
+                const res = await api.put(`/artworks/${id}`, { ...artwork, ...updatedFields });
+                setArtworks(prev => prev.map(a => a.id === id ? res.data : a));
+            } catch (err) {
+                console.error('Failed to update artwork', err);
+            }
+        }
     };
 
-    const deleteArtwork = (id) => {
-        setArtworks(prev => prev.filter(a => a.id !== id));
+    const deleteArtwork = async (id) => {
+        try {
+            await api.delete(`/artworks/${id}`);
+            setArtworks(prev => prev.filter(a => a.id !== id));
+        } catch (err) {
+            console.error('Failed to delete artwork', err);
+        }
     };
 
     const getArtworksByArtist = (artistName) => {
-        return artworks.filter(a => a.artist === artistName);
+        return artworks.filter(a => a.artistName === artistName);
     };
 
     return (
         <ArtworkContext.Provider value={{
             artworks,
+            loading,
             addArtwork,
             updateArtwork,
             deleteArtwork,

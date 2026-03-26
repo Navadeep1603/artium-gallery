@@ -1,37 +1,48 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
+import { useAuth } from './AuthContext';
 
 const WishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
     const [wishlistItems, setWishlistItems] = useState([]);
+    const { user } = useAuth();
 
-    // Load from local storage on mount
+    // Load wishlist from backend when user logs in
     useEffect(() => {
-        const savedWishlist = localStorage.getItem('gallery-wishlist');
-        if (savedWishlist) {
-            try {
-                setTimeout(() => setWishlistItems(JSON.parse(savedWishlist)), 0);
-            } catch (e) {
-                console.error("Error parsing wishlist from local storage", e);
-            }
+        if (user?.id) {
+            api.get(`/wishlist/${user.id}`)
+                .then(res => {
+                    // Map backend WishlistItem objects to artwork objects for frontend compatibility
+                    const items = res.data.map(item => item.artwork);
+                    setWishlistItems(items);
+                })
+                .catch(err => console.error('Failed to load wishlist', err));
+        } else {
+            setWishlistItems([]);
         }
-    }, []);
+    }, [user]);
 
-    // Save to local storage whenever it changes
-    useEffect(() => {
-        localStorage.setItem('gallery-wishlist', JSON.stringify(wishlistItems));
-    }, [wishlistItems]);
+    const addToWishlist = async (artwork) => {
+        if (!user?.id) return;
+        if (wishlistItems.find(item => String(item.id) === String(artwork.id))) return;
 
-    const addToWishlist = (artwork) => {
-        setWishlistItems(prev => {
-            if (prev.find(item => String(item.id) === String(artwork.id))) return prev;
-            return [...prev, artwork];
-        });
+        try {
+            await api.post('/wishlist', { userId: user.id, artworkId: artwork.id });
+            setWishlistItems(prev => [...prev, artwork]);
+        } catch (err) {
+            console.error('Failed to add to wishlist', err);
+        }
     };
 
-    const removeFromWishlist = (id) => {
-        // Use loose comparison to handle string/number ID mismatches after localStorage
-        setWishlistItems(prev => prev.filter(item => String(item.id) !== String(id)));
+    const removeFromWishlist = async (id) => {
+        if (!user?.id) return;
+        try {
+            await api.delete(`/wishlist/${user.id}/${id}`);
+            setWishlistItems(prev => prev.filter(item => String(item.id) !== String(id)));
+        } catch (err) {
+            console.error('Failed to remove from wishlist', err);
+        }
     };
 
     const toggleWishlist = (artwork) => {

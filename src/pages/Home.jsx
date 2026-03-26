@@ -1,14 +1,21 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { ArrowRight, Play, Sparkles, Palette, Globe, ShoppingBag } from 'lucide-react';
-import { artworks, artists, exhibitions } from '../data/mockData';
+import { useArtworks } from '../context/ArtworkContext';
+import api from '../services/api';
 import './Home.css';
 
 export default function Home() {
     const heroRef = useRef(null);
     const featuredRef = useRef(null);
     const { scrollYProgress } = useScroll();
+    const { artworks } = useArtworks();
+    const [exhibitions, setExhibitions] = useState([]);
+
+    useEffect(() => {
+        api.get('/exhibitions').then(res => setExhibitions(res.data)).catch(() => {});
+    }, []);
 
     const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
     const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);

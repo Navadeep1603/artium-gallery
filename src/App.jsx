@@ -21,6 +21,7 @@ import ExhibitionsDashboard from './pages/ExhibitionsDashboard';
 import ExhibitionDetail from './pages/ExhibitionDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import UserDemo from './pages/UserDemo';
 
 // Dashboards
 import AdminDashboard from './pages/dashboards/AdminDashboard';
@@ -57,6 +58,7 @@ function App() {
                       <Route path="/exhibitions/:id" element={<ExhibitionDetail />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/signup" element={<Signup />} />
+                      <Route path="/users-demo" element={<UserDemo />} />
 
                       {/* Protected Dashboard Routes */}
                       <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />

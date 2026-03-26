@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Grid, List, Filter, X } from 'lucide-react';
-import { categories } from '../data/mockData';
+import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useArtworks } from '../context/ArtworkContext';
 import ArtworkCard from '../components/gallery/ArtworkCard';
 import './Gallery.css';
 
 export default function Gallery() {
+    const [categories, setCategories] = useState([]);
     const [activeCategory, setActiveCategory] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
@@ -18,6 +19,11 @@ export default function Gallery() {
     const [showFilters, setShowFilters] = useState(false);
     const { addToCart } = useCart();
     const { artworks } = useArtworks();
+
+    useEffect(() => {
+        api.get('/categories').then(res => setCategories(res.data)).catch(() => {});
+    }, []);
+
 
     const handleCheckboxChange = (setter, value) => {
         setter(prev =>

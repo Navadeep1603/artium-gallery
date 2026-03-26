@@ -1,29 +1,35 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
+import { useAuth } from './AuthContext';
 
 const OrderContext = createContext();
 
 export function OrderProvider({ children }) {
     const [orders, setOrders] = useState([]);
+    const { user } = useAuth();
 
-    // Load from local storage on mount
+    // Load orders from backend when user logs in
     useEffect(() => {
-        const savedOrders = localStorage.getItem('gallery-orders');
-        if (savedOrders) {
-            try {
-                setTimeout(() => setOrders(JSON.parse(savedOrders)), 0);
-            } catch (e) {
-                console.error("Error parsing orders from local storage", e);
-            }
+        if (user?.id) {
+            api.get(`/orders/user/${user.id}`)
+                .then(res => setOrders(res.data))
+                .catch(err => console.error('Failed to load orders', err));
+        } else {
+            setOrders([]);
         }
-    }, []);
+    }, [user]);
 
-    // Save to local storage whenever it changes
-    useEffect(() => {
-        localStorage.setItem('gallery-orders', JSON.stringify(orders));
-    }, [orders]);
-
-    const addOrder = (order) => {
-        setOrders(prev => [order, ...prev]);
+    const addOrder = async (order) => {
+        try {
+            const res = await api.post('/orders', order);
+            setOrders(prev => [res.data, ...prev]);
+            return res.data;
+        } catch (err) {
+            console.error('Failed to create order', err);
+            // Fallback: add locally if backend fails
+            setOrders(prev => [order, ...prev]);
+            return order;
+        }
     };
 
     const addOrders = (newOrders) => {

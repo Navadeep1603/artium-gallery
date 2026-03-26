@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useArtworks } from '../context/ArtworkContext';
-import { exhibitions } from '../data/mockData';
+import api from '../services/api';
 import { useShare } from '../hooks/useShare';
 import ShareModal from '../components/common/ShareModal';
 import './Exhibition.css';
@@ -18,7 +18,7 @@ export default function ExhibitionDetail() {
     const navigate = useNavigate();
     const { user } = useAuth();
     const { artworks } = useArtworks();
-    const { dispatch: cartDispatch } = useCart();
+    const { addToCart } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
     const { share, isShared, isModalOpen, shareData, closeShareModal } = useShare();
 
@@ -48,23 +48,16 @@ export default function ExhibitionDetail() {
         }
     };
 
-    // Setup and mock fetch
     useEffect(() => {
-        // Find exhibition
-        const found = exhibitions.find(e => e.id === parseInt(id));
-
-        if (found) {
-            setTimeout(() => setExhibition(found), 0);
-
-            // Mock grabbing random artworks to display in this exhibition
-            // In a real app, this would be a proper relationship in the DB
-            // We'll deterministically pick artworks based on the ID for consistency
-            const startIndex = (parseInt(id) * 3) % (artworks.length - 8);
-            setExhibitionArtworks(artworks.slice(startIndex, startIndex + 6));
-        } else {
-            // Not found
-            navigate('/exhibitions');
-        }
+        // Find exhibition from backend
+        api.get(`/exhibitions/${id}`)
+            .then(res => {
+                setExhibition(res.data);
+                // Pick related artworks for this exhibition
+                const startIndex = (parseInt(id) * 3) % Math.max(1, artworks.length - 8);
+                setExhibitionArtworks(artworks.slice(startIndex, startIndex + 6));
+            })
+            .catch(() => navigate('/exhibitions'));
     }, [id, navigate, artworks]);
 
     if (!exhibition) return null;
@@ -74,20 +67,7 @@ export default function ExhibitionDetail() {
             navigate('/login');
             return;
         }
-
-        cartDispatch({
-            type: 'ADD_ITEM',
-            payload: {
-                id: artwork.id,
-                title: artwork.title,
-                artist: artwork.artist,
-                price: artwork.price,
-                image: artwork.image,
-                quantity: 1
-            }
-        });
-
-        // Optional tracking or mini-notification here
+        addToCart(artwork);
     };
 
     return (

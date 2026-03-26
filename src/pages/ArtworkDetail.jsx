@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
@@ -16,7 +16,7 @@ import {
     Info,
     User
 } from 'lucide-react';
-import { artists } from '../data/mockData';
+import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -31,6 +31,7 @@ export default function ArtworkDetail() {
     const [isZoomed, setIsZoomed] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [activeTab, setActiveTab] = useState('about');
+    const [artist, setArtist] = useState(null);
     const { addToCart, isInCart } = useCart();
     const { user } = useAuth();
     const { artworks } = useArtworks();
@@ -38,10 +39,19 @@ export default function ArtworkDetail() {
     const { share, isShared, isModalOpen, shareData, closeShareModal } = useShare();
 
     const artwork = artworks.find(a => a.id === parseInt(id));
-    const artist = artists.find(a => a.id === artwork?.artistId);
     const relatedArtworks = artworks
         .filter(a => a.category === artwork?.category && a.id !== artwork?.id)
         .slice(0, 4);
+
+    // Fetch artist info from backend
+    useEffect(() => {
+        if (artwork?.artist) {
+            api.get('/artists').then(res => {
+                const found = res.data.find(a => a.name === artwork.artistName);
+                if (found) setArtist(found);
+            }).catch(() => {});
+        }
+    }, [artwork]);
 
     if (!artwork) {
         return (

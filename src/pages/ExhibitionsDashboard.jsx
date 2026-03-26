@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,18 +18,23 @@ import {
     Play
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { exhibitions } from '../data/mockData';
+import api from '../services/api';
 import './dashboards/Dashboard.css';
 import './Exhibition.css';
 
 /* ── ADMIN / CURATOR VIEW ── */
 function AdminCuratorExhibition() {
+    const [exhibitions, setExhibitions] = useState([]);
+
+    useEffect(() => {
+        api.get('/exhibitions').then(res => setExhibitions(res.data)).catch(() => {});
+    }, []);
+
     const currentExhibitions = exhibitions.filter(e => e.status === 'current');
     const upcomingExhibitions = exhibitions.filter(e => e.status === 'upcoming');
-    const allExhibitions = exhibitions;
 
-    const totalExhibitions = allExhibitions.length;
-    const totalArtworks = allExhibitions.reduce((sum, e) => sum + e.artworkCount, 0);
+    const totalExhibitions = exhibitions.length;
+    const totalArtworks = exhibitions.reduce((sum, e) => sum + e.artworkCount, 0);
     const activeVisitors = '2.4K';
 
     const topExhibitions = [
@@ -195,8 +200,13 @@ function AdminCuratorExhibition() {
 
 /* ── VISITOR VIEW ── */
 function VisitorExhibition() {
+    const [exhibitions, setExhibitions] = useState([]);
     const [activeTab, setActiveTab] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        api.get('/exhibitions').then(res => setExhibitions(res.data)).catch(() => {});
+    }, []);
 
     const featuredExhibition = exhibitions.find(e => e.featured && e.status === 'current') || exhibitions[0];
 

@@ -1,48 +1,56 @@
 package com.artium.gallery.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import jakarta.mail.internet.MimeMessage;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class EmailService {
 
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
-
     @Value("${app.gallery.name}")
     private String galleryName;
-
-    @Value("${spring.mail.username:}")
-    private String fromEmail;
 
     @Value("${mail.enabled:true}")
     private boolean mailEnabled;
 
+    @Value("${mail.script.url}")
+    private String scriptUrl;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
     @Async
     public void sendWelcomeEmail(String toEmail, String userName) {
-        if (!mailEnabled || mailSender == null) {
-            System.out.println("📧 Email disabled or not configured — skipping welcome email for: " + toEmail);
+        if (!mailEnabled || scriptUrl == null || scriptUrl.isEmpty()) {
+            System.out.println("📧 Email disabled or Script URL not configured — skipping welcome email for: " + toEmail);
             return;
         }
+
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            String subject = "Welcome to " + galleryName + "! 🎨";
+            String htmlContent = buildWelcomeHtml(userName);
 
-            helper.setFrom(fromEmail);
-            helper.setTo(toEmail);
-            helper.setSubject("Welcome to " + galleryName + "! 🎨");
-            helper.setText(buildWelcomeHtml(userName), true);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            mailSender.send(message);
-            System.out.println("✅ Welcome email sent to: " + toEmail);
+            Map<String, String> payload = new HashMap<>();
+            payload.put("to", toEmail);
+            payload.put("subject", subject);
+            payload.put("html", htmlContent);
+
+            HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
+            
+            // Post to the Google Apps Script Web App
+            String response = restTemplate.postForObject(scriptUrl, request, String.class);
+            System.out.println("✅ Welcome email sent to: " + toEmail + " | Response: " + response);
+
         } catch (Exception e) {
-            System.err.println("❌ Failed to send welcome email to " + toEmail + ": " + e.getMessage());
+            System.err.println("❌ Failed to send welcome email to " + toEmail + " via Apps Script: " + e.getMessage());
         }
     }
 

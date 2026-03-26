@@ -32,7 +32,7 @@ export default function Gallery() {
     };
 
     const filteredArtworks = artworks.filter(artwork => {
-        if (activeCategory !== 'all' && artwork.category !== activeCategory) return false;
+        if (activeCategory !== 'all' && artwork.categoryId !== activeCategory && artwork.category !== activeCategory) return false;
 
         if (selectedPriceRanges.length > 0) {
             const matchesPrice = selectedPriceRanges.some(range => {

@@ -7,11 +7,19 @@ export function ArtworkProvider({ children }) {
     const [artworks, setArtworks] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Normalize backend response: flatten nested objects to strings
+    const normalize = (artwork) => ({
+        ...artwork,
+        artist: artwork.artistName || (artwork.artist?.name ?? artwork.artist) || 'Unknown',
+        categoryId: artwork.category?.id ?? artwork.category,
+        category: artwork.category?.name ?? artwork.category
+    });
+
     // Load artworks from backend on mount
     useEffect(() => {
         api.get('/artworks')
             .then(res => {
-                setArtworks(res.data);
+                setArtworks(res.data.map(normalize));
                 setLoading(false);
             })
             .catch(err => {
@@ -31,7 +39,7 @@ export function ArtworkProvider({ children }) {
                 image: newArtwork.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800',
                 thumbnail: newArtwork.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400'
             });
-            setArtworks(prev => [res.data, ...prev]);
+            setArtworks(prev => [normalize(res.data), ...prev]);
         } catch (err) {
             console.error('Failed to add artwork', err);
         }
@@ -42,7 +50,7 @@ export function ArtworkProvider({ children }) {
         if (artwork) {
             try {
                 const res = await api.put(`/artworks/${id}`, { ...artwork, available: !artwork.available });
-                setArtworks(prev => prev.map(a => a.id === id ? res.data : a));
+                setArtworks(prev => prev.map(a => a.id === id ? normalize(res.data) : a));
             } catch (err) {
                 console.error('Failed to toggle availability', err);
             }
@@ -54,7 +62,7 @@ export function ArtworkProvider({ children }) {
         if (artwork) {
             try {
                 const res = await api.put(`/artworks/${id}`, { ...artwork, ...updatedFields });
-                setArtworks(prev => prev.map(a => a.id === id ? res.data : a));
+                setArtworks(prev => prev.map(a => a.id === id ? normalize(res.data) : a));
             } catch (err) {
                 console.error('Failed to update artwork', err);
             }

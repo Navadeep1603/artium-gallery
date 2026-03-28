@@ -3,12 +3,11 @@ package com.artium.gallery.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import java.util.Map;
-import java.util.HashMap;
+
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class EmailService {
@@ -22,11 +21,9 @@ public class EmailService {
     @Value("${mail.script.url}")
     private String scriptUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
     @Async
     public void sendWelcomeEmail(String toEmail, String userName) {
-        if (!mailEnabled || scriptUrl == null || scriptUrl.isEmpty()) {
+        if (!mailEnabled || scriptUrl == null || scriptUrl.isBlank()) {
             System.out.println("📧 Email disabled or Script URL not configured — skipping welcome email for: " + toEmail);
             return;
         }
@@ -35,23 +32,84 @@ public class EmailService {
             String subject = "Welcome to " + galleryName + "! 🎨";
             String htmlContent = buildWelcomeHtml(userName);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            // Build JSON payload manually to avoid any serialization issues
+            String jsonPayload = "{\"to\":\"" + toEmail + "\","
+                    + "\"subject\":\"" + escapeJson(subject) + "\","
+                    + "\"html\":\"" + escapeJson(htmlContent) + "\"}";
 
-            Map<String, String> payload = new HashMap<>();
-            payload.put("to", toEmail);
-            payload.put("subject", subject);
-            payload.put("html", htmlContent);
+            System.out.println("📧 Sending welcome email to: " + toEmail);
+            System.out.println("📧 Script URL: " + scriptUrl);
 
-            HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
-            
-            // Post to the Google Apps Script Web App
-            String response = restTemplate.postForObject(scriptUrl, request, String.class);
+            // Use HttpURLConnection which properly follows redirects for POST
+            String response = postWithRedirect(scriptUrl, jsonPayload);
             System.out.println("✅ Welcome email sent to: " + toEmail + " | Response: " + response);
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to send welcome email to " + toEmail + " via Apps Script: " + e.getMessage());
+            System.err.println("❌ Failed to send welcome email to " + toEmail + ": " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * Posts JSON to the given URL and follows up to 5 redirects (including POST→POST).
+     * Google Apps Script web apps redirect on first POST; standard HttpURLConnection
+     * converts POST to GET on redirect, so we handle it manually.
+     */
+    private String postWithRedirect(String urlStr, String jsonPayload) throws Exception {
+        int maxRedirects = 5;
+        String currentUrl = urlStr;
+
+        for (int i = 0; i < maxRedirects; i++) {
+            URL url = new URL(currentUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setRequestProperty("Accept", "application/json, text/plain, */*");
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false); // we handle redirects manually
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(30000);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonPayload.getBytes(StandardCharsets.UTF_8));
+            }
+
+            int status = conn.getResponseCode();
+            System.out.println("📧 HTTP " + status + " from: " + currentUrl);
+
+            if (status == 200 || status == 201) {
+                // Success — read response body
+                try (var is = conn.getInputStream()) {
+                    return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                }
+            } else if (status == 301 || status == 302 || status == 303 || status == 307 || status == 308) {
+                String location = conn.getHeaderField("Location");
+                if (location == null || location.isBlank()) {
+                    throw new RuntimeException("Redirect with no Location header at: " + currentUrl);
+                }
+                System.out.println("📧 Redirecting to: " + location);
+                currentUrl = location;
+                conn.disconnect();
+            } else {
+                // Read error body for debugging
+                String errorBody = "";
+                try (var es = conn.getErrorStream()) {
+                    if (es != null) errorBody = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                }
+                throw new RuntimeException("HTTP " + status + " from Apps Script. Body: " + errorBody);
+            }
+        }
+        throw new RuntimeException("Too many redirects when posting to Apps Script.");
+    }
+
+    /** Minimal JSON string escaping */
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n")
+                .replace("\t", "\\t");
     }
 
     private String buildWelcomeHtml(String userName) {

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
     Palette, Image as ImageIcon, DollarSign, MessageSquare,
-    User, Calendar, Plus, Edit2, Trash2, CheckCircle, Clock, ExternalLink, Eye, Heart
+    User, Calendar, Plus, Edit2, Trash2, CheckCircle, Clock, ExternalLink, Eye, Heart, Upload
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useArtworks } from '../../context/ArtworkContext';
@@ -91,13 +91,17 @@ export default function ArtistDashboard() {
             </div>
 
             <div className="dashboard__main-content">
-                <div className="dashboard__header" style={{ marginBottom: '1.5rem' }}>
+                <div className="dashboard__header">
                     <div>
                         <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
                             {navItems.find(i => i.id === activeTab)?.label}
                         </motion.h1>
-                        <motion.p initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
-                            Manage your creative business and interactions
+                        <motion.p className="dashboard__header-subtitle" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
+                            {activeTab === 'my-artworks' && 'View and manage your uploaded artworks'}
+                            {activeTab === 'sales' && 'Track your revenue and recent transactions'}
+                            {activeTab === 'messages' && 'Conversations with buyers and curators'}
+                            {activeTab === 'profile' && 'Update your artist profile and bio'}
+                            {activeTab === 'exhibitions' && 'Review exhibition invitations'}
                         </motion.p>
                     </div>
                     {activeTab === 'my-artworks' && (
@@ -199,11 +203,22 @@ export default function ArtistDashboard() {
                                                 </div>
                                             ))}
                                             {myArtworks.length === 0 && (
-                                                <div className="col-span-full py-12 flex flex-col items-center justify-center text-center text-secondary border-2 border-dashed border-glass rounded-lg">
-                                                    <ImageIcon size={32} className="mb-3 opacity-50" />
-                                                    <p>You haven't uploaded any artworks yet.</p>
-                                                    <Link to="/dashboard/artist/upload" className="text-gold mt-2">Upload your first piece</Link>
-                                                </div>
+                                                <motion.div
+                                                    className="artist-empty-state"
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.4, delay: 0.1 }}
+                                                >
+                                                    <div className="artist-empty-state__icon">
+                                                        <ImageIcon size={40} />
+                                                    </div>
+                                                    <h3 className="artist-empty-state__title">No artworks yet</h3>
+                                                    <p className="artist-empty-state__text">Start building your portfolio by uploading your first piece.</p>
+                                                    <Link to="/dashboard/artist/upload" className="artist-empty-state__cta">
+                                                        <Upload size={18} />
+                                                        Upload Your First Artwork
+                                                    </Link>
+                                                </motion.div>
                                             )}
                                         </div>
                                     )}

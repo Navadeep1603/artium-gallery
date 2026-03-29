@@ -588,6 +588,25 @@
     pointer-events: none;
 }
 
+/* Change Password Info Box */
+.change-pw-info {
+    padding: var(--space-3) var(--space-4);
+    background: rgba(201, 169, 98, 0.08);
+    border: 1px solid rgba(201, 169, 98, 0.2);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.change-pw-info p {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.change-pw-info strong {
+    color: var(--gold);
+}
+
 /* Responsive */
 @media (max-width: 480px) {
     .auth-container {

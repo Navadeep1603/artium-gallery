@@ -40,6 +40,18 @@ export const userService = {
     verifyOtp: async (email, otp) => {
         const response = await api.post('/users/verify-otp', { email, otp });
         return response.data;
+    },
+    subscribe: async (data) => {
+        const response = await api.post('/users/subscribe', data);
+        return response.data;
+    },
+    changePassword: async (userId, oldPassword, newPassword) => {
+        const response = await api.post('/users/change-password', { userId, oldPassword, newPassword });
+        return response.data;
+    },
+    adminCreateAccount: async (data) => {
+        const response = await api.post('/users/admin/create-account', data);
+        return response.data;
     }
 };
 

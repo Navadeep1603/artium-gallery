@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
@@ -9,12 +10,24 @@ import {
     Mail,
     MapPin,
     Phone,
-    ArrowRight
+    ArrowRight,
+    User,
+    Palette,
+    Users,
+    CheckCircle,
+    AlertCircle
 } from 'lucide-react';
+import { userService } from '../../services/api';
 import './Footer.css';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
+    const [subName, setSubName] = useState('');
+    const [subEmail, setSubEmail] = useState('');
+    const [subRole, setSubRole] = useState('artist');
+    const [subGender, setSubGender] = useState('');
+    const [subLoading, setSubLoading] = useState(false);
+    const [subStatus, setSubStatus] = useState(null); // { type: 'success'|'error', msg: '' }
 
     const footerLinks = {
         explore: [
@@ -44,9 +57,43 @@ export default function Footer() {
         { icon: Youtube, label: 'YouTube', url: '#' },
     ];
 
+    const handleSubscribe = async (e) => {
+        e.preventDefault();
+        if (!subEmail.trim() || !subName.trim()) {
+            setSubStatus({ type: 'error', msg: 'Please fill in your name and email.' });
+            return;
+        }
+
+        setSubLoading(true);
+        setSubStatus(null);
+
+        try {
+            const result = await userService.subscribe({
+                name: subName,
+                email: subEmail,
+                role: subRole,
+                gender: subGender
+            });
+
+            if (result.success) {
+                setSubStatus({ type: 'success', msg: result.message || 'Request submitted! We\'ll review and get back to you.' });
+                setSubName('');
+                setSubEmail('');
+                setSubRole('artist');
+                setSubGender('');
+            } else {
+                setSubStatus({ type: 'error', msg: result.error || 'Something went wrong.' });
+            }
+        } catch {
+            setSubStatus({ type: 'error', msg: 'Server error. Please try again later.' });
+        }
+
+        setSubLoading(false);
+    };
+
     return (
         <footer className="footer">
-            {/* Newsletter Section */}
+            {/* Subscribe / Access Request Section */}
             <div className="footer__newsletter">
                 <div className="footer__newsletter-container">
                     <motion.div
@@ -59,26 +106,75 @@ export default function Footer() {
                             Stay Connected with Art
                         </h3>
                         <p className="footer__newsletter-text">
-                            Subscribe to receive updates on new exhibitions, featured artists, and exclusive offers.
+                            Want to join as an <strong>Artist</strong> or <strong>Curator</strong>? Submit your request below and our team will review your application.
                         </p>
                     </motion.div>
                     <motion.form
-                        className="footer__newsletter-form"
+                        className="footer__subscribe-form"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.2 }}
-                        onSubmit={(e) => e.preventDefault()}
+                        onSubmit={handleSubscribe}
                     >
-                        <input
-                            type="email"
-                            placeholder="Enter your email address"
-                            className="footer__newsletter-input"
-                        />
-                        <button type="submit" className="footer__newsletter-btn">
-                            Subscribe
-                            <ArrowRight size={16} />
-                        </button>
+                        <div className="footer__subscribe-row">
+                            <div className="footer__subscribe-field">
+                                <User size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Your full name"
+                                    value={subName}
+                                    onChange={(e) => setSubName(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="footer__subscribe-field">
+                                <Mail size={16} />
+                                <input
+                                    type="email"
+                                    placeholder="Your email address"
+                                    value={subEmail}
+                                    onChange={(e) => setSubEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="footer__subscribe-row">
+                            <div className="footer__subscribe-field footer__subscribe-select">
+                                <Palette size={16} />
+                                <select
+                                    value={subRole}
+                                    onChange={(e) => setSubRole(e.target.value)}
+                                >
+                                    <option value="artist">Artist</option>
+                                    <option value="curator">Curator</option>
+                                </select>
+                            </div>
+                            <div className="footer__subscribe-field footer__subscribe-select">
+                                <Users size={16} />
+                                <select
+                                    value={subGender}
+                                    onChange={(e) => setSubGender(e.target.value)}
+                                >
+                                    <option value="">Gender (optional)</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                    <option value="prefer-not-to-say">Prefer not to say</option>
+                                </select>
+                            </div>
+                            <button type="submit" className="footer__newsletter-btn" disabled={subLoading}>
+                                {subLoading ? 'Submitting...' : 'Subscribe'}
+                                <ArrowRight size={16} />
+                            </button>
+                        </div>
+
+                        {subStatus && (
+                            <div className={`footer__subscribe-status footer__subscribe-status--${subStatus.type}`}>
+                                {subStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                                {subStatus.msg}
+                            </div>
+                        )}
                     </motion.form>
                 </div>
             </div>

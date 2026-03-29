@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useArtworks } from '../../context/ArtworkContext';
+import { userService } from '../../services/api';
 import { artists } from '../../data/mockData';
 import './Dashboard.css';
 
@@ -39,7 +40,9 @@ export default function AdminDashboard() {
     // ── User Management state ──
     const [userSearch, setUserSearch] = useState('');
     const [showAddUser, setShowAddUser] = useState(false);
-    const [newUser, setNewUser] = useState({ name: '', email: '', role: 'visitor' });
+    const [newUser, setNewUser] = useState({ name: '', email: '', role: 'artist' });
+    const [addUserLoading, setAddUserLoading] = useState(false);
+    const [addUserResult, setAddUserResult] = useState(null);
 
     // ── Content Moderation state ──
     const pendingArtworks = artworks.slice(0, 6).map(a => ({ ...a, moderationStatus: 'pending' }));
@@ -77,11 +80,40 @@ export default function AdminDashboard() {
     );
 
     // ── Handlers ──
-    const handleAddUser = (e) => {
+    const handleAddUser = async (e) => {
         e.preventDefault();
-        adminAddUser(newUser);
-        setNewUser({ name: '', email: '', role: 'visitor' });
-        setShowAddUser(false);
+        setAddUserLoading(true);
+        setAddUserResult(null);
+
+        try {
+            if (newUser.role === 'artist' || newUser.role === 'curator') {
+                // Use the admin create-account endpoint for artist/curator
+                const result = await userService.adminCreateAccount({
+                    name: newUser.name,
+                    email: newUser.email,
+                    role: newUser.role
+                });
+                if (result.success) {
+                    setAddUserResult({ type: 'success', msg: result.message || `Account created! Credentials sent to ${newUser.email}` });
+                    setNewUser({ name: '', email: '', role: 'artist' });
+                    // Refresh user list after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    setAddUserResult({ type: 'error', msg: result.error || 'Failed to create account' });
+                }
+            } else {
+                // Fallback: use original adminAddUser for visitor
+                adminAddUser(newUser);
+                setAddUserResult({ type: 'success', msg: 'Visitor account created.' });
+                setNewUser({ name: '', email: '', role: 'artist' });
+            }
+        } catch {
+            setAddUserResult({ type: 'error', msg: 'Server error. Please try again.' });
+        }
+
+        setAddUserLoading(false);
     };
 
     const toggleUserStatus = (id) => {
@@ -230,10 +262,14 @@ export default function AdminDashboard() {
                                         <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                                             <motion.div className="admin-modal" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
                                                 <div className="admin-modal__header">
-                                                    <h3>Add New User</h3>
-                                                    <button onClick={() => setShowAddUser(false)}><X size={20} /></button>
+                                                    <h3>Create Artist / Curator Account</h3>
+                                                    <button onClick={() => { setShowAddUser(false); setAddUserResult(null); }}><X size={20} /></button>
                                                 </div>
                                                 <form onSubmit={handleAddUser} className="admin-modal__body">
+                                                    <div className="admin-info-banner" style={{ marginBottom: '1rem' }}>
+                                                        <Shield size={16} />
+                                                        <p style={{ margin: 0, fontSize: '0.85rem' }}>A temporary password will be generated and emailed to the user. They must change it on first login.</p>
+                                                    </div>
                                                     <div className="admin-field">
                                                         <label>Full Name</label>
                                                         <input type="text" required value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} placeholder="Enter full name" />
@@ -245,15 +281,31 @@ export default function AdminDashboard() {
                                                     <div className="admin-field">
                                                         <label>Role</label>
                                                         <select value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}>
-                                                            <option value="visitor">Visitor</option>
-                                                            <option value="artist">Artist</option>
-                                                            <option value="curator">Curator</option>
-                                                            <option value="admin">Admin</option>
+                                                            <option value="artist">🎨 Artist</option>
+                                                            <option value="curator">🖼️ Curator</option>
                                                         </select>
                                                     </div>
+
+                                                    {addUserResult && (
+                                                        <div style={{
+                                                            padding: '0.75rem 1rem',
+                                                            borderRadius: '8px',
+                                                            fontSize: '0.85rem',
+                                                            background: addUserResult.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                                                            color: addUserResult.type === 'success' ? '#10b981' : '#ef4444',
+                                                            border: `1px solid ${addUserResult.type === 'success' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                                                            display: 'flex', alignItems: 'center', gap: '0.5rem'
+                                                        }}>
+                                                            {addUserResult.type === 'success' ? <CheckCircle size={16} /> : <XCircle size={16} />}
+                                                            {addUserResult.msg}
+                                                        </div>
+                                                    )}
+
                                                     <div className="admin-modal__actions">
-                                                        <button type="button" className="btn btn-secondary" onClick={() => setShowAddUser(false)}>Cancel</button>
-                                                        <button type="submit" className="btn btn-primary">Create User</button>
+                                                        <button type="button" className="btn btn-secondary" onClick={() => { setShowAddUser(false); setAddUserResult(null); }}>Cancel</button>
+                                                        <button type="submit" className="btn btn-primary" disabled={addUserLoading}>
+                                                            {addUserLoading ? 'Creating...' : 'Create & Send Credentials'}
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </motion.div>

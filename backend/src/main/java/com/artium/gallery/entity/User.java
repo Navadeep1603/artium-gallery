@@ -30,6 +30,9 @@ public class User {
 
     private String joined;
 
+    @Column(nullable = false)
+    private boolean mustChangePassword = false;
+
     public User() {}
 
     public User(String name, String email, String password, String role) {
@@ -38,6 +41,7 @@ public class User {
         this.password = password;
         this.role = role;
         this.status = "active";
+        this.mustChangePassword = false;
     }
 
     public User(String name, String email, String password, String role, String avatar) {
@@ -69,4 +73,7 @@ public class User {
 
     public String getJoined() { return joined; }
     public void setJoined(String joined) { this.joined = joined; }
+
+    public boolean isMustChangePassword() { return mustChangePassword; }
+    public void setMustChangePassword(boolean mustChangePassword) { this.mustChangePassword = mustChangePassword; }
 }

@@ -36,6 +36,12 @@ export function AuthProvider({ children }) {
             }
 
             const loggedInUser = data.user;
+
+            // If user must change password, don't store session yet
+            if (data.mustChangePassword) {
+                return { success: true, mustChangePassword: true, user: loggedInUser };
+            }
+
             setUser(loggedInUser);
             localStorage.setItem('gallery-user', JSON.stringify(loggedInUser));
             return { success: true, user: loggedInUser };

@@ -50,6 +50,7 @@ public class UserController {
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
                     response.put("user", user);
+                    response.put("mustChangePassword", user.isMustChangePassword());
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
@@ -60,15 +61,14 @@ public class UserController {
                 });
     }
 
-    // POST signup
+    // POST signup — always creates a VISITOR account
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> signup(@RequestBody Map<String, String> userData) {
         try {
             User user = userService.signup(
                     userData.get("name"),
                     userData.get("email"),
-                    userData.get("password"),
-                    userData.getOrDefault("role", "visitor")
+                    userData.get("password")
             );
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -76,6 +76,75 @@ public class UserController {
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    // POST subscribe — Artist/Curator access request (sends email to admin)
+    @PostMapping("/subscribe")
+    public ResponseEntity<Map<String, Object>> subscribe(@RequestBody Map<String, String> data) {
+        Map<String, Object> response = new HashMap<>();
+        String email = data.get("email");
+        String name = data.getOrDefault("name", "");
+        String role = data.getOrDefault("role", "artist");
+        String gender = data.getOrDefault("gender", "");
+
+        if (email == null || email.isBlank()) {
+            response.put("success", false);
+            response.put("error", "Email is required");
+            return ResponseEntity.ok(response);
+        }
+
+        try {
+            emailService.sendSubscribeNotification(name, email, role, gender);
+            response.put("success", true);
+            response.put("message", "Your request has been submitted! We'll review it and get back to you.");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "Failed to submit request. Please try again.");
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    // POST admin create Artist/Curator account
+    @PostMapping("/admin/create-account")
+    public ResponseEntity<Map<String, Object>> adminCreateAccount(@RequestBody Map<String, String> data) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = userService.createArtistCuratorAccount(
+                    data.get("name"),
+                    data.get("email"),
+                    data.get("role")
+            );
+            response.put("success", true);
+            response.put("user", user);
+            response.put("message", "Account created and credentials sent to " + data.get("email"));
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    // POST change password
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, Object> data) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Long userId = Long.valueOf(data.get("userId").toString());
+            String oldPassword = (String) data.get("oldPassword");
+            String newPassword = (String) data.get("newPassword");
+
+            User user = userService.changePassword(userId, oldPassword, newPassword);
+            response.put("success", true);
+            response.put("user", user);
+            response.put("message", "Password changed successfully");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
             response.put("success", false);
             response.put("error", e.getMessage());
             return ResponseEntity.ok(response);

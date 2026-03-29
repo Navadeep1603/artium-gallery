@@ -97,16 +97,12 @@ public class UserController {
             return ResponseEntity.ok(response);
         }
 
-        try {
-            emailService.sendSubscribeNotification(name, email, role, gender);
-            response.put("success", true);
-            response.put("message", "Your request has been submitted! We'll review it and get back to you.");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("error", "Failed to submit request. Please try again.");
-            return ResponseEntity.ok(response);
-        }
+        // Fire email asynchronously — respond immediately
+        emailService.sendSubscribeNotification(name, email, role, gender);
+
+        response.put("success", true);
+        response.put("message", "Your request has been submitted! We'll review it and get back to you.");
+        return ResponseEntity.ok(response);
     }
 
     // POST admin create Artist/Curator account

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Palette, Users, Eye as EyeIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Palette, Users, Eye as EyeIcon, ShieldCheck, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { userService } from '../services/api';
 import './Auth.css';
 
 export default function Signup() {
@@ -17,6 +18,15 @@ export default function Signup() {
     const [loading, setLoading] = useState(false);
     const { signup, user } = useAuth();
     const navigate = useNavigate();
+
+    // OTP state
+    const [otp, setOtp] = useState('');
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpVerified, setOtpVerified] = useState(false);
+    const [otpError, setOtpError] = useState('');
+    const [otpLoading, setOtpLoading] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
+    const cooldownRef = useRef(null);
 
     // Redirect already-logged-in users to their dashboard
     if (user) {
@@ -40,13 +50,106 @@ export default function Signup() {
         return errors;
     };
 
+    const isValidEmail = (em) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+
+    // Start 30-second cooldown
+    const startCooldown = () => {
+        setResendCooldown(30);
+        if (cooldownRef.current) clearInterval(cooldownRef.current);
+        cooldownRef.current = setInterval(() => {
+            setResendCooldown(prev => {
+                if (prev <= 1) {
+                    clearInterval(cooldownRef.current);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    // Cleanup interval on unmount
+    useEffect(() => {
+        return () => {
+            if (cooldownRef.current) clearInterval(cooldownRef.current);
+        };
+    }, []);
+
+    // Reset OTP state if email changes after OTP was sent
+    useEffect(() => {
+        if (otpSent || otpVerified) {
+            setOtpSent(false);
+            setOtpVerified(false);
+            setOtp('');
+            setOtpError('');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [email]);
+
+    const handleSendOtp = async () => {
+        if (!isValidEmail(email)) {
+            setOtpError('Please enter a valid email address');
+            return;
+        }
+
+        setOtpLoading(true);
+        setOtpError('');
+
+        try {
+            const result = await userService.sendOtp(email);
+            if (result.success) {
+                setOtpSent(true);
+                startCooldown();
+                setOtpError('');
+            } else {
+                setOtpError(result.error || 'Failed to send OTP');
+            }
+        } catch {
+            setOtpError('Server error. Please try again.');
+        }
+
+        setOtpLoading(false);
+    };
+
+    const handleVerifyOtp = async () => {
+        if (!otp || otp.length !== 6) {
+            setOtpError('Please enter a 6-digit OTP');
+            return;
+        }
+
+        setOtpLoading(true);
+        setOtpError('');
+
+        try {
+            const result = await userService.verifyOtp(email, otp);
+            if (result.success) {
+                setOtpVerified(true);
+                setOtpError('');
+            } else {
+                setOtpError(result.error || 'Invalid OTP');
+            }
+        } catch {
+            setOtpError('Server error. Please try again.');
+        }
+
+        setOtpLoading(false);
+    };
+
+    const handleResendOtp = () => {
+        if (resendCooldown > 0) return;
+        handleSendOtp();
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (step === 1) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
+            if (!isValidEmail(email)) {
                 setError('Please enter a valid email address');
+                return;
+            }
+
+            if (!otpVerified) {
+                setError('Please verify your email with OTP first');
                 return;
             }
 
@@ -137,8 +240,15 @@ export default function Signup() {
                             </div>
 
                             <div className="auth-field">
-                                <label htmlFor="email">Email</label>
-                                <div className="auth-input-wrapper">
+                                <label htmlFor="email">
+                                    Email
+                                    {otpVerified && (
+                                        <span className="otp-verified-badge">
+                                            <ShieldCheck size={14} /> Verified
+                                        </span>
+                                    )}
+                                </label>
+                                <div className={`auth-input-wrapper ${otpVerified ? 'verified' : ''}`}>
                                     <Mail size={18} />
                                     <input
                                         type="email"
@@ -147,13 +257,78 @@ export default function Signup() {
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="Enter your email"
                                         required
+                                        disabled={otpVerified}
                                     />
+                                    {!otpVerified && !otpSent && (
+                                        <button
+                                            type="button"
+                                            className="otp-send-btn"
+                                            onClick={handleSendOtp}
+                                            disabled={otpLoading || !isValidEmail(email)}
+                                        >
+                                            {otpLoading ? 'Sending...' : 'Send OTP'}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
+                            {/* OTP Section */}
+                            <AnimatePresence>
+                                {otpSent && !otpVerified && (
+                                    <motion.div
+                                        className="otp-section"
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <div className="auth-field">
+                                            <label htmlFor="otp">Enter OTP</label>
+                                            <div className="auth-input-wrapper otp-input-wrapper">
+                                                <ShieldCheck size={18} />
+                                                <input
+                                                    type="text"
+                                                    id="otp"
+                                                    value={otp}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                                        setOtp(val);
+                                                    }}
+                                                    placeholder="Enter 6-digit OTP"
+                                                    maxLength={6}
+                                                    autoComplete="one-time-code"
+                                                />
+                                            </div>
+
+                                            {otpError && <div className="otp-error">{otpError}</div>}
+
+                                            <div className="otp-actions">
+                                                <button
+                                                    type="button"
+                                                    className="otp-verify-btn"
+                                                    onClick={handleVerifyOtp}
+                                                    disabled={otpLoading || otp.length !== 6}
+                                                >
+                                                    {otpLoading ? 'Verifying...' : 'Verify OTP'}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`otp-resend ${resendCooldown > 0 ? 'disabled' : ''}`}
+                                                    onClick={handleResendOtp}
+                                                    disabled={resendCooldown > 0 || otpLoading}
+                                                >
+                                                    <RefreshCw size={14} />
+                                                    {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend OTP'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
                             <div className="auth-field">
                                 <label htmlFor="password">Password</label>
-                                <div className="auth-input-wrapper">
+                                <div className={`auth-input-wrapper ${!otpVerified ? 'field-disabled' : ''}`}>
                                     <Lock size={18} />
                                     <input
                                         type={showPassword ? 'text' : 'password'}
@@ -163,11 +338,13 @@ export default function Signup() {
                                         placeholder="Create a password"
                                         required
                                         minLength={8}
+                                        disabled={!otpVerified}
                                     />
                                     <button
                                         type="button"
                                         className="auth-password-toggle"
                                         onClick={() => setShowPassword(!showPassword)}
+                                        disabled={!otpVerified}
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
@@ -216,7 +393,7 @@ export default function Signup() {
 
                             <div className="auth-field">
                                 <label htmlFor="confirmPassword">Confirm Password</label>
-                                <div className="auth-input-wrapper">
+                                <div className={`auth-input-wrapper ${!otpVerified ? 'field-disabled' : ''}`}>
                                     <Lock size={18} />
                                     <input
                                         type={showPassword ? 'text' : 'password'}
@@ -226,6 +403,7 @@ export default function Signup() {
                                         placeholder="Confirm your password"
                                         required
                                         minLength={8}
+                                        disabled={!otpVerified}
                                     />
                                 </div>
                             </div>
@@ -258,7 +436,7 @@ export default function Signup() {
                                 Back
                             </button>
                         )}
-                        <button type="submit" className="auth-submit" disabled={loading}>
+                        <button type="submit" className="auth-submit" disabled={loading || (step === 1 && !otpVerified)}>
                             {loading ? 'Creating...' : step === 1 ? 'Continue' : 'Create Account'}
                             <ArrowRight size={18} />
                         </button>

@@ -50,6 +50,31 @@ public class EmailService {
         }
     }
 
+    @Async
+    public void sendOtpEmail(String toEmail, String otp) {
+        if (!mailEnabled || scriptUrl == null || scriptUrl.isBlank()) {
+            System.out.println("📧 Email disabled or Script URL not configured — skipping OTP email for: " + toEmail);
+            return;
+        }
+
+        try {
+            String subject = "Your " + galleryName + " Verification Code \uD83D\uDD10";
+            String htmlContent = buildOtpHtml(otp);
+
+            String jsonPayload = "{\"to\":\"" + toEmail + "\","
+                    + "\"subject\":\"" + escapeJson(subject) + "\","
+                    + "\"html\":\"" + escapeJson(htmlContent) + "\"}";
+
+            System.out.println("📧 Sending OTP email to: " + toEmail);
+            String response = postWithRedirect(scriptUrl, jsonPayload);
+            System.out.println("✅ OTP email sent to: " + toEmail + " | Response: " + response);
+
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send OTP email to " + toEmail + ": " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Posts JSON to the given URL and follows up to 5 redirects (including POST→POST).
      * Google Apps Script web apps redirect on first POST; standard HttpURLConnection
@@ -174,5 +199,70 @@ public class EmailService {
             </body>
             </html>
             """.formatted(userName, galleryName, galleryName, galleryName);
+    }
+
+    private String buildOtpHtml(String otp) {
+        return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin:0; padding:0; background-color:#1a1a2e; font-family:'Segoe UI',Arial,sans-serif;">
+                <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color:#1a1a2e; padding:40px 20px;">
+                    <tr>
+                        <td align="center">
+                            <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color:#16213e; border-radius:16px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+
+                                <!-- Header -->
+                                <tr>
+                                    <td style="background: linear-gradient(135deg, #c9a84c 0%%, #e8d48b 50%%, #c9a84c 100%%); padding:40px 40px 30px; text-align:center;">
+                                        <h1 style="margin:0; font-size:32px; font-weight:700; color:#1a1a2e; letter-spacing:0.15em;">ARTIUM</h1>
+                                        <p style="margin:8px 0 0; font-size:12px; color:#1a1a2e; letter-spacing:0.2em; text-transform:uppercase;">Email Verification</p>
+                                    </td>
+                                </tr>
+
+                                <!-- Body -->
+                                <tr>
+                                    <td style="padding:40px;">
+                                        <p style="margin:0 0 20px; font-size:18px; color:#e8d48b;">Verify Your Email</p>
+                                        <p style="margin:0 0 24px; font-size:15px; color:#c4c4c4; line-height:1.7;">
+                                            Use the following verification code to complete your registration with <strong style="color:#e8d48b;">%s</strong>:
+                                        </p>
+
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+                                            <tr>
+                                                <td align="center">
+                                                    <div style="display:inline-block; padding:20px 40px; background-color:#0f1729; border:2px solid #c9a84c; border-radius:12px; letter-spacing:0.5em; font-size:36px; font-weight:700; color:#e8d48b;">
+                                                        %s
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <p style="margin:0 0 16px; font-size:14px; color:#c4c4c4; line-height:1.7;">
+                                            ⏱️ This code will expire in <strong style="color:#e8d48b;">5 minutes</strong>.
+                                        </p>
+                                        <p style="margin:0; font-size:13px; color:#888; line-height:1.7;">
+                                            If you didn't request this code, you can safely ignore this email.
+                                        </p>
+                                    </td>
+                                </tr>
+
+                                <!-- Footer -->
+                                <tr>
+                                    <td style="background-color:#0f1729; padding:24px 40px; text-align:center; border-top:1px solid #2a2a4a;">
+                                        <p style="margin:0; font-size:12px; color:#666;">© 2026 %s. All rights reserved.</p>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+            """.formatted(galleryName, otp, galleryName);
     }
 }

@@ -32,6 +32,14 @@ export const userService = {
     deleteUser: async (id) => {
         const response = await api.delete(`/users/${id}`);
         return response.data;
+    },
+    sendOtp: async (email) => {
+        const response = await api.post('/users/send-otp', { email });
+        return response.data;
+    },
+    verifyOtp: async (email, otp) => {
+        const response = await api.post('/users/verify-otp', { email, otp });
+        return response.data;
     }
 };
 

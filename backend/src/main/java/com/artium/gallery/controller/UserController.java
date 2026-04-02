@@ -147,6 +147,31 @@ public class UserController {
         }
     }
 
+    // POST reset password via OTP flow (no old password — OTP already verified on frontend)
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody Map<String, String> body) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String email = body.get("email");
+            String newPassword = body.get("newPassword");
+
+            if (email == null || email.isBlank() || newPassword == null || newPassword.isBlank()) {
+                response.put("success", false);
+                response.put("error", "Email and new password are required");
+                return ResponseEntity.ok(response);
+            }
+
+            userService.resetPassword(email, newPassword);
+            response.put("success", true);
+            response.put("message", "Password reset successfully");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
     // POST send OTP
     @PostMapping("/send-otp")
     public ResponseEntity<Map<String, Object>> sendOtp(@RequestBody Map<String, String> body) {

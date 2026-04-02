@@ -52,6 +52,10 @@ export const userService = {
     adminCreateAccount: async (data) => {
         const response = await api.post('/users/admin/create-account', data);
         return response.data;
+    },
+    resetPassword: async (email, newPassword) => {
+        const response = await api.post('/users/reset-password', { email, newPassword });
+        return response.data;
     }
 };
 

@@ -110,6 +110,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // Reset password via OTP flow (no old password required — OTP already verified)
+    public User resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("No account found with this email"));
+        user.setPassword(newPassword);
+        user.setMustChangePassword(false);
+        return userRepository.save(user);
+    }
+
     public User updateUser(Long id, User userDetails) {
         return userRepository.findById(id).map(user -> {
             user.setName(userDetails.getName());

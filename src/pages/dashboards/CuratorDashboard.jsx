@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -102,37 +102,45 @@ export default function CuratorDashboard() {
                             {/* 1. EXHIBITION MANAGER */}
                             {activeTab === 'exhibitions' && (
                                 <div className="curator-exhibit-grid">
-                                    <div className="dashboard__card curator-create-card">
-                                        <div className="curator-create-card__content">
-                                            <div className="curator-create-card__icon">
-                                                <Plus size={24} />
-                                            </div>
-                                            <h3>Create Exhibition</h3>
-                                            <p>Group artworks by theme or period</p>
+                                    {/* Create Exhibition Card */}
+                                    <button className="curator-create-card" onClick={() => {}}>
+                                        <div className="curator-create-card__icon">
+                                            <Plus size={28} />
                                         </div>
-                                    </div>
+                                        <h3>Create Exhibition</h3>
+                                        <p>Group artworks by theme or period</p>
+                                    </button>
+
+                                    {/* Exhibition Cards */}
                                     {exhibitions.map(ex => (
-                                        <div key={ex.id} className="dashboard__card p-0 overflow-hidden exhibit-manage-card">
-                                            <div className="h-32 bg-secondary relative">
-                                                <img src={ex.image} alt={ex.title} className="w-full h-full object-cover opacity-60" />
-                                                <span className={`absolute top-4 right-4 px-2 py-1 flex items-center gap-1 text-xs rounded-full border bg-black/50 backdrop-blur-md ${ex.status === 'upcoming' ? 'text-yellow-400 border-yellow-500/30' : 'text-green-400 border-green-500/30'}`}>
-                                                    {ex.status === 'upcoming' ? <Clock size={12} /> : <CheckCircle size={12} />}
+                                        <div key={ex.id} className="curator-exhibit-card">
+                                            {/* Image */}
+                                            <div className="curator-exhibit-card__image">
+                                                <img src={ex.image} alt={ex.title} />
+                                                <span className={`curator-exhibit-card__badge ${ex.status === 'upcoming' ? 'badge--upcoming' : 'badge--active'}`}>
+                                                    {ex.status === 'upcoming' ? <Clock size={11} /> : <CheckCircle size={11} />}
                                                     {ex.status === 'upcoming' ? 'Upcoming' : 'Active'}
                                                 </span>
                                             </div>
-                                            <div className="p-5">
-                                                <h3 className="text-xl font-bold text-primary mb-1">{ex.title}</h3>
-                                                <p className="text-sm text-gold mb-3">{ex.subtitle}</p>
-                                                <p className="text-sm text-secondary mb-4 line-clamp-2">{ex.description}</p>
 
-                                                <div className="flex justify-between items-center text-sm text-secondary mb-4 pb-4 border-b border-glass">
-                                                    <span className="flex items-center gap-1"><Grid size={14} /> {ex.artworkCount} Artworks</span>
-                                                    <span className="flex items-center gap-1"><Calendar size={14} /> {ex.startDate}</span>
+                                            {/* Body */}
+                                            <div className="curator-exhibit-card__body">
+                                                <h3 className="curator-exhibit-card__title">{ex.title}</h3>
+                                                <p className="curator-exhibit-card__subtitle">{ex.subtitle}</p>
+                                                <p className="curator-exhibit-card__desc">{ex.description}</p>
+
+                                                <div className="curator-exhibit-card__meta">
+                                                    <span><Grid size={13} /> {ex.artworkCount} Artworks</span>
+                                                    <span><Calendar size={13} /> {ex.startDate}</span>
                                                 </div>
 
-                                                <div className="flex gap-2">
-                                                    <button className="btn btn-primary flex-1 py-1.5 text-sm">Edit</button>
-                                                    <button className="btn btn-secondary flex-1 py-1.5 text-sm flex items-center justify-center gap-1"><Eye size={14} /> Preview</button>
+                                                <div className="curator-exhibit-card__actions">
+                                                    <button className="curator-exhibit-btn curator-exhibit-btn--edit">
+                                                        <Edit2 size={14} /> Edit
+                                                    </button>
+                                                    <button className="curator-exhibit-btn curator-exhibit-btn--preview">
+                                                        <Eye size={14} /> Preview
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>

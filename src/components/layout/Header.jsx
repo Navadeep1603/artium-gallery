@@ -132,20 +132,22 @@ export default function Header() {
                         </motion.div>
                     </button>
 
-                    {/* Cart */}
-                    <Link to="/cart" className="header__action-btn header__cart-btn">
-                        <ShoppingCart size={20} />
-                        {cartCount > 0 && (
-                            <motion.span
-                                className="header__cart-badge"
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                key={cartCount}
-                            >
-                                {cartCount}
-                            </motion.span>
-                        )}
-                    </Link>
+                    {/* Cart — only visible to visitors / unauthenticated users */}
+                    {(!isAuthenticated || user?.role === 'visitor') && (
+                        <Link to="/cart" className="header__action-btn header__cart-btn">
+                            <ShoppingCart size={20} />
+                            {cartCount > 0 && (
+                                <motion.span
+                                    className="header__cart-badge"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    key={cartCount}
+                                >
+                                    {cartCount}
+                                </motion.span>
+                            )}
+                        </Link>
+                    )}
 
                     {/* User Menu */}
                     {isAuthenticated ? (

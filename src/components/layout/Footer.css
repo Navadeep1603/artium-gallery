@@ -303,6 +303,19 @@
     margin-top: 2px;
 }
 
+.footer__contact-link {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+    word-break: break-all;
+}
+
+.footer__contact-link:hover {
+    color: var(--gold);
+    text-decoration: underline;
+}
+
 /* Bottom Bar */
 .footer__bottom {
     background: var(--bg-tertiary);

@@ -251,25 +251,47 @@ export default function Footer() {
                     {/* Contact */}
                     <div className="footer__contact">
                         <h4 className="footer__links-title">Contact Us</h4>
+
+                        {/* Address */}
                         <div className="footer__contact-item">
                             <MapPin size={18} />
                             <span>KL University<br />Vaddeswaram, Guntur, AP</span>
                         </div>
+
+                        {/* Phone */}
                         <div className="footer__contact-item">
                             <Phone size={18} />
-                            <span>91439 95577</span>
+                            <a href="tel:+919143995577" className="footer__contact-link">
+                                91439 95577
+                            </a>
+                        </div>
+
+                        {/* Gallery email */}
+                        <div className="footer__contact-item">
+                            <Mail size={18} />
+                            <a href="mailto:artiumvirtualgallery@gmail.com" className="footer__contact-link">
+                                artiumvirtualgallery@gmail.com
+                            </a>
+                        </div>
+
+                        {/* Team emails */}
+                        <div className="footer__contact-item">
+                            <Mail size={18} />
+                            <a href="mailto:2400030987@kluniversity.in" className="footer__contact-link">
+                                2400030987@kluniversity.in
+                            </a>
                         </div>
                         <div className="footer__contact-item">
                             <Mail size={18} />
-                            <span>2400030987@kluniversity.in</span>
+                            <a href="mailto:2400030367@kluniversity.in" className="footer__contact-link">
+                                2400030367@kluniversity.in
+                            </a>
                         </div>
                         <div className="footer__contact-item">
                             <Mail size={18} />
-                            <span>2400030367@kluniversity.in</span>
-                        </div>
-                        <div className="footer__contact-item">
-                            <Mail size={18} />
-                            <span>2400030170@kluniversity.in</span>
+                            <a href="mailto:2400030170@kluniversity.in" className="footer__contact-link">
+                                2400030170@kluniversity.in
+                            </a>
                         </div>
                     </div>
                 </div>

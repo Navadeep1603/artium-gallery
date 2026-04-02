@@ -274,25 +274,6 @@ export default function Footer() {
                             </a>
                         </div>
 
-                        {/* Team emails */}
-                        <div className="footer__contact-item">
-                            <Mail size={18} />
-                            <a href="mailto:2400030987@kluniversity.in" className="footer__contact-link">
-                                2400030987@kluniversity.in
-                            </a>
-                        </div>
-                        <div className="footer__contact-item">
-                            <Mail size={18} />
-                            <a href="mailto:2400030367@kluniversity.in" className="footer__contact-link">
-                                2400030367@kluniversity.in
-                            </a>
-                        </div>
-                        <div className="footer__contact-item">
-                            <Mail size={18} />
-                            <a href="mailto:2400030170@kluniversity.in" className="footer__contact-link">
-                                2400030170@kluniversity.in
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>

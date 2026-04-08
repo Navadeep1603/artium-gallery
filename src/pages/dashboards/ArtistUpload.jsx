@@ -107,7 +107,7 @@ export default function ArtistUpload() {
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -122,8 +122,6 @@ export default function ArtistUpload() {
             const newArtwork = {
                 title: formData.title,
                 artistName: user?.name || 'Unknown Artist',
-                artist: user?.name || 'Unknown Artist',
-                artistId: user?.id || 999,
                 year: new Date().getFullYear(),
                 medium: formData.medium,
                 style: formData.style || 'Contemporary',
@@ -134,13 +132,13 @@ export default function ArtistUpload() {
                 culturalHistory: formData.culturalHistory,
                 origin: 'Artist Studio',
                 dimensions: formData.dimensions || 'Variable',
-                image: formData.image || '/src/assets/pic3.jpg',
-                thumbnail: formData.image || '/src/assets/pic3.jpg'
+                image: formData.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800',
+                thumbnail: formData.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400'
             };
 
-            addArtwork(newArtwork);
+            await addArtwork(newArtwork);
             setSuccess(true);
-            setTimeout(() => navigate('/dashboard/artist'), 2000);
+            setTimeout(() => navigate('/dashboard/artist', { state: { refresh: true } }), 2000);
         } catch {
             setError('Failed to upload artwork. Please try again.');
         } finally {

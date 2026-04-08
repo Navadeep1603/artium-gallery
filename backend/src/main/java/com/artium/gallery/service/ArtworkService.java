@@ -34,6 +34,10 @@ public class ArtworkService {
         return artworkRepository.findByArtist_Id(artistId);
     }
 
+    public List<Artwork> getArtworksByArtistName(String artistName) {
+        return artworkRepository.findByArtistNameIgnoreCase(artistName);
+    }
+
     public List<Artwork> getAvailableArtworks() {
         return artworkRepository.findByAvailableTrue();
     }

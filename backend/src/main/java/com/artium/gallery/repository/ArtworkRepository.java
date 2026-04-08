@@ -13,4 +13,6 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     List<Artwork> findByArtist_Id(Long artistId);
     List<Artwork> findByAvailableTrue();
     List<Artwork> findByTitleContainingIgnoreCase(String title);
+    List<Artwork> findByArtistNameIgnoreCase(String artistName);
+    List<Artwork> findByArtistNameContainingIgnoreCase(String artistName);
 }

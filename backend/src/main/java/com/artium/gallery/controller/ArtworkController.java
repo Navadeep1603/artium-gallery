@@ -47,6 +47,11 @@ public class ArtworkController {
         return artworkService.getAvailableArtworks();
     }
 
+    @GetMapping("/by-artist-name")
+    public List<Artwork> getByArtistName(@RequestParam String name) {
+        return artworkService.getArtworksByArtistName(name);
+    }
+
     @GetMapping("/search")
     public List<Artwork> searchArtworks(@RequestParam String title) {
         return artworkService.searchArtworks(title);

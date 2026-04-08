@@ -79,13 +79,43 @@ export function ArtworkProvider({ children }) {
         }
     };
 
-    const getArtworksByArtist = (artistName) => {
-        if (!artistName) return [];
-        const name = artistName.toLowerCase();
-        return artworks.filter(a =>
-            (a.artist && a.artist.toLowerCase() === name) ||
-            (a.artistName && a.artistName.toLowerCase() === name)
-        );
+    // Filter artworks by user (checks artistId first, then name as fallback)
+    const getArtworksByArtist = (artistName, userId) => {
+        return artworks.filter(a => {
+            // Primary: match by numeric artist ID
+            if (userId && (a.artistId === userId || a.artistId === Number(userId))) return true;
+            // Secondary: match by name (case-insensitive)
+            if (artistName) {
+                const name = artistName.toLowerCase();
+                if (a.artist && a.artist.toLowerCase() === name) return true;
+                if (a.artistName && a.artistName.toLowerCase() === name) return true;
+            }
+            return false;
+        });
+    };
+
+    // Fetch artworks directly from backend by artistName string
+    const fetchArtworksByArtistId = async (artistId, artistName) => {
+        try {
+            // First try by name (works for user-registered artists)
+            if (artistName) {
+                const res = await api.get(`/artworks/by-artist-name?name=${encodeURIComponent(artistName)}`);
+                if (res.data && res.data.length > 0) {
+                    return res.data.map(normalize);
+                }
+            }
+            // Fallback: try by artistId (works for demo artists in the artists table)
+            if (artistId) {
+                const res = await api.get(`/artworks/artist/${artistId}`);
+                if (res.data && res.data.length > 0) {
+                    return res.data.map(normalize);
+                }
+            }
+            return [];
+        } catch (err) {
+            console.error('Failed to fetch artworks', err);
+            return [];
+        }
     };
 
     return (
@@ -96,7 +126,8 @@ export function ArtworkProvider({ children }) {
             updateArtwork,
             deleteArtwork,
             toggleAvailability,
-            getArtworksByArtist
+            getArtworksByArtist,
+            fetchArtworksByArtistId
         }}>
             {children}
         </ArtworkContext.Provider>

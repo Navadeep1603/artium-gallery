@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
     Palette, Image as ImageIcon, DollarSign, MessageSquare,
     User, Calendar, Plus, Edit2, Trash2, CheckCircle, Clock, ExternalLink, Eye, Heart, Upload
@@ -11,24 +11,45 @@ import './Dashboard.css';
 
 export default function ArtistDashboard() {
     const { user } = useAuth();
-    const { getArtworksByArtist, deleteArtwork, updateArtwork } = useArtworks();
+    const { getArtworksByArtist, deleteArtwork, updateArtwork, fetchArtworksByArtistId } = useArtworks();
     const [activeTab, setActiveTab] = useState('my-artworks');
     const [editingArtwork, setEditingArtwork] = useState(null);
+    const [myArtworks, setMyArtworks] = useState([]);
+    const [loadingArtworks, setLoadingArtworks] = useState(true);
 
     const artistName = user?.name || '';
-    const myArtworks = getArtworksByArtist(artistName);
+
+    const location = useLocation();
+
+    // Fetch artworks directly from backend by user name (most reliable for non-demo artists)
+    useEffect(() => {
+        if (!user?.id && !user?.name) return;
+        setLoadingArtworks(true);
+        fetchArtworksByArtistId(user.id, user.name)
+            .then(fetched => {
+                if (fetched.length > 0) {
+                    setMyArtworks(fetched);
+                } else {
+                    setMyArtworks(getArtworksByArtist(artistName, user.id));
+                }
+            })
+            .finally(() => setLoadingArtworks(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id, user?.name, location.state?.refresh]);
 
     const totalRevenue = myArtworks.reduce((sum, a) => sum + (a.price * (a.views > 10000 ? 2 : 1)), 0);
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this artwork?')) {
-            deleteArtwork(id);
+            await deleteArtwork(id);
+            setMyArtworks(prev => prev.filter(a => a.id !== id));
         }
     };
 
-    const handleEditSave = (e) => {
+    const handleEditSave = async (e) => {
         e.preventDefault();
-        updateArtwork(editingArtwork.id, editingArtwork);
+        await updateArtwork(editingArtwork.id, editingArtwork);
+        setMyArtworks(prev => prev.map(a => a.id === editingArtwork.id ? { ...a, ...editingArtwork } : a));
         setEditingArtwork(null);
     };
 

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 import api from '../services/api';
 
 const ArtworkContext = createContext(null);
@@ -31,7 +32,7 @@ export function ArtworkProvider({ children }) {
 
     const addArtwork = async (newArtwork) => {
         try {
-            const res = await api.post('/artworks', {
+            const payload = {
                 ...newArtwork,
                 featured: false,
                 available: true,
@@ -39,7 +40,23 @@ export function ArtworkProvider({ children }) {
                 likes: 0,
                 image: newArtwork.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800',
                 thumbnail: newArtwork.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400'
-            });
+            };
+
+            // If the image is a base64 data-URL (from device upload), bypass Vercel's
+            // rewrite proxy which has a ~4.5 MB body-size limit. Post directly to Render.
+            const isBase64 = payload.image && payload.image.startsWith('data:');
+            let res;
+            if (isBase64) {
+                const RENDER_URL = 'https://artium-gallery.onrender.com/api/artworks';
+                res = await axios.post(RENDER_URL, payload, {
+                    headers: { 'Content-Type': 'application/json' },
+                    maxContentLength: Infinity,
+                    maxBodyLength: Infinity,
+                });
+            } else {
+                res = await api.post('/artworks', payload);
+            }
+
             setArtworks(prev => [normalize(res.data), ...prev]);
             return { success: true, data: res.data };
         } catch (err) {

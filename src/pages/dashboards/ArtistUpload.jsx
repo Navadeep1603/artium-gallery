@@ -92,8 +92,8 @@ export default function ArtistUpload() {
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1200;
-                const MAX_HEIGHT = 1200;
+                const MAX_WIDTH = 800; // Aggressive downsize to avoid MySQL packet limits
+                const MAX_HEIGHT = 800;
                 let width = img.width;
                 let height = img.height;
 
@@ -114,8 +114,8 @@ export default function ArtistUpload() {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Compress to WebP (or JPEG if WebP unsupported) at 75% quality
-                const compressedDataUrl = canvas.toDataURL('image/webp', 0.75);
+                // Compress to WebP at 50% quality to ensure < 500KB payload
+                const compressedDataUrl = canvas.toDataURL('image/webp', 0.5);
                 
                 setLocalPreview(compressedDataUrl);
                 setFormData(prev => ({ ...prev, image: compressedDataUrl }));

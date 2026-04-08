@@ -139,8 +139,10 @@ export default function ArtistUpload() {
             await addArtwork(newArtwork);
             setSuccess(true);
             setTimeout(() => navigate('/dashboard/artist', { state: { refresh: true } }), 2000);
-        } catch {
-            setError('Failed to upload artwork. Please try again.');
+        } catch (err) {
+            const msg = err?.message || 'Failed to upload artwork. Please try again.';
+            setError(`Upload failed: ${msg}`);
+            console.error('Upload error:', err);
         } finally {
             setIsSubmitting(false);
         }

@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/artworks")
@@ -58,8 +60,20 @@ public class ArtworkController {
     }
 
     @PostMapping
-    public Artwork createArtwork(@RequestBody Artwork artwork) {
-        return artworkService.createArtwork(artwork);
+    public ResponseEntity<?> createArtwork(@RequestBody Artwork artwork) {
+        try {
+            System.out.println("[CREATE ARTWORK] title=" + artwork.getTitle()
+                + ", artistName=" + artwork.getArtistName()
+                + ", artist=" + artwork.getArtist());
+            Artwork saved = artworkService.createArtwork(artwork);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            System.err.println("[CREATE ARTWORK ERROR] " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            error.put("cause", e.getCause() != null ? e.getCause().getMessage() : "unknown");
+            return ResponseEntity.status(400).body(error);
+        }
     }
 
     @PutMapping("/{id}")

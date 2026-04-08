@@ -13,8 +13,8 @@ public class Artwork {
     @Column(nullable = false)
     private String title;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "artist_id")
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "artist_id", nullable = true)
     private Artist artist;
 
     @Column(name = "artist_name")

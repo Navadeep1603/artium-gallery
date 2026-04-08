@@ -41,8 +41,12 @@ export function ArtworkProvider({ children }) {
                 thumbnail: newArtwork.image || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400'
             });
             setArtworks(prev => [normalize(res.data), ...prev]);
+            return { success: true, data: res.data };
         } catch (err) {
-            console.error('Failed to add artwork', err);
+            const errMsg = err?.response?.data?.error || err?.response?.data?.message || err.message || 'Unknown error';
+            const errCause = err?.response?.data?.cause || '';
+            console.error('Failed to add artwork:', errMsg, errCause);
+            throw new Error(errMsg);
         }
     };
 

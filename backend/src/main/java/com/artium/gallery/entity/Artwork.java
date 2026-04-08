@@ -43,10 +43,12 @@ public class Artwork {
     private String origin;
     private String dimensions;
 
-    @Column(length = 500)
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String image;
 
-    @Column(length = 500)
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String thumbnail;
 
     private Integer views;

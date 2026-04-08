@@ -30,5 +30,18 @@ public class DatabaseMigrationRunner implements CommandLineRunner {
             // Column is already nullable or table doesn't exist yet — safe to ignore
             System.out.println("[MIGRATION] artist_id migration skipped: " + e.getMessage());
         }
+
+        // Widen image and thumbnail columns to LONGTEXT for base64 data-URL uploads
+        try {
+            jdbcTemplate.execute(
+                "ALTER TABLE `artworks` MODIFY COLUMN `image` LONGTEXT"
+            );
+            jdbcTemplate.execute(
+                "ALTER TABLE `artworks` MODIFY COLUMN `thumbnail` LONGTEXT"
+            );
+            System.out.println("[MIGRATION] image/thumbnail columns widened to LONGTEXT.");
+        } catch (Exception e) {
+            System.out.println("[MIGRATION] image/thumbnail migration skipped: " + e.getMessage());
+        }
     }
 }

@@ -121,6 +121,7 @@ export default function ArtistUpload() {
         try {
             const newArtwork = {
                 title: formData.title,
+                artistName: user?.name || 'Unknown Artist',
                 artist: user?.name || 'Unknown Artist',
                 artistId: user?.id || 999,
                 year: new Date().getFullYear(),

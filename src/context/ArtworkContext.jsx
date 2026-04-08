@@ -10,7 +10,8 @@ export function ArtworkProvider({ children }) {
     // Normalize backend response: flatten nested objects to strings
     const normalize = (artwork) => ({
         ...artwork,
-        artist: artwork.artistName || (artwork.artist?.name ?? artwork.artist) || 'Unknown',
+        artistName: artwork.artistName || (typeof artwork.artist === 'object' ? artwork.artist?.name : artwork.artist) || 'Unknown',
+        artist: artwork.artistName || (typeof artwork.artist === 'object' ? artwork.artist?.name : artwork.artist) || 'Unknown',
         categoryId: artwork.category?.id ?? artwork.category,
         category: artwork.category?.name ?? artwork.category
     });
@@ -79,7 +80,12 @@ export function ArtworkProvider({ children }) {
     };
 
     const getArtworksByArtist = (artistName) => {
-        return artworks.filter(a => a.artistName === artistName);
+        if (!artistName) return [];
+        const name = artistName.toLowerCase();
+        return artworks.filter(a =>
+            (a.artist && a.artist.toLowerCase() === name) ||
+            (a.artistName && a.artistName.toLowerCase() === name)
+        );
     };
 
     return (

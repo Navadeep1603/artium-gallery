@@ -10,4 +10,5 @@ import java.util.List;
 public interface ArtistRepository extends JpaRepository<Artist, Long> {
     List<Artist> findByFeaturedTrue();
     List<Artist> findByNameContainingIgnoreCase(String name);
+    java.util.Optional<Artist> findByNameIgnoreCase(String name);
 }

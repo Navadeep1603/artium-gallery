@@ -2,6 +2,7 @@ package com.artium.gallery.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
  * (who don't have a row in the artists table) can upload artworks.
  */
 @Component
+@Order(1)
 public class DatabaseMigrationRunner implements CommandLineRunner {
 
     @Autowired

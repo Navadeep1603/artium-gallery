@@ -60,9 +60,12 @@ export function ArtworkProvider({ children }) {
             setArtworks(prev => [normalize(res.data), ...prev]);
             return { success: true, data: res.data };
         } catch (err) {
-            const errMsg = err?.response?.data?.error || err?.response?.data?.message || err.message || 'Unknown error';
-            const errCause = err?.response?.data?.cause || '';
-            console.error('Failed to add artwork:', errMsg, errCause);
+            const serverError = err?.response?.data?.error;
+            const serverCause = err?.response?.data?.cause;
+            const statusCode = err?.response?.status;
+            const errMsg = serverError || (statusCode ? `Server error (${statusCode})` : err.message) || 'Unknown error';
+            console.error('Failed to add artwork:', errMsg, serverCause || '');
+            console.error('Full error details:', { status: statusCode, data: err?.response?.data, message: err.message });
             throw new Error(errMsg);
         }
     };

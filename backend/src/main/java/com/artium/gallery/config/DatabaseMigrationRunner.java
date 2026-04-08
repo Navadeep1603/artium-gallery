@@ -43,5 +43,24 @@ public class DatabaseMigrationRunner implements CommandLineRunner {
         } catch (Exception e) {
             System.out.println("[MIGRATION] image/thumbnail migration skipped: " + e.getMessage());
         }
+
+        // Log max_allowed_packet to diagnose large base64 upload failures
+        try {
+            var result = jdbcTemplate.queryForMap("SHOW VARIABLES LIKE 'max_allowed_packet'");
+            long currentPacket = Long.parseLong(result.get("Value").toString());
+            System.out.println("[MIGRATION] MySQL max_allowed_packet = " + currentPacket + " bytes (" + (currentPacket / 1024 / 1024) + " MB)");
+            
+            // Try to increase if it's less than 16MB
+            if (currentPacket < 16 * 1024 * 1024) {
+                try {
+                    jdbcTemplate.execute("SET GLOBAL max_allowed_packet = 16777216"); // 16MB
+                    System.out.println("[MIGRATION] max_allowed_packet increased to 16MB.");
+                } catch (Exception e2) {
+                    System.out.println("[MIGRATION] Could not increase max_allowed_packet (need SUPER privilege): " + e2.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("[MIGRATION] Could not check max_allowed_packet: " + e.getMessage());
+        }
     }
 }

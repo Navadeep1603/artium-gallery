@@ -62,17 +62,32 @@ public class ArtworkController {
     @PostMapping
     public ResponseEntity<?> createArtwork(@RequestBody Artwork artwork) {
         try {
+            // Log payload size for debugging large base64 uploads
+            String imgData = artwork.getImage();
+            int imgSize = imgData != null ? imgData.length() : 0;
             System.out.println("[CREATE ARTWORK] title=" + artwork.getTitle()
                 + ", artistName=" + artwork.getArtistName()
-                + ", artist=" + artwork.getArtist());
+                + ", artist=" + artwork.getArtist()
+                + ", imageSize=" + imgSize + " chars"
+                + ", isBase64=" + (imgData != null && imgData.startsWith("data:")));
             Artwork saved = artworkService.createArtwork(artwork);
+            System.out.println("[CREATE ARTWORK] Success, id=" + saved.getId());
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
-            System.err.println("[CREATE ARTWORK ERROR] " + e.getMessage());
+            // Log the full stack trace for debugging
+            System.err.println("[CREATE ARTWORK ERROR] " + e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            error.put("cause", e.getCause() != null ? e.getCause().getMessage() : "unknown");
-            return ResponseEntity.status(400).body(error);
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getName());
+            // Walk the cause chain for detailed diagnostics
+            Throwable cause = e.getCause();
+            StringBuilder causeChain = new StringBuilder();
+            while (cause != null) {
+                causeChain.append(cause.getClass().getSimpleName()).append(": ").append(cause.getMessage()).append(" -> ");
+                cause = cause.getCause();
+            }
+            error.put("cause", causeChain.length() > 0 ? causeChain.toString() : "unknown");
+            return ResponseEntity.status(500).body(error);
         }
     }
 

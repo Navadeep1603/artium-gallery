@@ -92,8 +92,8 @@ export default function ArtistUpload() {
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800; // Aggressive downsize to avoid MySQL packet limits
-                const MAX_HEIGHT = 800;
+                const MAX_WIDTH = 600;  // Aggressive downsize to stay within MySQL packet limits
+                const MAX_HEIGHT = 600;
                 let width = img.width;
                 let height = img.height;
 
@@ -114,8 +114,24 @@ export default function ArtistUpload() {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Compress to WebP at 50% quality to ensure < 500KB payload
-                const compressedDataUrl = canvas.toDataURL('image/webp', 0.5);
+                // Try WebP first at low quality, fall back to JPEG if needed
+                let compressedDataUrl = canvas.toDataURL('image/webp', 0.35);
+                
+                // If the compressed base64 is still too large (> 500KB), reduce quality further
+                if (compressedDataUrl.length > 500 * 1024) {
+                    compressedDataUrl = canvas.toDataURL('image/webp', 0.2);
+                }
+                if (compressedDataUrl.length > 500 * 1024) {
+                    compressedDataUrl = canvas.toDataURL('image/jpeg', 0.3);
+                }
+                
+                // Final safety check — if still > 700KB, warn user  
+                if (compressedDataUrl.length > 700 * 1024) {
+                    setError('Image is still too large after compression. Please use a smaller image or paste a URL instead.');
+                    return;
+                }
+
+                console.log(`[Upload] Compressed image: ${(compressedDataUrl.length / 1024).toFixed(1)} KB`);
                 
                 setLocalPreview(compressedDataUrl);
                 setFormData(prev => ({ ...prev, image: compressedDataUrl }));

@@ -6,10 +6,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 /**
  * Runs database migrations on startup.
- * This fixes the artist_id NOT NULL constraint so self-registered artists
- * (who don't have a row in the artists table) can upload artworks.
+ * Ensures the image/thumbnail columns are wide enough for base64 data-URLs.
  */
 @Component
 @Order(1)
@@ -20,47 +21,97 @@ public class DatabaseMigrationRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        try {
-            // Make artist_id nullable so artworks can be saved without a foreign key artist
-            jdbcTemplate.execute(
-                "ALTER TABLE `artworks` MODIFY COLUMN `artist_id` BIGINT NULL"
-            );
-            System.out.println("[MIGRATION] artist_id column made nullable successfully.");
-        } catch (Exception e) {
-            // Column is already nullable or table doesn't exist yet — safe to ignore
-            System.out.println("[MIGRATION] artist_id migration skipped: " + e.getMessage());
-        }
 
-        // Widen image and thumbnail columns to LONGTEXT for base64 data-URL uploads
-        try {
-            jdbcTemplate.execute(
-                "ALTER TABLE `artworks` MODIFY COLUMN `image` LONGTEXT"
-            );
-            jdbcTemplate.execute(
-                "ALTER TABLE `artworks` MODIFY COLUMN `thumbnail` LONGTEXT"
-            );
-            System.out.println("[MIGRATION] image/thumbnail columns widened to LONGTEXT.");
-        } catch (Exception e) {
-            System.out.println("[MIGRATION] image/thumbnail migration skipped: " + e.getMessage());
-        }
+        // ── 1. Make artist_id nullable ──────────────────────────────────
+        tryExecute("ALTER TABLE `artworks` MODIFY COLUMN `artist_id` BIGINT NULL",
+                   "artist_id made nullable");
 
-        // Log max_allowed_packet to diagnose large base64 upload failures
+        // ── 2. Check current column types ──────────────────────────────
+        checkColumnType("image");
+        checkColumnType("thumbnail");
+
+        // ── 3. Widen image column – try multiple SQL syntaxes ──────────
+        widenColumn("image");
+        widenColumn("thumbnail");
+
+        // ── 4. Verify the change took effect ───────────────────────────
+        checkColumnType("image");
+        checkColumnType("thumbnail");
+
+        // ── 5. Log max_allowed_packet ──────────────────────────────────
         try {
-            var result = jdbcTemplate.queryForMap("SHOW VARIABLES LIKE 'max_allowed_packet'");
-            long currentPacket = Long.parseLong(result.get("Value").toString());
-            System.out.println("[MIGRATION] MySQL max_allowed_packet = " + currentPacket + " bytes (" + (currentPacket / 1024 / 1024) + " MB)");
-            
-            // Try to increase if it's less than 16MB
-            if (currentPacket < 16 * 1024 * 1024) {
-                try {
-                    jdbcTemplate.execute("SET GLOBAL max_allowed_packet = 16777216"); // 16MB
-                    System.out.println("[MIGRATION] max_allowed_packet increased to 16MB.");
-                } catch (Exception e2) {
-                    System.out.println("[MIGRATION] Could not increase max_allowed_packet (need SUPER privilege): " + e2.getMessage());
-                }
+            Map<String, Object> result = jdbcTemplate.queryForMap(
+                "SHOW VARIABLES LIKE 'max_allowed_packet'");
+            long val = Long.parseLong(result.get("Value").toString());
+            System.out.println("[MIGRATION] max_allowed_packet = " + val
+                + " bytes (" + (val / 1024 / 1024) + " MB)");
+        } catch (Exception e) {
+            System.out.println("[MIGRATION] Could not read max_allowed_packet: "
+                + e.getMessage());
+        }
+    }
+
+    /**
+     * Try multiple ALTER TABLE variants to widen a column to LONGTEXT.
+     * Different MySQL versions / managed providers accept different syntax.
+     */
+    private void widenColumn(String column) {
+        String[][] attempts = {
+            // 1. Standard with backticks
+            {"ALTER TABLE `artworks` MODIFY COLUMN `" + column + "` LONGTEXT",
+             "MODIFY COLUMN (backtick)"},
+            // 2. Standard without backticks
+            {"ALTER TABLE artworks MODIFY COLUMN " + column + " LONGTEXT",
+             "MODIFY COLUMN (no backtick)"},
+            // 3. CHANGE syntax (rename to self)
+            {"ALTER TABLE artworks CHANGE `" + column + "` `" + column + "` LONGTEXT",
+             "CHANGE (backtick)"},
+            // 4. CHANGE without backticks
+            {"ALTER TABLE artworks CHANGE " + column + " " + column + " LONGTEXT",
+             "CHANGE (no backtick)"},
+            // 5. Try MEDIUMTEXT if LONGTEXT is rejected
+            {"ALTER TABLE artworks MODIFY COLUMN " + column + " MEDIUMTEXT",
+             "MODIFY to MEDIUMTEXT"},
+        };
+
+        for (String[] attempt : attempts) {
+            try {
+                jdbcTemplate.execute(attempt[0]);
+                System.out.println("[MIGRATION] " + column + " widened via " + attempt[1]);
+                return; // Success – no need to try further
+            } catch (Exception e) {
+                System.out.println("[MIGRATION] " + column + " " + attempt[1]
+                    + " FAILED: " + e.getMessage());
             }
+        }
+
+        System.err.println("[MIGRATION] *** CRITICAL: Could not widen column '"
+            + column + "'. Base64 uploads will fail! ***");
+    }
+
+    private void checkColumnType(String column) {
+        try {
+            Map<String, Object> colInfo = jdbcTemplate.queryForMap(
+                "SELECT COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH " +
+                "FROM INFORMATION_SCHEMA.COLUMNS " +
+                "WHERE TABLE_NAME = 'artworks' AND COLUMN_NAME = ?",
+                column);
+            System.out.println("[MIGRATION] Column '" + column + "' type = "
+                + colInfo.get("COLUMN_TYPE")
+                + ", max_length = " + colInfo.get("CHARACTER_MAXIMUM_LENGTH"));
         } catch (Exception e) {
-            System.out.println("[MIGRATION] Could not check max_allowed_packet: " + e.getMessage());
+            System.out.println("[MIGRATION] Could not check column '" + column
+                + "': " + e.getMessage());
+        }
+    }
+
+    private void tryExecute(String sql, String description) {
+        try {
+            jdbcTemplate.execute(sql);
+            System.out.println("[MIGRATION] " + description + " – OK");
+        } catch (Exception e) {
+            System.out.println("[MIGRATION] " + description + " – skipped: "
+                + e.getMessage());
         }
     }
 }

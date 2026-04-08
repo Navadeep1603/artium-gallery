@@ -94,24 +94,34 @@ export function ArtworkProvider({ children }) {
         });
     };
 
-    // Fetch artworks directly from backend by artistName string
+    // Get artworks for a specific artist from already-loaded data OR fetch all and filter
     const fetchArtworksByArtistId = async (artistId, artistName) => {
         try {
-            // First try by name (works for user-registered artists)
-            if (artistName) {
-                const res = await api.get(`/artworks/by-artist-name?name=${encodeURIComponent(artistName)}`);
-                if (res.data && res.data.length > 0) {
-                    return res.data.map(normalize);
+            // Primary: filter from already-loaded artworks in context
+            const contextResults = artworks.filter(a => {
+                if (artistName) {
+                    const name = artistName.toLowerCase();
+                    if (a.artist && a.artist.toLowerCase() === name) return true;
+                    if (a.artistName && a.artistName.toLowerCase() === name) return true;
                 }
-            }
-            // Fallback: try by artistId (works for demo artists in the artists table)
-            if (artistId) {
-                const res = await api.get(`/artworks/artist/${artistId}`);
-                if (res.data && res.data.length > 0) {
-                    return res.data.map(normalize);
+                if (artistId && (a.artistId === artistId || a.artistId === Number(artistId))) return true;
+                return false;
+            });
+
+            if (contextResults.length > 0) return contextResults;
+
+            // Fallback: fetch all artworks fresh and filter
+            const res = await api.get('/artworks');
+            const all = res.data.map(normalize);
+            return all.filter(a => {
+                if (artistName) {
+                    const name = artistName.toLowerCase();
+                    if (a.artist && a.artist.toLowerCase() === name) return true;
+                    if (a.artistName && a.artistName.toLowerCase() === name) return true;
                 }
-            }
-            return [];
+                if (artistId && (a.artistId === artistId || a.artistId === Number(artistId))) return true;
+                return false;
+            });
         } catch (err) {
             console.error('Failed to fetch artworks', err);
             return [];

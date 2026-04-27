@@ -6,6 +6,9 @@ import com.artium.gallery.repository.ArtistRepository;
 import com.artium.gallery.repository.ArtworkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +21,9 @@ public class ArtworkService {
 
     @Autowired
     private ArtistRepository artistRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public List<Artwork> getAllArtworks() {
         return artworkRepository.findAll();
@@ -107,7 +113,14 @@ public class ArtworkService {
         }).orElseThrow(() -> new RuntimeException("Artwork not found with id " + id));
     }
 
+    @Transactional
     public void deleteArtwork(Long id) {
+        // First delete any references to this artwork to avoid foreign key SQL integrity constraint violations
+        entityManager.createQuery("DELETE FROM CartItem c WHERE c.artwork.id = :id").setParameter("id", id).executeUpdate();
+        entityManager.createQuery("DELETE FROM WishlistItem w WHERE w.artwork.id = :id").setParameter("id", id).executeUpdate();
+        entityManager.createQuery("DELETE FROM OrderItem o WHERE o.artwork.id = :id").setParameter("id", id).executeUpdate();
+
+        // Finally, delete the artwork itself
         artworkRepository.deleteById(id);
     }
 }

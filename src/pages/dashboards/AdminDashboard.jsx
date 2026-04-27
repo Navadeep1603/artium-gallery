@@ -21,7 +21,7 @@ const mockAnnouncements = [
 
 export default function AdminDashboard() {
     const { user, allUsers, adminAddUser, adminToggleUserStatus, adminUpdateUserRole } = useAuth();
-    const { artworks } = useArtworks();
+    const { artworks, deleteArtwork } = useArtworks();
     const [activeTab, setActiveTab] = useState('users');
 
     // ── User Management state ──
@@ -53,6 +53,7 @@ export default function AdminDashboard() {
     const navItems = [
         { id: 'users', icon: Users, label: 'User Management' },
         { id: 'roles', icon: Shield, label: 'Role Assignment' },
+        { id: 'artworks', icon: ImageIcon, label: 'Artworks Management' },
         { id: 'moderation', icon: CheckSquare, label: 'Content Moderation' },
         { id: 'settings', icon: Settings, label: 'Gallery Settings' },
         { id: 'analytics', icon: BarChart2, label: 'Analytics Overview' },
@@ -406,6 +407,68 @@ export default function AdminDashboard() {
                                                 </div>
                                             </motion.div>
                                         ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ═══════════════════════════════════════
+                                ARTWORKS MANAGEMENT TAB
+                               ═══════════════════════════════════════ */}
+                            {activeTab === 'artworks' && (
+                                <div>
+                                    <div className="admin-info-banner">
+                                        <ImageIcon size={20} />
+                                        <p>Manage all artworks on the platform. You can permanently delete inappropriate or duplicate artworks here.</p>
+                                    </div>
+
+                                    <div className="dashboard__card admin-table-wrap">
+                                        <table className="admin-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Artwork</th>
+                                                    <th>Artist</th>
+                                                    <th>Category</th>
+                                                    <th>Price</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {artworks.map(a => (
+                                                    <tr key={a.id}>
+                                                        <td>
+                                                            <div className="admin-user-cell">
+                                                                <img src={a.thumbnail || a.image} alt={a.title} className="admin-user-cell__avatar" style={{ borderRadius: '4px' }} />
+                                                                <span>{a.title}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="text-secondary">{a.artistName || a.artist || 'Unknown'}</td>
+                                                        <td><span className="admin-badge admin-badge--info">{a.category}</span></td>
+                                                        <td className="text-secondary">₹{a.price?.toLocaleString('en-IN') || 0}</td>
+                                                        <td>
+                                                            <div className="admin-actions">
+                                                                <button
+                                                                    className="admin-action-btn admin-action-btn--danger"
+                                                                    title="Delete Artwork"
+                                                                    onClick={() => {
+                                                                        if (window.confirm(`Are you sure you want to permanently delete "${a.title}"?`)) {
+                                                                            deleteArtwork(a.id);
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                        {artworks.length === 0 && (
+                                            <div className="admin-empty">
+                                                <ImageIcon size={32} />
+                                                <p>No artworks found in the platform.</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

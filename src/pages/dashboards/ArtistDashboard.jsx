@@ -27,8 +27,8 @@ export default function ArtistDashboard() {
         if (a.artistName && a.artistName.toLowerCase() === name) return true;
         return false;
     });
-
-    const totalRevenue = myArtworks.reduce((sum, a) => sum + (a.price * (a.views > 10000 ? 2 : 1)), 0);
+    // Total revenue should reflect actual completed sales. (Defaults to 0 until backend provides artist sales endpoint)
+    const totalRevenue = 0;
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this artwork?')) {
@@ -50,12 +50,8 @@ export default function ArtistDashboard() {
         { id: 'exhibitions', icon: Calendar, label: 'Exhibition Requests' },
     ];
 
-    // Mock Data for other sections
-    const sales = myArtworks.length > 0 ? [
-        { id: 'ORD-2026-001', artwork: 'Starry Night Reimagined', buyer: 'Isabella Martin', amount: 2500, status: 'completed', date: 'Feb 22, 2026' },
-        { id: 'ORD-2026-002', artwork: 'Neon Samurai', buyer: 'David Park', amount: 4100, status: 'pending', date: 'Feb 24, 2026' },
-        { id: 'ORD-2026-003', artwork: 'Urban Symphony', buyer: 'Sarah Chen', amount: 1800, status: 'completed', date: 'Feb 20, 2026' }
-    ] : [];
+    // Sales should only be populated if the artist's published art was actually purchased
+    const sales = [];
 
     const messages = myArtworks.length > 0 ? [
         { id: 1, from: 'Isabella Martin', artwork: 'Starry Night Reimagined', preview: 'I absolutely love this piece. Does it come framed?', time: '2 hours ago', unread: true },

@@ -18,10 +18,16 @@ export default function Gallery() {
     const [sortBy, setSortBy] = useState('featured');
     const [showFilters, setShowFilters] = useState(false);
     const { addToCart } = useCart();
-    const { artworks } = useArtworks();
+    const { artworks, loading: artworksLoading } = useArtworks();
+    const [categoriesLoading, setCategoriesLoading] = useState(true);
 
     useEffect(() => {
-        api.get('/categories').then(res => setCategories(res.data)).catch(() => {});
+        api.get('/categories')
+            .then(res => {
+                setCategories(res.data);
+                setCategoriesLoading(false);
+            })
+            .catch(() => setCategoriesLoading(false));
     }, []);
 
 
@@ -32,7 +38,15 @@ export default function Gallery() {
     };
 
     const filteredArtworks = artworks.filter(artwork => {
-        if (activeCategory !== 'all' && artwork.categoryId !== activeCategory && artwork.category !== activeCategory) return false;
+        if (activeCategory !== 'all') {
+            const activeCatObj = categories.find(c => c.id === activeCategory);
+            const matchesId = artwork.categoryId === activeCategory || artwork.category === activeCategory;
+            const matchesString = activeCatObj && artwork.category && 
+                (artwork.category.toLowerCase().includes(activeCatObj.name.toLowerCase().replace(/s$/, '')) || 
+                 activeCatObj.name.toLowerCase().includes(artwork.category.toLowerCase().replace(/s$/, '')));
+            
+            if (!matchesId && !matchesString) return false;
+        }
 
         if (selectedPriceRanges.length > 0) {
             const matchesPrice = selectedPriceRanges.some(range => {
@@ -93,15 +107,19 @@ export default function Gallery() {
                     <div className="gallery-controls__wrapper">
                         {/* Categories */}
                         <div className="gallery-categories">
-                            {categories.map(category => (
-                                <button
-                                    key={category.id}
-                                    className={`gallery-category ${activeCategory === category.id ? 'active' : ''}`}
-                                    onClick={() => setActiveCategory(category.id)}
-                                >
-                                    {category.name}
-                                </button>
-                            ))}
+                            {categoriesLoading ? (
+                                <div className="gallery-category-skeleton" style={{ width: '300px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', animation: 'pulse 1.5s infinite' }}></div>
+                            ) : (
+                                categories.map(category => (
+                                    <button
+                                        key={category.id}
+                                        className={`gallery-category ${activeCategory === category.id ? 'active' : ''}`}
+                                        onClick={() => setActiveCategory(category.id)}
+                                    >
+                                        {category.name}
+                                    </button>
+                                ))
+                            )}
                         </div>
 
                         {/* Actions */}
@@ -199,14 +217,24 @@ export default function Gallery() {
             <section className="gallery-grid-section">
                 <div className="container">
                     <div className="gallery-results">
-                        <span>{sortedArtworks.length} artworks found</span>
+                        {artworksLoading ? (
+                            <span>Loading artworks...</span>
+                        ) : (
+                            <span>{sortedArtworks.length} artworks found</span>
+                        )}
                     </div>
 
-                    <motion.div
-                        className={`gallery-grid ${viewMode === 'list' ? 'gallery-grid--list' : ''}`}
-                        layout
-                    >
-                        <AnimatePresence mode="popLayout">
+                    {artworksLoading ? (
+                        <div className="gallery-grid" style={{ minHeight: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <div className="spinner" style={{ border: '4px solid rgba(255,255,255,0.1)', borderLeftColor: '#c9a962', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+                            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }`}</style>
+                        </div>
+                    ) : (
+                        <motion.div
+                            className={`gallery-grid ${viewMode === 'list' ? 'gallery-grid--list' : ''}`}
+                            layout
+                        >
+                            <AnimatePresence mode="popLayout">
                             {sortedArtworks.map((artwork, index) => (
                                 <motion.div
                                     key={artwork.id}
@@ -220,7 +248,15 @@ export default function Gallery() {
                                 </motion.div>
                             ))}
                         </AnimatePresence>
+                        {sortedArtworks.length === 0 && !artworksLoading && (
+                            <div className="gallery-empty-state" style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)', gridColumn: '1 / -1' }}>
+                                <Grid size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+                                <h3>No artworks found</h3>
+                                <p>Try selecting a different category or adjusting your filters.</p>
+                            </div>
+                        )}
                     </motion.div>
+                )}
                 </div>
             </section>
         </div>

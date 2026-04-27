@@ -13,8 +13,12 @@ export function WishlistProvider({ children }) {
         if (user?.id) {
             api.get(`/wishlist/${user.id}`)
                 .then(res => {
-                    // Map backend WishlistItem objects to artwork objects for frontend compatibility
-                    const items = res.data.map(item => item.artwork);
+                    // Map backend WishlistItem objects to artwork objects for frontend compatibility and normalize
+                    const items = res.data.map(item => ({
+                        ...item.artwork,
+                        artist: item.artwork.artistName || (typeof item.artwork.artist === 'object' ? item.artwork.artist?.name : item.artwork.artist) || 'Unknown',
+                        category: typeof item.artwork.category === 'object' ? item.artwork.category?.name : item.artwork.category
+                    }));
                     setWishlistItems(items);
                 })
                 .catch(err => console.error('Failed to load wishlist', err));

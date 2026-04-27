@@ -13,8 +13,12 @@ export function CartProvider({ children }) {
         if (user?.id) {
             api.get(`/cart/${user.id}`)
                 .then(res => {
-                    // Map backend CartItem objects to artwork objects for frontend compatibility
-                    const items = res.data.map(item => item.artwork);
+                    // Map backend CartItem objects to artwork objects for frontend compatibility and normalize
+                    const items = res.data.map(item => ({
+                        ...item.artwork,
+                        artist: item.artwork.artistName || (typeof item.artwork.artist === 'object' ? item.artwork.artist?.name : item.artwork.artist) || 'Unknown',
+                        category: typeof item.artwork.category === 'object' ? item.artwork.category?.name : item.artwork.category
+                    }));
                     setCartItems(items);
                 })
                 .catch(err => console.error('Failed to load cart', err));

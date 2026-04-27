@@ -115,12 +115,19 @@ public class ArtworkService {
 
     @Transactional
     public void deleteArtwork(Long id) {
-        // First delete any references to this artwork to avoid foreign key SQL integrity constraint violations
-        entityManager.createQuery("DELETE FROM CartItem c WHERE c.artwork.id = :id").setParameter("id", id).executeUpdate();
-        entityManager.createQuery("DELETE FROM WishlistItem w WHERE w.artwork.id = :id").setParameter("id", id).executeUpdate();
-        entityManager.createQuery("DELETE FROM OrderItem o WHERE o.artwork.id = :id").setParameter("id", id).executeUpdate();
-
-        // Finally, delete the artwork itself
-        artworkRepository.deleteById(id);
+        try {
+            // First delete any references to this artwork to avoid foreign key SQL integrity constraint violations
+            // Using Native Queries instead of JPQL to strictly bypass Hibernate join limitations on DELETE
+            entityManager.createNativeQuery("DELETE FROM cart_items WHERE artwork_id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM wishlist_items WHERE artwork_id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM order_items WHERE artwork_id = :id").setParameter("id", id).executeUpdate();
+            
+            // Finally, delete the artwork itself
+            artworkRepository.deleteById(id);
+            System.out.println("[DELETE SUCCESS] Artwork " + id + " has been completely deleted.");
+        } catch (Exception e) {
+            System.err.println("[DELETE FAILED] Failed to delete artwork " + id + ": " + e.getMessage());
+            throw e; // Rethrow to let the controller handle logging and return a 500
+        }
     }
 }

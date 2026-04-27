@@ -254,28 +254,28 @@ export default function CuratorDashboard() {
                             {/* 3. VIRTUAL TOUR BUILDER */}
                             {activeTab === 'tours' && (
                                 <div className="curator-tours-view">
-                                    <div className="mb-6 flex justify-between items-center">
+                                    <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <p className="text-secondary">Design engaging routes and add audio narration to virtual tours.</p>
-                                        <button className="btn btn-primary py-1.5"><Plus size={16} className="mr-1" /> New Tour</button>
+                                        <button className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}><Plus size={16} style={{marginRight: '4px'}} /> New Tour</button>
                                     </div>
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
                                         {tourThemes.map(tour => (
-                                            <div key={tour.id} className="dashboard__card p-5 flex gap-5 hover:border-gold transition-colors">
-                                                <div className="w-32 h-32 rounded-lg overflow-hidden shrink-0">
-                                                    <img src={tour.image} alt={tour.name} className="w-full h-full object-cover" />
+                                            <div key={tour.id} className="dashboard__card" style={{ display: 'flex', gap: '1.25rem', padding: '1.25rem' }}>
+                                                <div style={{ width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
+                                                    <img src={tour.image} alt={tour.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                 </div>
-                                                <div className="flex flex-col flex-1">
-                                                    <div className="flex justify-between items-start mb-1">
-                                                        <h3 className="text-lg font-bold text-primary">{tour.name}</h3>
-                                                        <span className="text-xs text-gold border border-gold/30 px-2 rounded-full">{tour.duration}</span>
+                                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+                                                        <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>{tour.name}</h3>
+                                                        <span style={{ fontSize: '0.75rem', border: '1px solid var(--gold-color)', color: 'var(--gold-color)', padding: '2px 8px', borderRadius: '99px' }}>{tour.duration}</span>
                                                     </div>
-                                                    <p className="text-sm text-secondary mb-3 line-clamp-2">{tour.description}</p>
-                                                    <div className="text-xs text-muted mb-auto">
+                                                    <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: '0.75rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{tour.description}</p>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 'auto' }}>
                                                         <span>{tour.artworkCount} Nodes/Stops in Route</span>
                                                     </div>
-                                                    <div className="flex gap-2 mt-4">
-                                                        <button className="btn btn-secondary flex-1 py-1.5 text-xs text-center justify-center border-glass">Edit Route</button>
-                                                        <button className="btn btn-secondary flex-1 py-1.5 text-xs text-center justify-center border-glass">Add Narration</button>
+                                                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                                                        <button className="btn btn-secondary" style={{ flex: 1, padding: '0.375rem', fontSize: '0.75rem' }}>Edit Route</button>
+                                                        <button className="btn btn-secondary" style={{ flex: 1, padding: '0.375rem', fontSize: '0.75rem' }}>Add Narration</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -287,27 +287,27 @@ export default function CuratorDashboard() {
                             {/* 4. GALLERY CONTENT MANAGEMENT */}
                             {activeTab === 'content' && (
                                 <div className="curator-content-view">
-                                    <div className="mb-6 bg-secondary border border-glass rounded-lg p-5 flex justify-between items-center">
+                                    <div className="dashboard__card" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem' }}>
                                         <div>
-                                            <h3 className="text-lg font-bold text-primary mb-1">Featured Gallery Content</h3>
-                                            <p className="text-sm text-muted">Manage the homepage layout and featured pieces.</p>
+                                            <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Featured Gallery Content</h3>
+                                            <p className="text-secondary" style={{ fontSize: '0.875rem' }}>Manage the homepage layout and featured pieces.</p>
                                         </div>
-                                        <button className="btn btn-secondary text-sm">Save Display Order</button>
+                                        <button className="btn btn-secondary" style={{ fontSize: '0.875rem' }}>Save Display Order</button>
                                     </div>
-                                    <h4 className="text-md font-bold mb-4 text-gold flex items-center gap-2"><Star size={16} fill="currentColor" /> Currently Featured (Homepage)</h4>
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                    <h4 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-color)' }}><Star size={16} fill="currentColor" /> Currently Featured (Homepage)</h4>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                                         {artworks.filter(a => a.featured).map(art => (
-                                            <div key={art.id} className="relative group border border-gold/30 rounded-lg overflow-hidden bg-secondary">
-                                                <div className="aspect-[4/3]">
-                                                    <img src={art.thumbnail} alt={art.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                            <div key={art.id} className="dashboard__card" style={{ position: 'relative', overflow: 'hidden', padding: 0 }}>
+                                                <div style={{ width: '100%', aspectRatio: '4/3' }}>
+                                                    <img src={art.thumbnail} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                 </div>
-                                                <div className="p-3 bg-secondary">
-                                                    <h5 className="font-semibold text-primary text-sm truncate">{art.title}</h5>
-                                                    <p className="text-xs text-muted truncate">{art.artist}</p>
+                                                <div style={{ padding: '0.75rem' }}>
+                                                    <h5 style={{ fontWeight: 'bold', fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{art.title}</h5>
+                                                    <p className="text-secondary" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{art.artist}</p>
                                                 </div>
                                                 <button
                                                     onClick={() => toggleFeatured(art)}
-                                                    className="absolute top-2 right-2 bg-black/60 backdrop-blur p-1.5 rounded-full text-gold hover:text-white hover:bg-red-500 transition-colors"
+                                                    style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', padding: '6px', borderRadius: '50%', color: 'var(--gold-color)', border: 'none', cursor: 'pointer' }}
                                                     title="Remove from featured"
                                                 >
                                                     <Star size={14} fill="currentColor" />
@@ -316,15 +316,15 @@ export default function CuratorDashboard() {
                                         ))}
                                     </div>
 
-                                    <h4 className="text-md font-bold mb-4 flex items-center gap-2"><Grid size={16} /> Available Artworks</h4>
-                                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                                    <h4 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Grid size={16} /> Available Artworks</h4>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '1rem' }}>
                                         {artworks.filter(a => !a.featured).slice(0, 10).map(art => (
-                                            <div key={art.id} className="relative group border border-glass rounded-lg overflow-hidden bg-secondary/50 hover:bg-secondary cursor-pointer" onClick={() => toggleFeatured(art)}>
-                                                <div className="aspect-square">
-                                                    <img src={art.thumbnail} alt={art.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                            <div key={art.id} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid var(--glass-border)' }} onClick={() => toggleFeatured(art)}>
+                                                <div style={{ aspectRatio: '1/1' }}>
+                                                    <img src={art.thumbnail} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: '0.8' }} />
                                                 </div>
-                                                <div className="p-2 text-center absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <span className="text-sm text-white font-semibold flex items-center gap-1"><Plus size={14} /> Add to Featured</span>
+                                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s', padding: '1rem' }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0}>
+                                                    <span style={{ fontSize: '0.875rem', color: '#fff', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Plus size={14} /> Feature</span>
                                                 </div>
                                             </div>
                                         ))}
@@ -334,46 +334,46 @@ export default function CuratorDashboard() {
 
                             {/* 5. COLLABORATION TAB */}
                             {activeTab === 'collaboration' && (
-                                <div className="dashboard__card p-0 flex h-[600px] border border-glass overflow-hidden">
-                                    <div className="w-1/3 border-r border-glass flex flex-col bg-secondary/30">
-                                        <div className="p-4 border-b border-glass bg-secondary/50">
-                                            <h3 className="font-bold text-primary">Artist Conversations</h3>
+                                <div className="dashboard__card" style={{ padding: 0, display: 'flex', height: '600px', overflow: 'hidden' }}>
+                                    <div style={{ width: '33%', borderRight: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', background: 'var(--bg-secondary)' }}>
+                                        <div style={{ padding: '1rem', borderBottom: '1px solid var(--glass-border)' }}>
+                                            <h3 style={{ fontWeight: 'bold' }}>Artist Conversations</h3>
                                         </div>
-                                        <div className="overflow-y-auto flex-1">
+                                        <div style={{ overflowY: 'auto', flex: 1 }}>
                                             {messages.map((msg, idx) => (
-                                                <div key={msg.id} className={`p-4 cursor-pointer hover:bg-white/5 transition-colors ${idx !== messages.length - 1 ? 'border-b border-glass/30' : ''} ${msg.unread ? 'bg-white/5 border-l-2 border-l-gold' : 'border-l-2 border-l-transparent'}`}>
-                                                    <div className="flex justify-between items-start mb-1">
-                                                        <h4 className={`text-sm ${msg.unread ? 'text-primary font-bold' : 'text-primary'}`}>{msg.artist}</h4>
-                                                        <span className="text-xs text-muted">{msg.time}</span>
+                                                <div key={msg.id} style={{ padding: '1rem', cursor: 'pointer', borderBottom: '1px solid var(--glass-border)', borderLeft: msg.unread ? '3px solid var(--gold-color)' : '3px solid transparent' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+                                                        <h4 style={{ fontSize: '0.875rem', fontWeight: msg.unread ? 'bold' : 'normal' }}>{msg.artist}</h4>
+                                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{msg.time}</span>
                                                     </div>
-                                                    <p className="text-xs text-gold mb-1 truncate">{msg.artwork}</p>
-                                                    <p className="text-xs text-secondary line-clamp-1">{msg.preview}</p>
+                                                    <p style={{ fontSize: '0.75rem', color: 'var(--gold-color)', marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{msg.artwork}</p>
+                                                    <p className="text-secondary" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{msg.preview}</p>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
-                                    <div className="flex-1 flex flex-col bg-primary relative">
-                                        <div className="p-4 border-b border-glass bg-secondary/50 flex justify-between items-center">
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                                        <div style={{ padding: '1rem', borderBottom: '1px solid var(--glass-border)', background: 'var(--bg-secondary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <div>
-                                                <h3 className="font-bold text-primary">{messages[0].artist}</h3>
-                                                <p className="text-xs text-gold">Regarding: {messages[0].artwork}</p>
+                                                <h3 style={{ fontWeight: 'bold' }}>{messages[0].artist}</h3>
+                                                <p style={{ fontSize: '0.75rem', color: 'var(--gold-color)' }}>Regarding: {messages[0].artwork}</p>
                                             </div>
-                                            <button className="btn btn-ghost py-1 text-xs"><ExternalLink size={12} className="mr-1" /> View Artwork</button>
+                                            <button className="btn btn-ghost" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}><ExternalLink size={12} style={{marginRight: '4px'}} /> View Artwork</button>
                                         </div>
-                                        <div className="flex-1 p-6 flex flex-col justify-end">
+                                        <div style={{ flex: 1, padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '1rem' }}>
                                             {/* Chat bubble placeholder */}
-                                            <div className="bg-secondary p-3 rounded-lg rounded-tl-none max-w-[80%] mb-4 self-start border border-glass">
-                                                <p className="text-sm text-primary mb-1">Could you provide some cultural context notes for this piece before we feature it?</p>
-                                                <span className="text-[10px] text-muted">You • 3 hours ago</span>
+                                            <div style={{ background: 'var(--bg-secondary)', padding: '0.75rem', borderRadius: '8px', borderTopLeftRadius: 0, maxWidth: '80%', alignSelf: 'flex-start', border: '1px solid var(--glass-border)' }}>
+                                                <p style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}>Could you provide some cultural context notes for this piece before we feature it?</p>
+                                                <span style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>You • 3 hours ago</span>
                                             </div>
-                                            <div className="bg-gold/20 p-3 rounded-lg rounded-tr-none max-w-[80%] mb-4 self-end border border-gold/30">
-                                                <p className="text-sm text-primary mb-1">{messages[0].preview}</p>
-                                                <span className="text-[10px] text-muted">{messages[0].artist} • {messages[0].time}</span>
+                                            <div style={{ background: 'rgba(212, 175, 55, 0.1)', padding: '0.75rem', borderRadius: '8px', borderTopRightRadius: 0, maxWidth: '80%', alignSelf: 'flex-end', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                                                <p style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}>{messages[0].preview}</p>
+                                                <span style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>{messages[0].artist} • {messages[0].time}</span>
                                             </div>
                                         </div>
-                                        <div className="p-4 border-t border-glass bg-secondary/30 flex gap-2">
-                                            <input type="text" placeholder="Type a message to the artist..." className="flex-1 bg-primary border border-glass rounded p-2 text-sm text-primary focus:border-gold outline-none" />
-                                            <button className="btn btn-primary px-4 py-2 text-sm">Send</button>
+                                        <div style={{ padding: '1rem', borderTop: '1px solid var(--glass-border)', display: 'flex', gap: '0.5rem' }}>
+                                            <input type="text" placeholder="Type a message to the artist..." style={{ flex: 1, background: 'var(--bg-primary)', border: '1px solid var(--glass-border)', borderRadius: '4px', padding: '0.5rem', fontSize: '0.875rem', color: 'inherit', outline: 'none' }} />
+                                            <button className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>Send</button>
                                         </div>
                                     </div>
                                 </div>

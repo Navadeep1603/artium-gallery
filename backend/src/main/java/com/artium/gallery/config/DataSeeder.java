@@ -20,6 +20,17 @@ public class DataSeeder {
             CategoryRepository categoryRepository
     ) {
         return args -> {
+            // ── Seed Master Admin ───────────────────────────────────────
+            if (userRepository.count() == 0) {
+                System.out.println("Seeding master admin user...");
+                User admin = new User("System Admin", "admin@gallery.com", "admin123", "admin");
+                admin.setAvatar("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100");
+                admin.setJoined("Jan 01, 2024");
+                admin.setMustChangePassword(false);
+                userRepository.save(admin);
+                System.out.println("✓ Master admin seeded (admin@gallery.com / admin123).");
+            }
+
             // ── Seed Categories ─────────────────────────────────────────
             if (categoryRepository.count() == 0) {
                 System.out.println("Seeding categories...");

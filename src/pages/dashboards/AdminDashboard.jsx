@@ -11,20 +11,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useArtworks } from '../../context/ArtworkContext';
 import { userService } from '../../services/api';
-import { artists } from '../../data/mockData';
 import './Dashboard.css';
-
-// ── Mock data ──────────────────────────────────────────────
-const allUsers = [
-    { id: 1, name: 'Admin User', email: 'admin@gallery.com', role: 'admin', status: 'active', joined: 'Jan 10, 2025', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100' },
-    { id: 2, name: 'Elena Rodriguez', email: 'artist@gallery.com', role: 'artist', status: 'active', joined: 'Feb 15, 2025', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100' },
-    { id: 3, name: 'John Doe', email: 'visitor@gallery.com', role: 'visitor', status: 'active', joined: 'Mar 02, 2025', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100' },
-    { id: 4, name: 'Dr. Sarah Mitchell', email: 'curator@gallery.com', role: 'curator', status: 'active', joined: 'Apr 18, 2025', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100' },
-    { id: 5, name: 'Marcus Chen', email: 'marcus@gallery.com', role: 'artist', status: 'active', joined: 'May 05, 2025', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100' },
-    { id: 6, name: 'Sophie Laurent', email: 'sophie@gallery.com', role: 'artist', status: 'deactivated', joined: 'Jun 12, 2025', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100' },
-    { id: 7, name: 'David Park', email: 'david@gallery.com', role: 'visitor', status: 'active', joined: 'Jul 22, 2025', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100' },
-    { id: 8, name: 'Amara Okonkwo', email: 'amara@gallery.com', role: 'artist', status: 'active', joined: 'Aug 30, 2025', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100' },
-];
 
 const mockAnnouncements = [
     { id: 1, title: 'Platform Maintenance Scheduled', content: 'The platform will undergo maintenance on March 5th from 2:00 AM to 6:00 AM IST. During this period, some features may be unavailable.', date: 'Feb 25, 2026', priority: 'warning', active: true },
@@ -154,7 +141,7 @@ export default function AdminDashboard() {
     const totalViews = artworks.reduce((sum, a) => sum + (a.views || 0), 0);
     const analyticsStats = [
         { label: 'Total Artworks', value: artworks.length, icon: ImageIcon, color: 'gold' },
-        { label: 'Active Artists', value: artists.length, icon: Palette, color: 'blue' },
+        { label: 'Active Artists', value: new Set(artworks.map(a => a.artistName || a.artist)).size, icon: Palette, color: 'blue' },
         { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: DollarSign, color: 'green' },
         { label: 'Total Views', value: totalViews.toLocaleString(), icon: Eye, color: 'purple' },
         { label: 'Active Users', value: (allUsers || []).filter(u => u.status === 'active').length, icon: Users, color: 'cyan' },

@@ -22,7 +22,6 @@ import ExhibitionDetail from './pages/ExhibitionDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
-import UserDemo from './pages/UserDemo';
 
 // Dashboards
 import AdminDashboard from './pages/dashboards/AdminDashboard';
@@ -60,7 +59,6 @@ function App() {
                       <Route path="/login" element={<Login />} />
                       <Route path="/signup" element={<Signup />} />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
-                      <Route path="/users-demo" element={<UserDemo />} />
 
                       {/* Protected Dashboard Routes */}
                       <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />

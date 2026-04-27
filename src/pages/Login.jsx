@@ -211,15 +211,7 @@ export default function Login() {
                                 <Link to="/signup">Create Account</Link>
                             </div>
 
-                            <div className="auth-demo">
-                                <p>Demo Accounts:</p>
-                                <div className="auth-demo-accounts">
-                                    <button onClick={() => { setEmail('admin@gallery.com'); setPassword('admin123'); }}>Admin</button>
-                                    <button onClick={() => { setEmail('artist@gallery.com'); setPassword('artist123'); }}>Artist</button>
-                                    <button onClick={() => { setEmail('visitor@gallery.com'); setPassword('visitor123'); }}>Visitor</button>
-                                    <button onClick={() => { setEmail('curator@gallery.com'); setPassword('curator123'); }}>Curator</button>
-                                </div>
-                            </div>
+
                         </motion.div>
                     ) : (
                         <motion.div

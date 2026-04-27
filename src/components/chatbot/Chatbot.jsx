@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, X, Send, Bot, User, Sparkles, ArrowRight, ShoppingCart, Palette, Image, Map } from 'lucide-react';
-import { artworks, artists, exhibitions } from '../../data/mockData';
+import { exhibitions } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
+import { useArtworks } from '../../context/ArtworkContext';
 import { useCart } from '../../context/CartContext';
 import './Chatbot.css';
 
@@ -17,7 +18,7 @@ function matchesAny(input, keywords) {
 }
 
 // ─── Bot brain ─────────────────────────────────────────────
-function generateResponse(input, { user, cartItems }) {
+function generateResponse(input, { user, cartItems, artworks = [], artists = [] }) {
     const q = normalize(input);
 
     // ── Role-specific greeting helpers ──
@@ -590,6 +591,7 @@ function getWelcomeMessage(user) {
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
     const { user } = useAuth();
+    const { artworks } = useArtworks();
     const [messages, setMessages] = useState([
         {
             id: 1,
@@ -645,7 +647,8 @@ export default function Chatbot() {
 
         // Simulate thinking delay
         setTimeout(() => {
-            const response = generateResponse(messageText, { user, cartItems, navigate, addToCart });
+            const artists = [...new Map(artworks.map(a => [a.artistName || a.artist, { name: a.artistName || a.artist, id: a.artistId, specialty: a.medium, bio: a.description }])).values()];
+            const response = generateResponse(messageText, { user, cartItems, navigate, addToCart, artworks, artists });
 
             const botMsg = {
                 id: Date.now() + 1,

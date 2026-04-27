@@ -152,90 +152,99 @@ export default function CuratorDashboard() {
                             {activeTab === 'insights' && (
                                 <div className="curator-insights-view">
                                     {editingInsight ? (
-                                        <div className="dashboard__card p-6 edit-insight-form">
-                                            <div className="flex justify-between items-center mb-6 pb-4 border-b border-glass">
-                                                <h2 className="text-xl font-bold text-gold">Editing Insights: {editingInsight.title}</h2>
-                                                <button onClick={() => setEditingInsight(null)} className="btn btn-ghost text-sm py-1 px-3">Back to List</button>
+                                        <div className="dashboard__card curator-edit-insight">
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+                                                <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold' }} className="text-gold">Editing Insights: {editingInsight.title}</h2>
+                                                <button onClick={() => setEditingInsight(null)} className="btn btn-ghost" style={{ padding: '4px 12px', fontSize: '0.9rem' }}>Back to List</button>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                                <div className="col-span-1 border border-glass rounded-lg overflow-hidden h-64 sticky top-6">
-                                                    <img src={editingInsight.image} alt={editingInsight.title} className="w-full h-full object-cover" />
+                                            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                                                <div style={{ flex: '1', minWidth: '250px', border: '1px solid var(--glass-border)', borderRadius: '8px', overflow: 'hidden' }}>
+                                                    <img src={editingInsight.image} alt={editingInsight.title} style={{ width: '100%', height: '300px', objectFit: 'cover' }} />
                                                 </div>
-                                                <form onSubmit={handleSaveInsight} className="col-span-2 space-y-5">
+                                                <form onSubmit={handleSaveInsight} style={{ flex: '2', minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                                     <div className="form-group">
-                                                        <label className="text-sm font-semibold text-primary mb-2 block">Curator's Commentary</label>
+                                                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem' }}>Curator's Commentary</label>
                                                         <textarea
                                                             value={editingInsight.description || ''}
                                                             onChange={e => setEditingInsight({ ...editingInsight, description: e.target.value })}
-                                                            className="w-full bg-primary border border-glass rounded p-3 text-secondary focus:border-gold outline-none"
+                                                            style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--glass-border)', borderRadius: '4px', padding: '0.75rem', color: 'var(--text-secondary)', outline: 'none' }}
                                                             rows="4"
                                                             placeholder="Add professional commentary..."
                                                         />
                                                     </div>
                                                     <div className="form-group">
-                                                        <label className="text-sm font-semibold text-primary mb-2 block">Cultural & Historical Context</label>
+                                                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem' }}>Cultural & Historical Context</label>
                                                         <textarea
                                                             value={editingInsight.culturalHistory || ''}
                                                             onChange={e => setEditingInsight({ ...editingInsight, culturalHistory: e.target.value })}
-                                                            className="w-full bg-primary border border-glass rounded p-3 text-secondary focus:border-gold outline-none"
+                                                            style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--glass-border)', borderRadius: '4px', padding: '0.75rem', color: 'var(--text-secondary)', outline: 'none' }}
                                                             rows="4"
                                                             placeholder="Add historical notes, cultural significance..."
                                                         />
                                                     </div>
-                                                    <div className="flex justify-end pt-4">
-                                                        <button type="submit" className="btn btn-primary px-8">Publish Insights</button>
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '1rem' }}>
+                                                        <button type="submit" className="btn btn-primary">Publish Insights</button>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
                                     ) : (
                                         <>
-                                            <div className="flex justify-between items-center mb-6">
-                                                <div className="relative w-full max-w-md">
-                                                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                                            <div className="dashboard__search-wrapper" style={{ margin: '0 0 20px 0', maxWidth: '300px' }}>
+                                                <div className="admin-search-box">
+                                                    <Search size={18} className="search-icon" />
                                                     <input
                                                         type="text"
                                                         placeholder="Search artworks to add insights..."
-                                                        className="w-full bg-secondary border border-glass rounded-full py-2 pl-10 pr-4 text-sm text-primary focus:border-gold outline-none"
                                                         value={searchQuery}
                                                         onChange={e => setSearchQuery(e.target.value)}
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="overflow-x-auto border border-glass rounded-lg bg-secondary">
-                                                <table className="w-full text-left border-collapse">
+                                            <div className="dashboard__card admin-table-wrap" style={{ marginTop: '20px' }}>
+                                                <table className="admin-table">
                                                     <thead>
-                                                        <tr className="border-b border-glass bg-black/20 text-xs uppercase text-muted tracking-wider">
-                                                            <th className="p-4 font-semibold">Artwork</th>
-                                                            <th className="p-4 font-semibold">Artist</th>
-                                                            <th className="p-4 font-semibold">Insight Status</th>
-                                                            <th className="p-4 font-semibold text-right">Actions</th>
+                                                        <tr>
+                                                            <th>Artwork</th>
+                                                            <th>Artist</th>
+                                                            <th>Insight Status</th>
+                                                            <th>Actions</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {filteredInsightsArtworks.map(art => (
-                                                            <tr key={art.id} className="border-b border-glass/30 hover:bg-white/5 transition-colors">
-                                                                <td className="p-4 flex items-center gap-3">
-                                                                    <div className="w-10 h-10 rounded overflow-hidden shrink-0"><img src={art.thumbnail} alt="" className="w-full h-full object-cover" /></div>
-                                                                    <span className="font-medium text-primary">{art.title}</span>
+                                                            <tr key={art.id}>
+                                                                <td>
+                                                                    <div className="admin-user-cell">
+                                                                        <img src={art.thumbnail || art.image} alt="" className="admin-user-cell__avatar" style={{ borderRadius: '4px' }} />
+                                                                        <span>{art.title}</span>
+                                                                    </div>
                                                                 </td>
-                                                                <td className="p-4 text-sm text-secondary">{art.artist}</td>
-                                                                <td className="p-4">
+                                                                <td className="text-secondary">{art.artist}</td>
+                                                                <td>
                                                                     {art.culturalHistory ?
-                                                                        <span className="flex items-center gap-1 text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded inline-flex"><CheckCircle size={12} /> Complete</span> :
-                                                                        <span className="flex items-center gap-1 text-xs text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded inline-flex"><Clock size={12} /> Needs Context</span>
+                                                                        <span className="admin-badge admin-badge--success"><CheckCircle size={12} style={{marginRight: '4px'}}/> Complete</span> :
+                                                                        <span className="admin-badge admin-badge--warning"><Clock size={12} style={{marginRight: '4px'}}/> Needs Context</span>
                                                                     }
                                                                 </td>
-                                                                <td className="p-4 text-right">
-                                                                    <button className="btn btn-secondary py-1 text-xs" onClick={() => setEditingInsight(art)}>
-                                                                        <PenTool size={12} className="mr-1" /> Add/Edit
-                                                                    </button>
+                                                                <td>
+                                                                    <div className="admin-actions">
+                                                                        <button className="admin-action-btn admin-action-btn--primary" onClick={() => setEditingInsight(art)} style={{ fontSize: '12px', padding: '4px 10px', height: 'auto', borderRadius: '4px', border: '1px solid var(--glass-border)' }}>
+                                                                            <PenTool size={12} style={{marginRight: '4px'}} /> Add/Edit
+                                                                        </button>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
                                                 </table>
+                                                {filteredInsightsArtworks.length === 0 && (
+                                                    <div className="admin-empty">
+                                                        <Search size={32} />
+                                                        <p>No artworks match your search.</p>
+                                                    </div>
+                                                )}
                                             </div>
                                         </>
                                     )}

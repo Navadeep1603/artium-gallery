@@ -23,9 +23,9 @@ export default function CartDashboard() {
     const [removingId, setRemovingId] = useState(null);
 
     const subtotal = getTotal();
-    const shipping = subtotal > 5000 ? 0 : 150;
-    const tax = subtotal * 0.08;
-    const grandTotal = subtotal + shipping + tax;
+    const shipping = 0;
+    const tax = 0;
+    const grandTotal = subtotal;
 
     const handleRemove = (id) => {
         setRemovingId(id);

@@ -73,14 +73,14 @@ export default function PaymentDashboard() {
     const [shippingMethod, setShippingMethod] = useState('standard');
 
     const subtotal = getTotal();
-    const shippingCost = subtotal > 5000 ? 0 : shippingMethod === 'express' ? 350 : 150;
-    const tax = subtotal * 0.08;
-    const grandTotal = subtotal + shippingCost + tax;
+    const shippingCost = 0;
+    const tax = 0;
+    const grandTotal = subtotal;
 
     const shippingMethods = [
-        { id: 'standard', label: 'Standard Shipping', time: '7–14 business days', price: subtotal > 5000 ? 0 : 150 },
-        { id: 'express', label: 'Express Shipping', time: '3–5 business days', price: subtotal > 5000 ? 0 : 350 },
-        { id: 'premium', label: 'Premium White Glove', time: '1–3 business days', price: subtotal > 5000 ? 0 : 750 },
+        { id: 'standard', label: 'Standard Shipping', time: '7–14 business days', price: 0 },
+        { id: 'express', label: 'Express Shipping', time: '3–5 business days', price: 0 },
+        { id: 'premium', label: 'Premium White Glove', time: '1–3 business days', price: 0 },
     ];
 
     const updateShipping = (field, value) => {

@@ -21,7 +21,7 @@ public class DataSeeder {
     ) {
         return args -> {
             // ── Seed Master Admin ───────────────────────────────────────
-            if (userRepository.count() == 0) {
+            if (userRepository.findByEmail("admin@gallery.com").isEmpty()) {
                 System.out.println("Seeding master admin user...");
                 User admin = new User("System Admin", "admin@gallery.com", "admin123", "admin");
                 admin.setAvatar("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100");

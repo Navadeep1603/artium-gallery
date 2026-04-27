@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-    Layout, PenTool, Video, Grid, MessageSquare, Plus, Edit2, Eye, Calendar, ExternalLink, CheckCircle, Clock, Star
+    Layout, PenTool, Video, Grid, MessageSquare, Plus, Edit2, Eye, Calendar, ExternalLink, CheckCircle, Clock, Star, Search
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useArtworks } from '../../context/ArtworkContext';
